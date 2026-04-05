@@ -34,6 +34,9 @@ module.exports = {
           80: "#1F2937",
           90: "#111827",
         },
+        bg:"#F8F3EB",
+        accent:"#333B2A",
+        text:"#3a3b38ff"
       },
       borderRadius: {
         none: "0px",
@@ -58,17 +61,11 @@ module.exports = {
       fontSize: {
         "3xl": "2rem",
       },
-      fontFamily: {
-        sans: [
-          "Inter",
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "Segoe UI",
-          "Roboto",
-          "Helvetica Neue",
-          "Ubuntu",
-          "sans-serif",
-        ],
+    fontFamily: {
+        gilda: ["var(--font-gilda)", "serif"],
+petit: ["var(--font-petit)", "cursive"],
+        manrope: ["var(--font-manrope)", "sans-serif"],
+        newsreader: ["var(--font-newsreader)", "serif"],
       },
       keyframes: {
         ring: {

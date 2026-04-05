@@ -110,3 +110,33 @@
     @apply text-[32px] leading-[44px] font-semibold;
   }
 }
+
+.glass {
+background: linear-gradient(
+  to bottom,
+  rgba(255,255,255,0.18),
+  rgba(255,255,255,0.05)
+);
+
+  @apply backdrop-blur-[12px] backdrop-saturate-[150%] border border-white/5;
+
+  /* 3. Combined Shadows: The outer depth and the inner "light-catcher" edge */
+  /* @apply shadow-[0_8px_32px_0_rgba(0,0,0,0.1),inset_0_1px_1px_0_rgba(255,255,255,0.1)]; */
+
+  /* 4. Optional: Add a slight tilt or shine appearance */
+  position: relative;
+  overflow: hidden;
+}
+
+/* Optional: Add a subtle diagonal shine across the glass */
+.glass::before {
+  content: "";
+  @apply absolute inset-0 opacity-10;
+  background: linear-gradient(
+    135deg,
+    rgba(10, 10, 10, 0.4) 0%,
+    transparent 50%,
+    transparent 100%
+  );
+  pointer-events: none;
+}
