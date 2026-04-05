@@ -24,9 +24,10 @@
   "dependencies": {
     "@medusajs/admin-sdk": "2.13.1",
     "@medusajs/cli": "2.13.1",
-    "@medusajs/file-s3": "^2.13.1",
+    "@medusajs/file-s3": "2.13.1",
     "@medusajs/framework": "2.13.1",
-    "@medusajs/medusa": "2.13.1"
+    "@medusajs/medusa": "2.13.1",
+    "dotenv": "^17.4.0"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.1",
