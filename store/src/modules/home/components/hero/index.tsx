@@ -12,7 +12,7 @@ const Hero = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
           if (imageWrapperRef.current) {
-            imageWrapperRef.current.style.transform = `translateY(${window.scrollY * 0.15}px)`
+            imageWrapperRef.current.style.transform = `translateY(${window.scrollY * -0.15}px)`
           }
           ticking = false
         })
@@ -35,7 +35,7 @@ const Hero = () => {
         style={{ 
           willChange: "transform",
           height: "130%",
-          marginTop: "-5%"
+          marginTop: "0"
         }} 
         className="absolute top-0 left-0 w-full"
       >

@@ -13,9 +13,9 @@ export default async function ProductPreview({
   return (
     <LocalizedClientLink 
       href={`/products/${product.handle}`} 
-      className="group block w-full mx-auto max-w-[280px] sm:max-w-[400px]"
+      className="group block w-full mx-auto max-w-[180px] sm:max-w-[300px]"
     >
-      <div data-testid="product-wrapper" className="relative flex flex-col bg-white overflow-hidden">
+      <div data-testid="product-wrapper" className="relative flex flex-col gap-6  bg-bg overflow-hidden">
         
         {/* 1. Image Container - Aspect ratio stays locked */}
         <div className="relative aspect-[419/502] w-full overflow-hidden">

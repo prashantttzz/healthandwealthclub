@@ -19,7 +19,9 @@ const manrope = Manrope({
 // 3. Newsreader (Variable font)
 const newsreader = Newsreader({
   subsets: ['latin'],
+  style: ['normal', 'italic'],
   variable: '--font-newsreader',
+  display: 'swap',
 });
 
 const petitFormal = Petit_Formal_Script({
