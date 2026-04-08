@@ -41,7 +41,7 @@ export default function FeaturesSection() {
               transition: { staggerChildren: 0.15 }
             }
           }}
-          className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16"
+          className="grid grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-12 lg:gap-16"
         >
           {FEATURES.map((feature, idx) => (
             <motion.div
@@ -50,19 +50,19 @@ export default function FeaturesSection() {
                 hidden: { opacity: 0, y: 20 },
                 show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
               }}
-              className="flex flex-col items-start gap-5"
+              className="flex flex-col items-center justify-center gap-5"
             >
               {/* Icon */}
               <div className="mb-1">{feature.icon}</div>
 
               <div className="space-y-3">
                 {/* Title — overline tier */}
-                <h3 className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent">
+                <h3 className="font-newsreader italic text-[16px] text-center font-semibold text-accent">
                   {feature.title}
                 </h3>
 
                 {/* Body tier */}
-                <p className="font-manrope text-[14px] font-light leading-relaxed text-accent/60 max-w-[260px]">
+                <p className="font-manrope text-xs md:text-[14px] text-center font-light leading-relaxed text-accent/60 max-w-[260px]">
                   {feature.description}
                 </p>
               </div>

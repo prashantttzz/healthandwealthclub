@@ -8,6 +8,7 @@ import CollectionSection from "@modules/home/components/collection-section"
 import ProductSection from "@modules/home/components/product-section"
 import FeaturesSection from "@modules/home/components/features-section"
 import { InauguralDrop } from "@modules/home/components/inaugural-drop"
+import Preloader from "@modules/common/components/preloader"
 
 export const metadata: Metadata = {
   title: "Health and Wealth Club",
@@ -33,6 +34,7 @@ export default async function Home(props: {
   const products = response.products
   return (
     <>
+      <Preloader />
       <Hero />
       <ParallaxContentWrapper>
         <InauguralDrop products={products} />
