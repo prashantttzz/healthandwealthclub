@@ -6,7 +6,7 @@ import {
   PopoverPanel,
   Transition,
 } from "@headlessui/react"
-import { ShoppingBasket01Icon } from "@hugeicons/core-free-icons"
+import { ShoppingBag01Icon } from "@hugeicons/core-free-icons"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
@@ -84,7 +84,7 @@ const CartDropdown = ({
       <Popover className="relative h-full">
       <LocalizedClientLink href="/cart" className="h-full outline-none flex items-center">
         <div className="relative inline-flex items-center p-2">
-          <HugeiconsIcon icon={ShoppingBasket01Icon} size={24}/>
+          <HugeiconsIcon icon={ShoppingBag01Icon} size={24}/>
           {totalItems > 0 && (
             <span className="absolute top-1 right-2 transform translate-x-1/2 -translate-y-1/2 
                              flex items-center justify-center 

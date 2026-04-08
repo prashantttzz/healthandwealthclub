@@ -45,8 +45,8 @@ const itemVariants = {
 const MENU_LINKS = [
   { name: "Home", href: "/" },
   { name: "Collections", href: "/store" },
-  { name: "Editorial", href: "/store" },
-  { name: "Account", href: "/account" },
+  { name: "about us", href: "/about" },
+  { name: "the Club", href: "/club" },
 ]
 
 export default function MobileMenu({ 

@@ -1,28 +1,40 @@
 "use client"
 
 import { useEffect, useState, Suspense } from "react"
-import { motion } from "framer-motion"
-import { usePathname } from "next/navigation"
+import { motion, AnimatePresence } from "framer-motion"
+import { usePathname, useRouter } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
-import { ShoppingBasket01Icon, Menu01Icon } from "@hugeicons/core-free-icons"
+import { 
+  ShoppingBag01Icon, 
+  Menu01Icon, 
+  Search01Icon, 
+  User02Icon,
+  Cancel01Icon
+} from "@hugeicons/core-free-icons"
 import MobileMenu from "../mobile-menu"
+import { clx } from "@medusajs/ui"
 
 export default function NavContent({ cartButton }: { cartButton: React.ReactNode }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [showSearch, setShowSearch] = useState(false)
+  const [searchValue, setSearchValue] = useState("")
+  
   const pathname = usePathname()
+  const router = useRouter()
 
-  // The transparent header should ONLY be for the hero section on the homepage
-  // Home paths are usually "/" or "/[countryCode]"
+  // Extract country code from pathname for redirects
+  const countryCode = pathname.split('/')[1] || "us"
+
   const isHome = pathname.split('/').filter(Boolean).length <= 1
 
   useEffect(() => {
     const handleScroll = () => {
       const scrollPos = window.scrollY
-      const threshold = 200
+      const threshold = 100
 
       if (scrollPos > threshold && !isScrolled) {
         setIsScrolled(true)
@@ -35,7 +47,15 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
     return () => window.removeEventListener("scroll", handleScroll)
   }, [isScrolled])
 
-  // If we are not on the homepage, we should ALWAYS show the "scrolled" state (solid background)
+  const handleSearchSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    if (searchValue.trim()) {
+      router.push(`/${countryCode}/store?search=${encodeURIComponent(searchValue.trim())}`)
+      setShowSearch(false)
+      setSearchValue("")
+    }
+  }
+
   const showSolid = isScrolled || !isHome
 
   return (
@@ -45,21 +65,27 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
         initial={{ y: -64 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className={`relative h-16 mx-auto pointer-events-auto transition-colors duration-500 ${
+        className={clx(
+          "relative h-16 mx-auto pointer-events-auto transition-all duration-500",
           showSolid ? "bg-bg shadow-md" : "text-white"
-        }`}
+        )}
       >
-        <nav className="content-container flex items-center justify-between w-full h-full text-small-regular px-6 lg:px-20">
-          <div className="flex-1 basis-0 flex items-center">
+        <nav className="max-w-[1440px] mx-auto flex items-center justify-between w-full h-full px-6 lg:px-10">
+          {/* Left: Hamburger & Search (Mobile/Desktop) */}
+          <div className="flex-1 basis-0 flex items-center gap-x-2">
             <button 
               onClick={() => setIsMenuOpen(true)}
-              className={`lg:hidden p-2 -ml-2 transition-colors duration-300 ${showSolid ? "text-black" : "text-white"}`} 
+              className={clx(
+                "lg:hidden p-2 -ml-2 transition-colors duration-300",
+                showSolid ? "text-accent" : "text-white"
+              )} 
               aria-label="Open menu"
             >
               <HugeiconsIcon icon={Menu01Icon} size={24} />
             </button>
 
-            <Link href="/" className="h-full hidden lg:flex items-center">
+            {/* Desktop Logo (Left) */}
+            <LocalizedClientLink href="/" className="h-full hidden lg:flex items-center">
               <Image 
                 src={showSolid ? "/main-logo.png" : "/main-logo-white.png"}
                 height={40} 
@@ -68,11 +94,25 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
                 alt="main-logo"
                 priority
               />
-            </Link>
+            </LocalizedClientLink>
+
+            {/* Mobile Search Trigger */}
+            <div className="lg:hidden flex items-center relative">
+              <button 
+                onClick={() => setShowSearch(!showSearch)}
+                className={clx(
+                  "p-2 transition-colors duration-300",
+                  showSolid ? "text-accent" : "text-white"
+                )}
+              >
+                <HugeiconsIcon icon={showSearch ? Cancel01Icon : Search01Icon} size={20} />
+              </button>
+            </div>
           </div>
 
+          {/* Center: Mobile Logo / Desktop Navigation */}
           <div className="flex items-center justify-center h-full">
-            <Link href="/" className="lg:hidden flex items-center">
+            <LocalizedClientLink href="/" className="lg:hidden flex items-center">
               <Image 
                 src={showSolid ? "/main-logo.png" : "/main-logo-white.png"}
                 height={40} 
@@ -80,20 +120,88 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
                 className="h-8 w-auto" 
                 alt="main-logo"
               />
-            </Link>
-            <div className={`hidden lg:flex items-center text-xs gap-x-12 font-semibold ${showSolid ? "text-black" : "text-white"}`}>
-              <Link href="/store" className="font-manrope uppercase tracking-wider ">Collections</Link>
-              <Link href="/store" className="font-manrope uppercase tracking-wider ">Editorial</Link>
-              <Link href="/store" className="font-manrope uppercase tracking-wider ">Account</Link>
+            </LocalizedClientLink>
+            
+            <div className={clx(
+              "hidden lg:flex items-center text-[12px] gap-x-10 font-semibold tracking-[0.1em] uppercase transition-colors font-manrope duration-500",
+              showSolid ? "text-accent" : "text-white"
+            )}>
+              <LocalizedClientLink href="/" className="hover:opacity-60 transition-opacity">Home</LocalizedClientLink>
+              <LocalizedClientLink href="/store" className="hover:opacity-60 transition-opacity">Collection</LocalizedClientLink>
+              <LocalizedClientLink href="/about" className="hover:opacity-60 transition-opacity">About us</LocalizedClientLink>
             </div>
           </div>
 
-          <div className={`flex-1 basis-0 flex items-center justify-end ${showSolid ? "text-black" : "text-white"}`}>
+          {/* Right: Search (Desktop) / User / Cart */}
+          <div className={clx(
+            "flex-1 basis-0 flex items-center justify-end gap-x-2 md:gap-x-4",
+            showSolid ? "text-accent" : "text-white"
+          )}>
+            {/* Search (Desktop Only) */}
+            <div className="hidden lg:flex relative items-center">
+              <AnimatePresence>
+                {showSearch ? (
+                  <motion.form
+                    initial={{ width: 0, opacity: 0 }}
+                    animate={{ width: 200, opacity: 1 }}
+                    exit={{ width: 0, opacity: 0 }}
+                    onSubmit={handleSearchSubmit}
+                    className="absolute right-10 flex items-center bg-bg/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-current/20"
+                  >
+                    <input 
+                      autoFocus
+                      type="text"
+                      placeholder="Search Experience..."
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      className="bg-transparent border-none outline-none text-[10px] w-full font-manrope placeholder:text-current/30 uppercase tracking-widest"
+                    />
+                  </motion.form>
+                ) : null}
+              </AnimatePresence>
+              <button 
+                onClick={() => setShowSearch(!showSearch)}
+                className="p-2 hover:opacity-60 transition-opacity"
+              >
+                <HugeiconsIcon icon={showSearch ? Cancel01Icon : Search01Icon} size={20} />
+              </button>
+            </div>
+
+            {/* Mobile Search Box Overlay */}
+            <AnimatePresence>
+              {showSearch && (
+                <motion.div 
+                  initial={{ opacity: 0, y: -20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -20 }}
+                  className="lg:hidden fixed inset-x-0 top-16 bg-bg border-b border-black/5 p-4 z-50 pointer-events-auto"
+                >
+                  <form onSubmit={handleSearchSubmit} className="flex items-center gap-4 bg-black/5 rounded-full px-4 py-3">
+                    <HugeiconsIcon icon={Search01Icon} size={18} className="text-accent/40" />
+                    <input 
+                      autoFocus
+                      type="text"
+                      placeholder="Search..."
+                      value={searchValue}
+                      onChange={(e) => setSearchValue(e.target.value)}
+                      className="bg-transparent border-none outline-none text-xs w-full text-accent placeholder:text-accent/30 uppercase tracking-widest"
+                    />
+                  </form>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Account */}
+            <LocalizedClientLink href="/account" className="p-2 hover:opacity-60 transition-opacity">
+              <HugeiconsIcon icon={User02Icon} size={20} />
+            </LocalizedClientLink>
+
+            {/* Cart */}
             <Suspense
               fallback={
-                <LocalizedClientLink className="relative p-2" href="/cart">
-                  <HugeiconsIcon icon={ShoppingBasket01Icon} size={22} />
-                </LocalizedClientLink>
+                <div className="relative p-2">
+                  <HugeiconsIcon icon={ShoppingBag01Icon} size={20} />
+                </div>
               }
             >
               {cartButton}
