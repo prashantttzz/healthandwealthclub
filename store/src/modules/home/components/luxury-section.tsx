@@ -25,7 +25,7 @@ export default function LuxurySection() {
   return (
     <section
       ref={sectionRef}
-      className="w-full h-[60vh] sm:h-[70vh] lg:h-[80vh] bg-black flex items-center justify-center relative overflow-hidden"
+      className="w-full h-[50vh] sm:h-[60vh] lg:h-[70vh] bg-black flex items-center justify-center relative overflow-hidden"
     >
       {/* Parallax image */}
       <motion.div
@@ -75,43 +75,8 @@ export default function LuxurySection() {
           </motion.h2>
         </div>
 
-        {/* Gold divider */}
-        <motion.div
-          className="flex items-center justify-center gap-3 py-1"
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.45 }}
-        >
-          <motion.div
-            className="h-px origin-right"
-            style={{ width: 48, background: "linear-gradient(90deg, transparent, rgba(201,168,76,0.7))" }}
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-          />
-          <motion.div
-            className="h-1.5 w-1.5 flex-shrink-0"
-            style={{ background: "#c9a84c" }}
-            initial={{ opacity: 0, rotate: 0, scale: 0 }}
-            whileInView={{ opacity: 1, rotate: 45, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.4, delay: 0.7 }}
-          />
-          <motion.div
-            className="h-px origin-left"
-            style={{ width: 48, background: "linear-gradient(90deg, rgba(201,168,76,0.7), transparent)" }}
-            initial={{ scaleX: 0 }}
-            whileInView={{ scaleX: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1], delay: 0.5 }}
-          />
-        </motion.div>
-
-        {/* Body copy */}
-        <motion.p
-          className="text-white/90 font-manrope text-xs sm:text-sm lg:text-base font-light tracking-[0.12em] leading-relaxed max-w-xl mx-auto uppercase"
+        {/* <motion.p
+          className="text-white/90 font-manrope text-xs sm:text-sm lg:text-sm font-light  leading-relaxed max-w-xl mx-auto "
           initial={{ opacity: 0, y: 12 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -122,41 +87,26 @@ export default function LuxurySection() {
           of knowing you belong to something greater.{" "}
           <br className="hidden sm:block" />
           this isn&apos;t just clothing, it&apos;s a lifestyle.
-        </motion.p>
-
-        {/* Subtitle / CTA row */}
-        <motion.div
-          className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 pt-2"
-          initial={{ opacity: 0, y: 14 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: "easeOut", delay: 0.7 }}
+        </motion.p> */}
+      <motion.div 
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.8, delay: 0.8 }}
+          className="flex flex-col sm:flex-row gap-4 items-center    justify-center"
         >
-          <motion.button
-            whileHover={{ scale: 1.04 }}
-            whileTap={{ scale: 0.97 }}
-            className="relative overflow-hidden px-8 py-3 font-manrope text-[10px] uppercase tracking-[0.32em] text-white"
-            style={{ background: "linear-gradient(135deg, #e8d5a3, #c9a84c)" }}
+          <motion.button 
+            whileHover={{ scale: 1.02}}
+            whileTap={{ scale: 0.98 }}
+            className="px-8 py-4 bg-white text-black border border-white/30  font-gilda text-sm uppercase tracking-widest transition-colors"
           >
-            <motion.span
-              className="absolute inset-0 bg-accent"
-              initial={{ x: "-100%" }}
-              whileHover={{ x: "0%" }}
-              transition={{ duration: 0.38 }}
-            />
-            <span className="relative z-10">Shop the Collection</span>
+            Shop the Collection
           </motion.button>
-
-          <motion.button
-            whileHover={{ x: 5 }}
-            whileTap={{ scale: 0.95 }}
-            transition={{ type: "spring", stiffness: 380 }}
-            className="flex items-center gap-2 font-manrope text-[10px] uppercase tracking-[0.35em] text-white/55 hover:text-white/90 transition-colors duration-300"
+          <motion.button 
+            whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.1)" }}
+            whileTap={{ scale: 0.98 }}
+            className="px-8 py-4 border border-white/30 text-white font-gilda text-sm uppercase tracking-widest transition-colors"
           >
-            Learn our story
-            <svg width="11" height="11" viewBox="0 0 11 11" fill="none">
-              <path d="M1 5.5h9M6 1.5l4 4-4 4" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" />
-            </svg>
+            Learn Our Story
           </motion.button>
         </motion.div>
       </div>

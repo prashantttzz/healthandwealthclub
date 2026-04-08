@@ -17,7 +17,7 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
         <h2 className="text-2xl md:text-3xl lg:text-4xl whitespace-nowrap font-newsreader text-center px-4">
           The <span className="italic">Inaugural Drop</span>
         </h2>
-        <motion.p 
+        {/* <motion.p 
           initial={{ opacity: 0 }}
           whileInView={{ opacity: 1 }}
           viewport={{ once: true }}
@@ -25,7 +25,7 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
           className="font-manrope tracking-widest font-semibold text-black/90 uppercase text-[10px] md:text-[12px] mt-2 text-center max-w-sm md:max-w-none"
         >
           EXPLORE THE PILLARS OF INTENTIONAL LIVING AND TIMELESS STYLE
-        </motion.p>
+        </motion.p> */}
       </motion.div>
 
       <motion.ul 

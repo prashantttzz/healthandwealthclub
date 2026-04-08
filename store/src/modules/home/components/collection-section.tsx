@@ -96,7 +96,7 @@ export default function CategoryStickyScroll() {
                 key={item.title + index} 
                 className="min-h-[60vh] md:min-h-screen flex flex-col justify-center py-10 md:py-20"
               >
-                <div className="md:hidden w-full aspect-[4/5] mb-8 overflow-hidden rounded-sm">
+                <div className="md:hidden w-full max-w-[280px] mx-auto aspect-[4/5] mb-8 overflow-hidden rounded-sm">
                   <Image
                     src={item.image}
                     alt={item.title}
