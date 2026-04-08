@@ -68,7 +68,7 @@ export default function MobileMenu({
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={onClose}
-            className="fixed inset-0 z-[100] bg-black/40 backdrop-blur-sm pointer-events-auto"
+            className="fixed inset-0 z-[999] bg-black/40 backdrop-blur-sm pointer-events-auto"
           />
 
           {/* Sidebar */}
@@ -77,7 +77,7 @@ export default function MobileMenu({
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-y-0 left-0 z-[101] w-[80vw] bg-bg shadow-2xl pointer-events-auto flex flex-col"
+            className="fixed inset-y-0 left-0 z-[1000] w-[80vw] bg-bg shadow-2xl pointer-events-auto flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-16 border-b border-black/5">
@@ -110,7 +110,7 @@ export default function MobileMenu({
                         href={link.href}
                         onClick={onClose}
                         className={clx(
-                          "font-newsreader italic text-5xl text-accent transition-all block relative w-fit",
+                          "font-newsreader italic text-3xl text-accent transition-all block relative w-fit uppercase",
                           isActive ? "opacity-100 " : "opacity-20 hover:opacity-40"
                         )}
                       >
@@ -118,7 +118,7 @@ export default function MobileMenu({
                         {isActive && (
                           <motion.div 
                             layoutId="mobile-active-underline"
-                            className="absolute -bottom-2 left-0 right-0 h-[1.5px] bg-accent"
+                            className="absolute -bottom-1 left-0 right-0 h-[1px] bg-accent"
                             transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
                           />
                         )}
@@ -139,7 +139,7 @@ export default function MobileMenu({
                   <p className="font-manrope text-[10px] tracking-[0.4em] uppercase font-bold text-accent/30">
                     Connect With Us
                   </p>
-                  <div className="flex gap-4">
+                  <div className="flex gap-6">
                     {[
                       { icon: Instagram, href: "#" },
                       { icon: WhatsappFreeIcons, href: "#" },
@@ -148,7 +148,7 @@ export default function MobileMenu({
                       <a 
                         key={i}
                         href={social.href}
-                        className="w-12 h-12 flex items-center justify-center border border-accent/10 rounded-full text-accent hover:bg-accent hover:text-bg transition-all duration-300"
+                        className="text-accent hover:opacity-60 transition-opacity duration-300"
                       >
                         <HugeiconsIcon icon={social.icon} size={20} />
                       </a>

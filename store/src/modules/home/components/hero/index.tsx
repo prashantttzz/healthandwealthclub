@@ -10,7 +10,6 @@ const SLIDES = [
     id: 0,
     type: "video" as const,
     src: "/home-video.mp4",
-    poster: "/bg-1.jpg",
     label: "New Collection 2026",
     heading: ["Defining Modern", "Sophistication"],
     headingItalic: [true, false],
@@ -144,7 +143,6 @@ const Hero = () => {
                 muted
                 playsInline
                 className="w-full h-full object-cover opacity-80"
-                poster={slide.poster}
               >
                 <source src={slide.src} type="video/mp4" />
               </video>

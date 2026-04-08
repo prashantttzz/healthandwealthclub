@@ -154,7 +154,7 @@ export default function CategoryStickyScroll() {
                     alt={CATEGORIES[activeCard].title}
                     fill
                     sizes="50vw"
-                    priority={true} // Crucial for "instant" load
+                    priority={true} 
                     className="object-cover transition-transform duration-[2s] hover:scale-110"
                   />
                   {/* Subtle Grain or Gradient Overlay for Texture */}
