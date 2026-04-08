@@ -41,7 +41,7 @@ export default function LuxurySection() {
           alt="Luxury background"
           fill
           className="object-cover"
-          priority
+          loading="lazy"
         />
       </motion.div>
 

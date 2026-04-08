@@ -1,7 +1,7 @@
 "use client"
 
 import { useEffect, useRef, useState, useCallback } from "react"
-import { motion, AnimatePresence } from "framer-motion"
+import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 
 // --- Slide Definitions ---
 // Add or remove slides here. 'type: video' uses home-video.mp4
@@ -49,39 +49,41 @@ const INTERVAL_MS = 8000
 const Hero = () => {
   const [activeIndex, setActiveIndex] = useState(0)
   const [progress, setProgress] = useState(0)
+  const containerRef = useRef<HTMLDivElement>(null)
+  const videoRef = useRef<HTMLVideoElement>(null)
   const intervalRef = useRef<NodeJS.Timeout | null>(null)
   const progressRef = useRef<NodeJS.Timeout | null>(null)
-  const videoWrapperRef = useRef<HTMLDivElement>(null)
-  const contentRef = useRef<HTMLDivElement>(null)
-  const scrollIndicatorRef = useRef<HTMLDivElement>(null)
   const startTimeRef = useRef<number>(Date.now())
 
-  // --- Parallax Scroll ---
-  useEffect(() => {
-    let ticking = false
-    const handleScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(() => {
-          const scrollY = window.scrollY
-          if (videoWrapperRef.current) {
-            videoWrapperRef.current.style.transform = `translateY(${scrollY * 0.35}px)`
-          }
-          if (contentRef.current) {
-            contentRef.current.style.transform = `translateY(${scrollY * -0.8}px)`
-          }
-          if (scrollIndicatorRef.current) {
-            scrollIndicatorRef.current.style.opacity = `${Math.max(0, 0.5 - scrollY / 300)}`
-          }
-          ticking = false
-        })
-        ticking = true
-      }
-    }
-    window.addEventListener("scroll", handleScroll, { passive: true })
-    return () => window.removeEventListener("scroll", handleScroll)
-  }, [])
+  // --- Optimized Framer Motion Parallax ---
+  const { scrollY } = useScroll()
+  
+  // Parallax multipliers
+  const videoY = useTransform(scrollY, [0, 1000], [0, 350])
+  const contentY = useTransform(scrollY, [0, 1000], [0, -400])
+  const controlsOpacity = useTransform(scrollY, [0, 300], [1, 0])
 
-  // --- Auto Advance ---
+  // --- Video Observation Strategy ---
+  useEffect(() => {
+    const video = videoRef.current
+    if (!video) return
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting) {
+          video.play().catch(() => {})
+        } else {
+          video.pause()
+        }
+      },
+      { threshold: 0.1 }
+    )
+
+    observer.observe(video)
+    return () => observer.disconnect()
+  }, [activeIndex])
+
+  // --- Auto Advance Logic ---
   const goToSlide = useCallback((index: number) => {
     setActiveIndex(index)
     setProgress(0)
@@ -95,12 +97,10 @@ const Hero = () => {
   }, [])
 
   useEffect(() => {
-    // Clear old timers
     if (intervalRef.current) clearInterval(intervalRef.current)
     if (progressRef.current) clearInterval(progressRef.current)
 
     intervalRef.current = setInterval(nextSlide, INTERVAL_MS)
-
     progressRef.current = setInterval(() => {
       const elapsed = Date.now() - startTimeRef.current
       setProgress(Math.min((elapsed / INTERVAL_MS) * 100, 100))
@@ -115,16 +115,15 @@ const Hero = () => {
   const slide = SLIDES[activeIndex]
 
   return (
-    <div className="h-[100vh] w-full sticky top-0 z-0 overflow-hidden bg-black">
-      {/* --- Background Layer (parallax wrapper) --- */}
-      <div
-        ref={videoWrapperRef}
+    <section ref={containerRef} className="h-screen w-full sticky top-0 z-0 overflow-hidden bg-black">
+      {/* Background Layer (optimized parallax) */}
+      <motion.div
         style={{
-          willChange: "transform",
-          height: "150%",
-          top: "-25%",
+          y: videoY,
+          height: "140%",
+          top: "-20%",
         }}
-        className="absolute left-0 w-full"
+        className="absolute left-0 w-full will-change-transform"
       >
         <AnimatePresence mode="sync">
           <motion.div
@@ -137,7 +136,7 @@ const Hero = () => {
           >
             {slide.type === "video" ? (
               <video
-                key="hero-video"
+                ref={videoRef}
                 autoPlay
                 loop
                 muted
@@ -154,16 +153,13 @@ const Hero = () => {
             )}
           </motion.div>
         </AnimatePresence>
-
-        {/* Cinematic overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-black/30 via-black/10 to-black/60 pointer-events-none z-10" />
-      </div>
+      </motion.div>
 
-      {/* --- Content Overlay --- */}
-      <div
-        ref={contentRef}
-        style={{ willChange: "transform" }}
-        className="relative z-20 flex flex-col items-center justify-center h-full w-full text-center px-4"
+      {/* Content Overlay (optimized parallax) */}
+      <motion.div
+        style={{ y: contentY }}
+        className="relative z-20 flex flex-col items-center justify-center h-full w-full text-center px-4 will-change-transform"
       >
         <AnimatePresence mode="wait">
           <motion.div
@@ -174,67 +170,53 @@ const Hero = () => {
             exit={{ opacity: 0, y: -16 }}
             transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
           >
-            {/* Label */}
             <p className="text-white/70 font-manrope uppercase tracking-[0.45em] text-[10px] sm:text-xs mb-5">
               {slide.label}
             </p>
-
-            {/* Heading */}
-            <h1 className="text-white font-newsreader text-5xl sm:text-7xl lg:text-[90px] leading-[1.05] mb-10 max-w-4xl tracking-tighter">
+            <h1 className="text-white font-newsreader text-5xl sm:text-7xl lg:text-[100px] font-medium italic leading-[1.0] mb-10 max-w-5xl tracking-tighter">
               {slide.heading.map((line, i) => (
                 <span key={i} className={`block ${slide.headingItalic[i] ? "italic" : "not-italic"}`}>
                   {line}
                 </span>
               ))}
             </h1>
-
-            {/* CTA */}
             <motion.button
-              whileHover={{ scale: 1.03, backgroundColor: "rgba(255,255,255,0.12)" }}
-              whileTap={{ scale: 0.97 }}
-              className="px-8 py-3.5 border border-white/40 text-white font-manrope text-[11px] uppercase tracking-[0.25em] transition-colors backdrop-blur-sm"
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className="px-10 py-4 border border-white/20 text-white font-manrope text-[11px] uppercase tracking-[0.3em] backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-500"
             >
               {slide.cta}
             </motion.button>
           </motion.div>
         </AnimatePresence>
-      </div>
+      </motion.div>
 
-      {/* --- Bottom Controls --- */}
-      <div
-        ref={scrollIndicatorRef}
-        className="absolute bottom-8 left-0 right-0 z-20 flex flex-col items-center gap-6 opacity-50"
-        style={{ willChange: "opacity" }}
+      {/* Bottom Controls (optimized scroll link) */}
+      <motion.div
+        style={{ opacity: controlsOpacity }}
+        className="absolute bottom-8 left-0 right-0 z-20 flex flex-col items-center gap-6"
       >
-        {/* Dot Navigation */}
         <div className="flex items-center gap-3">
           {SLIDES.map((s, i) => (
             <button
               key={s.id}
               onClick={() => goToSlide(i)}
-              className="relative flex items-center justify-center w-6 h-6 group"
-              aria-label={`Go to slide ${i + 1}`}
+              className="relative flex items-center justify-center w-6 h-6"
             >
-              <span
-                className={`block rounded-full transition-all duration-400 ${
-                  i === activeIndex
-                    ? "w-5 h-[2px] bg-white"
-                    : "w-1.5 h-1.5 bg-white/40 group-hover:bg-white/70"
-                }`}
-              />
+              <div className={`h-[12px] w-[1px] transition-all duration-700 ${i === activeIndex ? "bg-white scale-y-150" : "bg-white/20"}`} />
             </button>
           ))}
         </div>
-
-        {/* Scroll hint */}
-        <div className="flex flex-col items-center gap-1.5">
-          <div className="w-[1px] h-8 bg-gradient-to-b from-white to-transparent" />
-          <span className="text-[9px] text-white uppercase tracking-[0.25em]">Scroll</span>
+        <div className="flex flex-col items-center gap-2">
+          <motion.div 
+            animate={{ y: [0, 8, 0] }}
+            transition={{ duration: 1.5, repeat: Infinity }}
+            className="w-[1px] h-10 bg-gradient-to-b from-white to-transparent" 
+          />
+          <span className="text-[9px] text-white/40 uppercase tracking-[0.3em] font-medium font-manrope">The Club Experience</span>
         </div>
-      </div>
-
-
-    </div>
+      </motion.div>
+    </section>
   )
 }
 

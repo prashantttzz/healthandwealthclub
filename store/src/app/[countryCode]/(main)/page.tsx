@@ -8,6 +8,7 @@ import CollectionSection from "@modules/home/components/collection-section"
 import ProductSection from "@modules/home/components/product-section"
 import FeaturesSection from "@modules/home/components/features-section"
 import { InauguralDrop } from "@modules/home/components/inaugural-drop"
+import SmoothScroll from "@modules/common/components/smooth-scroll"
 import Preloader from "@modules/common/components/preloader"
 
 export const metadata: Metadata = {
@@ -33,16 +34,18 @@ export default async function Home(props: {
 
   const products = response.products
   return (
-    <>
+    <SmoothScroll>
       <Preloader />
       <Hero />
-      <ParallaxContentWrapper>
+      
+      {/* Content that slides over the sticky hero */}
+      <div className="relative z-10 bg-bg shadow-[0_-50px_100px_rgba(0,0,0,0.15)]">
         <InauguralDrop products={products} />
         <LuxurySection />
         <ProductSection products={products} />
         <CollectionSection />
         <FeaturesSection />
-      </ParallaxContentWrapper>
-    </>
+      </div>
+    </SmoothScroll>
   )
 }
