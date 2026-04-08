@@ -37,7 +37,7 @@ export default async function Home(props: {
       <ParallaxContentWrapper>
         <InauguralDrop products={products} />
         <LuxurySection />
-        <ProductSection />
+        <ProductSection products={products} />
         <CollectionSection />
         <FeaturesSection />
       </ParallaxContentWrapper>

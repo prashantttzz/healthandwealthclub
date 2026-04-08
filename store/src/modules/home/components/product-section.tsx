@@ -1,47 +1,27 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef } from "react";
 import { motion } from "framer-motion";
 import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
+import { HttpTypes } from "@medusajs/types";
 
-const PRODUCTS = [
-  {
-    id: 1,
-    title: 'Heritage Heavyweight Hoodie',
-    price: 425,
-    category: 'OUTERWEAR',
-    image: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?q=80&w=987&auto=format&fit=crop',
-    colors: ['#2C3A2C', '#F8F6F1', '#1a1a1a'],
-  },
-  {
-    id: 2,
-    title: 'Classic Weekend Duffle',
-    price: 595,
-    category: 'ACCESSORIES',
-    image: 'https://images.unsplash.com/photo-1553062407-98eeb64c6a62?q=80&w=987&auto=format&fit=crop',
-    colors: ['#D2B48C', '#2C3A2C'],
-  },
-  {
-    id: 3,
-    title: 'The Club Monogram Cap',
-    price: 145,
-    category: 'ACCESSORIES',
-    image: 'https://images.unsplash.com/photo-1588850561407-ed78c282e89b?q=80&w=1036&auto=format&fit=crop',
-    colors: ['#F8F6F1', '#2C3A2C'],
-  },
-  {
-    id: 4,
-    title: 'Signature Peak Scarf',
-    price: 285,
-    category: 'ACCESSORIES',
-    image: 'https://images.unsplash.com/photo-1520903920243-00d872a2d1c9?q=80&w=987&auto=format&fit=crop',
-    colors: ['#2C3A2C', '#F8F6F1', '#C4A962'],
-  },
-]
+const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
+  const image = product.thumbnail || product.images?.[0]?.url || "";
+  const handle = product.handle;
 
-const ProductCard = ({ product, index }: { product: typeof PRODUCTS[0], index: number }) => {
+  // Get cheapest price from variants
+  const price = product.variants
+    ?.flatMap((v) => {
+      const calc = (v as any).calculated_price
+      return calc ? [calc.calculated_amount as number] : []
+    })
+    .sort((a, b) => a - b)[0]
+
+  const currency =
+    (product.variants?.[0] as any)?.calculated_price?.currency_code?.toUpperCase() ?? "AED"
+
   return (
     <motion.div
       variants={{
@@ -50,44 +30,72 @@ const ProductCard = ({ product, index }: { product: typeof PRODUCTS[0], index: n
       }}
       className="group cursor-pointer"
     >
-      <LocalizedClientLink href={`/products/${product.id}`} className="block">
-        <div className="relative aspect-square bg-neutral-100 overflow-hidden mb-6">
-          <Image
-            src={product.image}
-            alt={product.title}
-            fill
-            className="object-cover transition-transform duration-1000 group-hover:scale-110"
-          />
-          {/* Quick View Overlay */}
-          <div className="absolute inset-0 bg-accent/0 group-hover:bg-accent/20 transition-all duration-500 flex items-center justify-center">
-            <motion.span 
-              initial={{ opacity: 0, y: 10 }}
-              whileHover={{ opacity: 1, y: 0 }}
-              className="font-manrope text-[10px] tracking-[0.2em] font-bold text-bg bg-accent/90 px-6 py-3 uppercase hidden md:block"
-            >
-              Quick View
-            </motion.span>
-          </div>
+      <LocalizedClientLink href={`/products/${handle}`} className="block">
+        {/* Image */}
+        <div className="relative aspect-square bg-neutral-100 overflow-hidden mb-5">
+          {image ? (
+            <Image
+              src={image}
+              alt={product.title}
+              fill
+              sizes="(max-width: 768px) 72vw, (max-width: 1024px) 44vw, 25vw"
+              className="object-cover transition-transform duration-700 group-hover:scale-105"
+            />
+          ) : (
+            <div className="w-full h-full bg-accent/5 flex items-center justify-center">
+              <span className="font-manrope text-[10px] tracking-[0.3em] text-accent/30 uppercase">No Image</span>
+            </div>
+          )}
         </div>
-        <div className="space-y-2">          
+
+        {/* Info */}
+        <div className="space-y-2">
+          {/* Category */}
+          {product.collection?.title && (
+            <span className="font-manrope text-[10px] tracking-[0.4em] uppercase font-bold text-accent/40 block">
+              {product.collection.title}
+            </span>
+          )}
+
+          {/* Title and Price row */}
           <div className="flex justify-between items-start gap-4">
-            <h3 className="font-newsreader italic text-lg md:text-xl text-accent leading-tight group-hover:opacity-60 transition-opacity">
+            <h3 className="font-newsreader italic text-xl md:text-2xl text-accent leading-tight tracking-tighter group-hover:opacity-60 transition-opacity">
               {product.title}
             </h3>
           </div>
 
           <div className="flex items-center justify-between pt-1">
-            <span className="font-manrope text-sm text-accent/60">
-              ${product.price.toFixed(2)} USD
-            </span>
+            {/* Price */}
+            {price !== undefined && (
+              <span className="font-manrope text-[14px] font-light text-accent/50">
+                {currency} {price.toFixed(2)}
+              </span>
+            )}
+
+            {/* Color swatches */}
             <div className="flex items-center gap-1.5">
-              {product.colors.map((color, idx) => (
-                <div
-                  key={idx}
-                  className="w-3.5 h-3.5 rounded-full border border-black/5 shadow-sm"
-                  style={{ backgroundColor: color }}
-                />
-              ))}
+              {product.options
+                ?.find(opt => opt.title?.toLowerCase() === "color")
+                ?.values?.map((v: any, idx: number) => {
+                  const colorMap: Record<string, string> = {
+                    olive: "#2C3A2C",
+                    cream: "#F8F6F1",
+                    white: "#FFFFFF",
+                    black: "#1a1a1a",
+                    tan: "#D2B48C",
+                    navy: "#1a1f2c",
+                  }
+                  const colorHex = colorMap[v.value.toLowerCase()] || "#cccccc"
+                  
+                  return (
+                    <div
+                      key={idx}
+                      className="w-3 h-3 rounded-full border border-black/5 shadow-sm"
+                      style={{ backgroundColor: colorHex }}
+                      title={v.value}
+                    />
+                  )
+                })}
             </div>
           </div>
         </div>
@@ -96,23 +104,27 @@ const ProductCard = ({ product, index }: { product: typeof PRODUCTS[0], index: n
   );
 };
 
-export default function ProductSection() {
+export default function ProductSection({ products }: { products: HttpTypes.StoreProduct[] }) {
+  const carouselRef = useRef<HTMLDivElement>(null);
+
+  if (!products || products.length === 0) return null;
+
   return (
-    <section className="bg-bg py-10 lg:py-20 border-t border-black/5 overflow-hidden">
-      <div className="max-w-[1500px] mx-auto px-6 lg:px-20">
-        
+    <section className="bg-bg py-16 lg:py-24 border-t border-black/5 overflow-hidden">
+      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
+
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-5 lg:mb-10">
+        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8 lg:mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
             transition={{ duration: 1 }}
           >
-            <span className="font-manrope text-[10px] md:text-xs font-bold tracking-[0.4em] uppercase text-accent/40 block mb-5">
+            <span className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent/40 block mb-4">
               Autumn 2024
             </span>
-            <h2 className="font-newsreader italic text-5xl md:text-7xl text-accent leading-none tracking-tight">
+            <h2 className="font-newsreader italic text-4xl md:text-7xl text-accent leading-none tracking-tighter">
               The Collection
             </h2>
           </motion.div>
@@ -123,8 +135,8 @@ export default function ProductSection() {
             viewport={{ once: true }}
             transition={{ duration: 1, delay: 0.2 }}
           >
-            <LocalizedClientLink 
-              href="/shop"
+            <LocalizedClientLink
+              href="/store"
               className="group flex items-center gap-3 text-accent hover:opacity-60 transition-all"
             >
               <span className="font-manrope text-[11px] font-bold tracking-[0.3em] uppercase">View All</span>
@@ -133,8 +145,24 @@ export default function ProductSection() {
           </motion.div>
         </div>
 
-        {/* Products Grid */}
-        <motion.div 
+        {/* Mobile: carousel */}
+        <div className="block md:hidden">
+          <div
+            ref={carouselRef}
+            className="flex gap-5 overflow-x-auto snap-x snap-mandatory pb-6 -mx-6 px-6"
+            style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+          >
+            {products.slice(0, 8).map((product, index) => (
+              <div key={product.id} className="snap-start flex-shrink-0 w-[72vw]">
+                <ProductCard product={product} />
+              </div>
+            ))}
+            <div className="flex-shrink-0 w-6" />
+          </div>
+        </div>
+
+        {/* Desktop: 4-col grid */}
+        <motion.div
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-10%" }}
@@ -142,16 +170,13 @@ export default function ProductSection() {
             hidden: { opacity: 0 },
             show: {
               opacity: 1,
-              transition: {
-                staggerChildren: 0.1,
-                delayChildren: 0.2
-              }
+              transition: { staggerChildren: 0.1, delayChildren: 0.2 }
             }
           }}
-          className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"
+          className="hidden md:grid md:grid-cols-2 lg:grid-cols-4 gap-x-8 gap-y-16"
         >
-          {PRODUCTS.map((product, index) => (
-            <ProductCard key={product.id} product={product} index={index} />
+          {products.slice(0, 8).map((product, index) => (
+            <ProductCard key={product.id} product={product} />
           ))}
         </motion.div>
 

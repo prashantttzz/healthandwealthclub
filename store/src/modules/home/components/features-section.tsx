@@ -5,32 +5,32 @@ import { Recycle, ShieldCheck, Truck, Leaf } from "lucide-react"
 
 const FEATURES = [
   {
-    icon: <Recycle className="w-8 h-8 md:w-10 md:h-10 text-accent/80" strokeWidth={1.2} />,
+    icon: <Recycle className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
     title: "Sustainable Materials",
-    description: "We believe great style shouldn't come at the planet's expense."
+    description: "We believe great style should never come at the planet's expense. Every piece is thoughtfully sourced."
   },
   {
-    icon: <ShieldCheck className="w-8 h-8 md:w-10 md:h-10 text-accent/80" strokeWidth={1.2} />,
+    icon: <ShieldCheck className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
     title: "Warranty Included",
-    description: "Every pair comes with a hassle-free 6-month warranty."
+    description: "Every piece comes with a hassle-free 6-month warranty. Quality you can trust, guaranteed."
   },
   {
-    icon: <Truck className="w-8 h-8 md:w-10 md:h-10 text-accent/80" strokeWidth={1.2} />,
+    icon: <Truck className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
     title: "Delivery & Shipping",
-    description: "Your shoes will be dispatched within 1-2 business days."
+    description: "Your order will be dispatched within 1–2 business days and tracked directly to your door."
   },
   {
-    icon: <Leaf className="w-8 h-8 md:w-10 md:h-10 text-accent/80" strokeWidth={1.2} />,
+    icon: <Leaf className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
     title: "Eco-Friendly Fabrics",
-    description: "Crafted with sustainability in mind, eco-friendly fabrics."
+    description: "Crafted from certified eco-friendly materials, built to last and kind to the environment."
   }
 ]
 
 export default function FeaturesSection() {
   return (
     <section className="bg-bg py-24 md:py-32 border-t border-black/5">
-      <div className="content-container mx-auto px-6 lg:px-20">
-        <motion.div 
+      <div className="mx-auto px-6 md:px-12 lg:px-16 max-w-[1440px]">
+        <motion.div
           initial="hidden"
           whileInView="show"
           viewport={{ once: true, margin: "-10%" }}
@@ -38,30 +38,31 @@ export default function FeaturesSection() {
             hidden: { opacity: 0 },
             show: {
               opacity: 1,
-              transition: {
-                staggerChildren: 0.15
-              }
+              transition: { staggerChildren: 0.15 }
             }
           }}
           className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-12 lg:gap-16"
         >
           {FEATURES.map((feature, idx) => (
-            <motion.div 
+            <motion.div
               key={idx}
               variants={{
                 hidden: { opacity: 0, y: 20 },
                 show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
               }}
-              className="flex flex-col items-center justify-center gap-5"
+              className="flex flex-col items-start gap-5"
             >
-              <div className="mb-2">
-                {feature.icon}
-              </div>
+              {/* Icon */}
+              <div className="mb-1">{feature.icon}</div>
+
               <div className="space-y-3">
-                <h3 className="font-newsreader text-center italic text-[11px] md:text-xs font-bold tracking-[0.3em] text-accent">
+                {/* Title — overline tier */}
+                <h3 className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent">
                   {feature.title}
                 </h3>
-                <p className="font-manrope text-sm md:text-base font-light leading-relaxed text-accent/70 text-center max-w-[240px]">
+
+                {/* Body tier */}
+                <p className="font-manrope text-[14px] font-light leading-relaxed text-accent/60 max-w-[260px]">
                   {feature.description}
                 </p>
               </div>

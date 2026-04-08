@@ -67,14 +67,14 @@ export default function CategoryStickyScroll() {
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="flex flex-col  items-center justify-between gap-3 md:mb-5 "
+          className="flex flex-col items-center justify-between gap-3 md:mb-5"
         >
           <div className="space-y-4">
             <h2 className="font-newsreader italic text-5xl lg:text-7xl text-bg leading-[0.85]">
               The Club Shop
             </h2>
           </div>
-        <p className="font-manrope tracking-widest font-semibold text-bg/90 uppercase text-[10px] md:text-[12px] max-w-xl text-center">
+          <p className="font-manrope tracking-widest font-semibold text-bg/90 uppercase text-[10px] md:text-[12px] max-w-xl text-center">
             A curated selection of seasonal staples designed with an emphasis on silhouette and longevity.
           </p>
         </motion.div>
@@ -115,7 +115,7 @@ export default function CategoryStickyScroll() {
                   <span className="font-manrope text-[9px] font-bold tracking-[0.3em] uppercase text-bg/40 mb-2 block">
                     {item.sub}
                   </span>
-                  <h3 className="text-5xl lg:text-7xl font-newsreader font-regular italic text-bg leading-[0.95] mb-6 ">
+                  <h3 className="text-5xl lg:text-7xl font-newsreader font-regular italic text-bg leading-[0.95] mb-6">
                     {item.title}
                   </h3>
                   <p className="text-base lg:text-lg font-manrope text-bg/70 max-w-sm mb-10 leading-relaxed">

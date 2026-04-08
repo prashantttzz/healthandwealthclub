@@ -7,14 +7,11 @@ import {
   useScroll,
   useTransform,
   useSpring,
-  useInView,
 } from "framer-motion"
 
 export default function LuxurySection() {
   const sectionRef = useRef<HTMLElement>(null)
-  const isInView = useInView(sectionRef, { once: true, margin: "-10%" })
 
-  /* ── Parallax ── */
   const { scrollYProgress } = useScroll({
     target: sectionRef,
     offset: ["start end", "end start"],
@@ -50,10 +47,11 @@ export default function LuxurySection() {
 
       <div className="absolute inset-0 bg-gradient-to-b from-black/50 via-black/20 to-black/50 pointer-events-none z-[1]" />
 
-      <div className="text-center z-10 space-y-4 px-6 max-w-4xl relative">
+      <div className="text-center z-10 space-y-6 px-6 max-w-4xl relative">
 
+        {/* Overline */}
         <motion.p
-          className="text-white/60 font-manrope text-[10px] uppercase tracking-[0.4em] mb-2 sm:mb-4"
+          className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-white/50"
           initial={{ opacity: 0, y: 10 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
@@ -62,10 +60,10 @@ export default function LuxurySection() {
           Uncompromising Craftsmanship
         </motion.p>
 
-        {/* Headline */}
+        {/* Heading */}
         <div style={{ overflow: "hidden" }}>
           <motion.h2
-            className="text-white font-newsreader text-4xl sm:text-6xl lg:text-8xl italic font-light tracking-tighter leading-none"
+            className="text-white font-newsreader text-4xl sm:text-6xl lg:text-8xl italic tracking-tighter leading-none"
             initial={{ y: "100%", opacity: 0 }}
             whileInView={{ y: "0%", opacity: 1 }}
             viewport={{ once: true }}
@@ -75,36 +73,25 @@ export default function LuxurySection() {
           </motion.h2>
         </div>
 
-        {/* <motion.p
-          className="text-white/90 font-manrope text-xs sm:text-sm lg:text-sm font-light  leading-relaxed max-w-xl mx-auto "
-          initial={{ opacity: 0, y: 12 }}
+        {/* CTAs — sharp rectangles, manrope, correct tracking */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.7, ease: "easeOut", delay: 0.55 }}
+          transition={{ duration: 0.8, delay: 0.5 }}
+          className="flex flex-col sm:flex-row gap-4 items-center justify-center pt-4"
         >
-          premium fabric, timeless design and the quiet confidence{" "}
-          <br className="hidden sm:block" />
-          of knowing you belong to something greater.{" "}
-          <br className="hidden sm:block" />
-          this isn&apos;t just clothing, it&apos;s a lifestyle.
-        </motion.p> */}
-      <motion.div 
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.8 }}
-          className="flex flex-col sm:flex-row gap-4 items-center    justify-center"
-        >
-          <motion.button 
-            whileHover={{ scale: 1.02}}
+          <motion.button
+            whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
-            className="px-8 py-4 bg-white text-black border border-white/30  font-gilda text-sm uppercase tracking-widest transition-colors"
+            className="px-10 py-4 bg-white text-accent font-manrope text-[11px] tracking-[0.4em] uppercase font-bold transition-all"
           >
             Shop the Collection
           </motion.button>
-          <motion.button 
+          <motion.button
             whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.1)" }}
             whileTap={{ scale: 0.98 }}
-            className="px-8 py-4 border border-white/30 text-white font-gilda text-sm uppercase tracking-widest transition-colors"
+            className="px-10 py-4 border border-white/30 text-white font-manrope text-[11px] tracking-[0.4em] uppercase font-bold transition-all"
           >
             Learn Our Story
           </motion.button>

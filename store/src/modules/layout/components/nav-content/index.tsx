@@ -7,9 +7,11 @@ import Image from "next/image"
 import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ShoppingBasket01Icon, Menu01Icon } from "@hugeicons/core-free-icons"
+import MobileMenu from "../mobile-menu"
 
 export default function NavContent({ cartButton }: { cartButton: React.ReactNode }) {
   const [isScrolled, setIsScrolled] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,7 +42,11 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
       >
         <nav className="content-container flex items-center justify-between w-full h-full text-small-regular px-6 lg:px-20">
           <div className="flex-1 basis-0 flex items-center">
-            <button className={`lg:hidden p-2 -ml-2 ${isScrolled ? "text-black" : "text-white"}`} aria-label="Open menu">
+            <button 
+              onClick={() => setIsMenuOpen(true)}
+              className={`lg:hidden p-2 -ml-2 transition-colors duration-300 ${isScrolled ? "text-black" : "text-white"}`} 
+              aria-label="Open menu"
+            >
               <HugeiconsIcon icon={Menu01Icon} size={24} />
             </button>
 
@@ -86,6 +92,11 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
           </div>
         </nav>
       </motion.header>
+
+      <MobileMenu 
+        isOpen={isMenuOpen} 
+        onClose={() => setIsMenuOpen(false)} 
+      />
     </div>
   )
 }

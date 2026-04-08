@@ -115,40 +115,46 @@ export default function ClubFooter() {
             className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8"
           >
             
-            {/* Column 1: Brand - Centered on mobile */}
+            {/* Column 1: Brand — full width on mobile */}
             <motion.div 
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left"
+              className="col-span-2 lg:col-span-1 flex flex-col items-start space-y-6 text-left"
             >
-              <LocalizedClientLink href="/">
-                <Image 
-                  src="/main-logo-h.png" 
-                  alt="logo" 
-                  height={150} 
-                  width={200} 
-                  className="brightness-0 invert object-contain transition-transform duration-500 hover:scale-105"
-                />
-              </LocalizedClientLink>
-              <p className="text-white/50 text-[13px] leading-relaxed max-w-[240px] font-manrope">
-                Elevating your lifestyle through a curated blend of health and wealth essentials.
-              </p>
+              <div className="flex flex-row lg:flex-col items-start gap-5 lg:gap-0 lg:space-y-6">
+                <LocalizedClientLink href="/" className="flex-shrink-0">
+                  <Image 
+                    src="/main-logo-h.png" 
+                    alt="logo" 
+                    height={150} 
+                    width={200} 
+                    className="brightness-0 invert object-contain transition-transform duration-500 hover:scale-105 w-[160px] lg:w-[200px]"
+                  />
+                </LocalizedClientLink>
+                <p className="text-white/50 text-[12px] lg:text-[13px] leading-relaxed max-w-[200px] lg:max-w-[240px] font-manrope text-center">
+                  Elevating your lifestyle through a curated blend of health and wealth essentials.
+                </p>
+              </div>
             </motion.div>
 
             {/* Column 2: Navigation */}
             <motion.div 
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left"
+              className="flex flex-col items-start space-y-5 text-left"
             >
-              <h4 className="font-newsreader text-lg italic text-white/90">Shop</h4>
-              <ul className="flex flex-col gap-4 text-[11px] font-bold tracking-[0.2em] uppercase text-white/40">
+              {/* Heading — newsreader italic, same as Club Support */}
+              <h4 className="font-newsreader italic text-lg text-white/90">Shop</h4>
+              <ul className="flex flex-col gap-3">
                 {[
                   { label: "Collection", href: "/shop" },
                   { label: "New Arrivals", href: "/new-arrivals" },
                   { label: "Best Sellers", href: "/best-sellers" }
                 ].map((link) => (
                   <li key={link.label}>
-                    <motion.div whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
-                      <LocalizedClientLink href={link.href} className="hover:text-white transition-colors">
+                    <motion.div whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 300 }}>
+                      <LocalizedClientLink
+                        href={link.href}
+                        className="font-manrope text-[10px] tracking-[0.3em] uppercase font-bold text-white/40 hover:text-white transition-colors"
+                      >
                         {link.label}
                       </LocalizedClientLink>
                     </motion.div>
@@ -160,18 +166,22 @@ export default function ClubFooter() {
             {/* Column 3: Support */}
             <motion.div 
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left"
+              className="flex flex-col items-start space-y-5 text-left"
             >
-              <h4 className="font-newsreader text-lg italic text-white/90">Club Support</h4>
-              <ul className="flex flex-col gap-4 text-[11px] font-bold tracking-[0.2em] uppercase text-white/40">
+              {/* Heading — same newsreader italic as Shop */}
+              <h4 className="font-newsreader italic text-lg text-white/90">Club Support</h4>
+              <ul className="flex flex-col gap-3">
                 {[
                   { label: "Our Ethos", href: "/about" },
                   { label: "Get in Touch", href: "/contact" },
                   { label: "Shipping", href: "/shipping" }
                 ].map((link) => (
                   <li key={link.label}>
-                    <motion.div whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
-                      <LocalizedClientLink href={link.href} className="hover:text-white transition-colors">
+                    <motion.div whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 300 }}>
+                      <LocalizedClientLink
+                        href={link.href}
+                        className="font-manrope text-[10px] tracking-[0.3em] uppercase font-bold text-white/40 hover:text-white transition-colors"
+                      >
                         {link.label}
                       </LocalizedClientLink>
                     </motion.div>
@@ -180,15 +190,15 @@ export default function ClubFooter() {
               </ul>
             </motion.div>
 
-            {/* Column 4: Community - Full width on mobile */}
+            {/* Column 4: Community — full width on mobile */}
             <motion.div 
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="flex flex-col items-center lg:items-end lg:text-right space-y-6 text-center lg:text-right"
+              className="col-span-2 lg:col-span-1 flex flex-col items-start lg:items-end space-y-5 text-left lg:text-right"
             >
-              <h4 className="font-manrope text-[11px] font-bold tracking-[0.3em] uppercase text-white">
-                JOIN THE COMMUNITY
-              </h4>
-              <p className="text-[13px] font-manrope text-white/40 max-w-[280px]">
+              {/* Heading — newsreader italic, matching other column headers */}
+              <h4 className="font-newsreader italic text-lg text-white/90">Join The Club</h4>
+              {/* Body */}
+              <p className="font-manrope text-[14px] font-light text-white/40 max-w-[280px] leading-relaxed">
                 Follow our journey exclusively on social.
               </p>
               

@@ -6,29 +6,31 @@ import { HttpTypes } from "@medusajs/types"
 
 export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[] }) => {
   return (
-    <div className="px-4 md:px-20 py-20 md:py-32 w-full mx-auto">
-      <motion.div 
+    <div className="px-6 md:px-12 lg:px-16 py-20 md:py-32 w-full mx-auto bg-bg">
+      <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-10%" }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="w-full items-center justify-center flex flex-col"
+        className="w-full items-center justify-center flex flex-col mb-12"
       >
-        <h2 className="text-2xl md:text-3xl lg:text-4xl whitespace-nowrap font-newsreader text-center px-4">
-          The <span className="italic">Inaugural Drop</span>
+        {/* Overline */}
+        <span className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent/40 mb-4">
+          Explore the Pillars
+        </span>
+
+        {/* Heading */}
+        <h2 className="font-newsreader italic text-4xl md:text-7xl tracking-tighter text-accent text-center leading-none">
+          The Inaugural Drop
         </h2>
-        {/* <motion.p 
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ duration: 1, delay: 0.4 }}
-          className="font-manrope tracking-widest font-semibold text-black/90 uppercase text-[10px] md:text-[12px] mt-2 text-center max-w-sm md:max-w-none"
-        >
-          EXPLORE THE PILLARS OF INTENTIONAL LIVING AND TIMELESS STYLE
-        </motion.p> */}
+
+        {/* Sub-overline */}
+        <p className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent/30 mt-4 text-center">
+          Intentional Living &amp; Timeless Style
+        </p>
       </motion.div>
 
-      <motion.ul 
+      <motion.ul
         initial="hidden"
         whileInView="show"
         viewport={{ once: true, margin: "-5%" }}
@@ -38,20 +40,19 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
             opacity: 1,
             transition: {
               staggerChildren: 0.1,
-              delayChildren: 0.3
+              delayChildren: 0.2
             }
           }
         }}
-        className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-12 mt-10"
+        className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6 lg:gap-8"
       >
         {products.map((product) => (
-          <motion.li 
-            key={product.id} 
+          <motion.li
+            key={product.id}
             variants={{
               hidden: { opacity: 0, y: 30 },
               show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
             }}
-            className="flex justify-center"
           >
             <ProductPreview product={product} />
           </motion.li>
