@@ -69,20 +69,25 @@ export default function ClubFooter() {
               <span className="font-manrope text-[10px] md:text-xs font-bold tracking-[0.5em] uppercase mb-3 block opacity-70">
                 LIFESTYLE COLLECTIVE
               </span>
-              <h2 className="font-newsreader italic text-5xl sm:text-8xl md:text-[140px] leading-tight tracking-tighter mb-8 md:mb-12">
+              <h2 className="font-newsreader italic text-6xl sm:text-9xl md:text-[180px] leading-tight tracking-tighter mb-8 md:mb-12">
                 The Club
               </h2>
               
               <motion.div style={{ opacity: buttonOpacity }}>
-                <LocalizedClientLink 
-                    href="/join"
-                    className="group inline-flex items-center gap-3 bg-white text-black md:bg-white/10 md:text-white md:backdrop-blur-md border border-white/20 px-6 py-3 md:px-8 md:py-4 rounded-full transition-all hover:bg-white hover:text-black"
+                <motion.div
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
                 >
-                    <span className="font-manrope text-[10px] md:text-xs font-bold tracking-widest uppercase">
-                        Become a Member
-                    </span>
-                    <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} className="group-hover:rotate-45 transition-transform" />
-                </LocalizedClientLink>
+                  <LocalizedClientLink 
+                      href="/join"
+                      className="group inline-flex items-center gap-3 bg-white text-black md:bg-white/10 md:text-white md:backdrop-blur-md border border-white/20 px-6 py-3 md:px-8 md:py-4 rounded-full transition-all hover:bg-white hover:text-black"
+                  >
+                      <span className="font-manrope text-[10px] md:text-xs font-bold tracking-widest uppercase">
+                          Become a Member
+                      </span>
+                      <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} className="group-hover:rotate-45 transition-transform" />
+                  </LocalizedClientLink>
+                </motion.div>
               </motion.div>
             </motion.div>
           </div>
@@ -94,46 +99,92 @@ export default function ClubFooter() {
       <footer className="bg-accent relative text-white pt-16 md:pt-10 pb-10 px-6 sm:px-12 lg:px-16 font-light -mt-1">
         <div className="max-w-[1440px] mx-auto">
           {/* Responsive Grid: 1 col on mobile, 2 on tablet, 4 on desktop */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8">
+          <motion.div 
+            initial="hidden"
+            whileInView="show"
+            viewport={{ once: true }}
+            variants={{
+              hidden: { opacity: 0 },
+              show: {
+                opacity: 1,
+                transition: {
+                  staggerChildren: 0.1
+                }
+              }
+            }}
+            className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8"
+          >
             
             {/* Column 1: Brand - Centered on mobile */}
-            <div className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left">
+            <motion.div 
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+              className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left"
+            >
               <LocalizedClientLink href="/">
                 <Image 
                   src="/main-logo-h.png" 
                   alt="logo" 
                   height={150} 
                   width={200} 
-                  className="brightness-0 invert object-contain"
+                  className="brightness-0 invert object-contain transition-transform duration-500 hover:scale-105"
                 />
               </LocalizedClientLink>
               <p className="text-white/50 text-[13px] leading-relaxed max-w-[240px] font-manrope">
                 Elevating your lifestyle through a curated blend of health and wealth essentials.
               </p>
-            </div>
+            </motion.div>
 
             {/* Column 2: Navigation */}
-            <div className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left">
+            <motion.div 
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+              className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left"
+            >
               <h4 className="font-newsreader text-lg italic text-white/90">Shop</h4>
               <ul className="flex flex-col gap-4 text-[11px] font-bold tracking-[0.2em] uppercase text-white/40">
-                <li><LocalizedClientLink href="/shop" className="hover:text-white transition-colors">Collection</LocalizedClientLink></li>
-                <li><LocalizedClientLink href="/new-arrivals" className="hover:text-white transition-colors">New Arrivals</LocalizedClientLink></li>
-                <li><LocalizedClientLink href="/best-sellers" className="hover:text-white transition-colors">Best Sellers</LocalizedClientLink></li>
+                {[
+                  { label: "Collection", href: "/shop" },
+                  { label: "New Arrivals", href: "/new-arrivals" },
+                  { label: "Best Sellers", href: "/best-sellers" }
+                ].map((link) => (
+                  <li key={link.label}>
+                    <motion.div whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
+                      <LocalizedClientLink href={link.href} className="hover:text-white transition-colors">
+                        {link.label}
+                      </LocalizedClientLink>
+                    </motion.div>
+                  </li>
+                ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Column 3: Support */}
-            <div className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left">
+            <motion.div 
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+              className="flex flex-col items-center sm:items-start space-y-6 text-center sm:text-left"
+            >
               <h4 className="font-newsreader text-lg italic text-white/90">Club Support</h4>
               <ul className="flex flex-col gap-4 text-[11px] font-bold tracking-[0.2em] uppercase text-white/40">
-                <li><LocalizedClientLink href="/about" className="hover:text-white transition-colors">Our Ethos</LocalizedClientLink></li>
-                <li><LocalizedClientLink href="/contact" className="hover:text-white transition-colors">Get in Touch</LocalizedClientLink></li>
-                <li><LocalizedClientLink href="/shipping" className="hover:text-white transition-colors">Shipping</LocalizedClientLink></li>
+                {[
+                  { label: "Our Ethos", href: "/about" },
+                  { label: "Get in Touch", href: "/contact" },
+                  { label: "Shipping", href: "/shipping" }
+                ].map((link) => (
+                  <li key={link.label}>
+                    <motion.div whileHover={{ x: 5 }} transition={{ type: "spring", stiffness: 300 }}>
+                      <LocalizedClientLink href={link.href} className="hover:text-white transition-colors">
+                        {link.label}
+                      </LocalizedClientLink>
+                    </motion.div>
+                  </li>
+                ))}
               </ul>
-            </div>
+            </motion.div>
 
             {/* Column 4: Community - Full width on mobile */}
-            <div className="flex flex-col items-center lg:items-end lg:text-right space-y-6 text-center lg:text-right">
+            <motion.div 
+              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
+              className="flex flex-col items-center lg:items-end lg:text-right space-y-6 text-center lg:text-right"
+            >
               <h4 className="font-manrope text-[11px] font-bold tracking-[0.3em] uppercase text-white">
                 JOIN THE COMMUNITY
               </h4>
@@ -149,16 +200,17 @@ export default function ClubFooter() {
                 ].map((social, i) => (
                   <motion.a 
                     key={i}
+                    whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
                     whileTap={{ scale: 0.9 }}
                     href={social.href} 
-                    className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-full"
+                    className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-full transition-colors"
                   >
                     <HugeiconsIcon icon={social.icon} size={18} />
                   </motion.a>
                 ))}
               </div>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
 
           {/* Bottom Bar: Stacked on mobile */}
           <div className="mt-20 pt-8 border-t border-white/5 flex flex-col items-center gap-6">
