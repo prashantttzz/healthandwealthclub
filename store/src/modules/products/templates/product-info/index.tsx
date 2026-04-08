@@ -8,30 +8,38 @@ type ProductInfoProps = {
 
 const ProductInfo = ({ product }: ProductInfoProps) => {
   return (
-    <div id="product-info">
-      <div className="flex flex-col gap-y-4 lg:max-w-[500px] mx-auto">
+    <div id="product-info" className="space-y-6 lg:space-y-8 mt-5">
+      <div className="flex flex-col gap-y-2">
         {product.collection && (
           <LocalizedClientLink
             href={`/collections/${product.collection.handle}`}
-            className="text-medium text-ui-fg-muted hover:text-ui-fg-subtle"
+            className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent/40 hover:text-accent transition-colors duration-300"
           >
             {product.collection.title}
           </LocalizedClientLink>
         )}
-        <Heading
-          level="h2"
-          className="text-3xl leading-10 text-ui-fg-base"
+           <h1
+            className="font-manrope text-xs tracking-widest mb-3 uppercase font-regular text-accent/80 hover:text-accent transition-colors duration-300"
+          >
+            LIMTED EDITON COLLECTION
+          </h1>
+      
+        <h1 
+          className="font-newsreader italic text-5xl lg:text-7xl leading-[1.1] text-accent tracking-tighter"
           data-testid="product-title"
         >
           {product.title}
-        </Heading>
-
-        <Text
-          className="text-medium text-ui-fg-subtle whitespace-pre-line"
+        </h1>
+        <p className="font-newsreader text-base italic mb-3 font-regular text-accent/80 hover:text-accent transition-colors duration-300">Estate Olive</p>
+      </div>
+         <div className="mt-5"></div>
+      <div className="flex flex-col gap-y-4">
+        <p 
+          className="font-manrope text-[14px] leading-relaxed font-light text-accent/70 max-w-[450px] whitespace-pre-line"
           data-testid="product-description"
         >
           {product.description}
-        </Text>
+        </p>
       </div>
     </div>
   )

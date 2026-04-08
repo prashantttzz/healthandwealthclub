@@ -190,52 +190,70 @@ export default function ClubFooter() {
               </ul>
             </motion.div>
 
-            {/* Column 4: Community — full width on mobile */}
+            {/* Column 4: Community / Newsletter */}
             <motion.div 
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="col-span-2 lg:col-span-1 flex flex-col items-start lg:items-end space-y-5 text-left lg:text-right"
+              className="col-span-2 lg:col-span-1 flex flex-col items-start space-y-6 text-left"
             >
-              {/* Heading — newsreader italic, matching other column headers */}
-              <h4 className="font-newsreader italic text-lg text-white/90">Join The Club</h4>
-              {/* Body */}
-              <p className="font-manrope text-[14px] font-light text-white/40 max-w-[280px] leading-relaxed">
-                Follow our journey exclusively on social.
+              <h4 className="font-newsreader italic text-xl text-white/90">Join The Club</h4>
+              <p className="font-manrope text-[12px] font-regular text-white/40 leading-relaxed max-w-[240px]">
+                Subscribe for exclusive collection drops and lifestyle insights.
               </p>
               
-              <div className="flex gap-4">
-                {[
-                  { icon: Instagram, href: "#" },
-                  { icon: WhatsappFreeIcons, href: "#" },
-                  { icon: Mail, href: "mailto:contact@healthandwealth.club" }
-                ].map((social, i) => (
-                  <motion.a 
-                    key={i}
-                    whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
-                    whileTap={{ scale: 0.9 }}
-                    href={social.href} 
-                    className="w-10 h-10 flex items-center justify-center border border-white/10 rounded-full transition-colors"
-                  >
-                    <HugeiconsIcon icon={social.icon} size={18} />
-                  </motion.a>
-                ))}
+              {/* Newsletter Form */}
+              <div className="w-full space-y-4">
+                <div className="relative group w-full">
+                  <input 
+                    type="email" 
+                    placeholder="ENTER YOUR EMAIL"
+                    className="w-full bg-transparent border-b border-white/10 py-3 pr-10 text-[10px] font-manrope tracking-widest text-white placeholder:text-white/20 focus:border-white focus:outline-none transition-all"
+                  />
+                  <button className="absolute right-0 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors group-hover:translate-x-1 duration-300">
+                    <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} />
+                  </button>
+                </div>
+
+                <div className="flex gap-4 pt-4">
+                  {[
+                    { icon: Instagram, href: "#" },
+                    { icon: WhatsappFreeIcons, href: "#" },
+                    { icon: Mail, href: "mailto:contact@healthandwealth.club" }
+                  ].map((social, i) => (
+                    <motion.a 
+                      key={i}
+                      whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                      whileTap={{ scale: 0.9 }}
+                      href={social.href} 
+                      className="w-8 h-8 flex items-center justify-center border border-white/10 rounded-full transition-colors"
+                    >
+                      <HugeiconsIcon icon={social.icon} size={14} />
+                    </motion.a>
+                  ))}
+                </div>
               </div>
             </motion.div>
           </motion.div>
-
+ 
           {/* Bottom Bar: Stacked on mobile */}
-          <div className="mt-20 pt-8 border-t border-white/5 flex flex-col items-center gap-6">
-            <div className="flex flex-wrap justify-center gap-6 text-[9px] font-bold tracking-[0.2em] text-white/20 uppercase text-center">
+          <div className="mt-24 pt-8 border-t border-white/5 flex flex-col items-center sm:flex-row sm:justify-between gap-8">
+            <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase text-center sm:text-left">
               <span>© 2026 THE HEALTH & WEALTH CLUB</span>
-              <div className="flex gap-4">
-                <LocalizedClientLink href="/privacy" className="hover:text-white">Privacy</LocalizedClientLink>
-                <LocalizedClientLink href="/terms" className="hover:text-white">Terms</LocalizedClientLink>
+              <div className="flex gap-6">
+                <LocalizedClientLink href="/privacy" className="hover:text-white transition-colors">Privacy</LocalizedClientLink>
+                <LocalizedClientLink href="/terms" className="hover:text-white transition-colors">Terms</LocalizedClientLink>
               </div>
             </div>
             
-            <div className="flex items-center gap-3 px-4 py-2 border border-white/10 rounded-full">
-              <span className="text-sm">🇦🇪</span>
-              <span className="text-[9px] font-bold tracking-[0.2em] text-white/50 uppercase">UAE (AED)</span>
-            </div>
+            <motion.div 
+              whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
+              className="flex items-center gap-4 px-6 py-3 border border-white/10 rounded-full cursor-pointer transition-all"
+            >
+              <span className="text-base grayscale hover:grayscale-0 transition-all">🇦🇪</span>
+              <div className="flex flex-col items-start leading-none gap-1">
+                <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase italic">UAE — AED</span>
+              </div>
+              <HugeiconsIcon icon={ArrowUpRight01Icon} size={12} className="text-white/20 rotate-45" />
+            </motion.div>
           </div>
         </div>
       </footer>

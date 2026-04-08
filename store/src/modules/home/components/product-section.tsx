@@ -71,8 +71,6 @@ const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
                 {currency} {price.toFixed(2)}
               </span>
             )}
-
-            {/* Color swatches */}
             <div className="flex items-center gap-1.5">
               {product.options
                 ?.find(opt => opt.title?.toLowerCase() === "color")

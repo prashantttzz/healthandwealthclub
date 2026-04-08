@@ -3,6 +3,8 @@
 import Back from "@modules/common/icons/back"
 import FastDelivery from "@modules/common/icons/fast-delivery"
 import Refresh from "@modules/common/icons/refresh"
+import Package from "@modules/common/icons/package"
+import Medusa from "@modules/common/icons/medusa"
 
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
@@ -14,12 +16,19 @@ type ProductTabsProps = {
 const ProductTabs = ({ product }: ProductTabsProps) => {
   const tabs = [
     {
-      label: "Product Information",
+      label: "Specifications",
       component: <ProductInfoTab product={product} />,
+      icon: <Package size={16} />,
+    },
+    {
+      label: "The Experience",
+      component: <EthosTab />,
+      icon: <Medusa size={16} />,
     },
     {
       label: "Shipping & Returns",
       component: <ShippingInfoTab />,
+      icon: <FastDelivery size={16} />,
     },
   ]
 
@@ -30,8 +39,8 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
           <Accordion.Item
             key={i}
             title={tab.label}
-            headingSize="medium"
             value={tab.label}
+            icon={tab.icon}
           >
             {tab.component}
           </Accordion.Item>
@@ -41,37 +50,48 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
   )
 }
 
+const EthosTab = () => {
+  return (
+    <div className="py-2 space-y-6">
+      <div className="space-y-4">
+        <h4 className="font-manrope text-[10px] tracking-[0.3em] uppercase font-bold text-accent/40">Craftsmanship</h4>
+        <p className="font-manrope text-[13px] leading-relaxed text-accent/70">
+          Every piece in our collective is a testament to the intersection of health, wealth, and timeless design. We source only the finest materials from heritage mills, ensuring that your investment matures in quality over time.
+        </p>
+      </div>
+      <div className="space-y-4">
+        <h4 className="font-manrope text-[10px] tracking-[0.3em] uppercase font-bold text-accent/40">Ethos</h4>
+        <p className="font-manrope text-[13px] leading-relaxed text-accent/70">
+          We believe in conscious consumption—creating fewer, better things that serve a purpose in your daily ritual.
+        </p>
+      </div>
+    </div>
+  )
+}
+
 const ProductInfoTab = ({ product }: ProductTabsProps) => {
   return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-2 gap-x-8">
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Material</span>
-            <p>{product.material ? product.material : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Country of origin</span>
-            <p>{product.origin_country ? product.origin_country : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Type</span>
-            <p>{product.type ? product.type.value : "-"}</p>
-          </div>
+    <div className="py-2">
+      <div className="grid grid-cols-2 gap-y-10 gap-x-12">
+        <div className="space-y-2">
+          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Material</span>
+          <p className="font-manrope text-[13px] text-accent/80 font-medium whitespace-pre-wrap">{product.material ? product.material : "Organic Cotton & Silk Blend"}</p>
         </div>
-        <div className="flex flex-col gap-y-4">
-          <div>
-            <span className="font-semibold">Weight</span>
-            <p>{product.weight ? `${product.weight} g` : "-"}</p>
-          </div>
-          <div>
-            <span className="font-semibold">Dimensions</span>
-            <p>
-              {product.length && product.width && product.height
-                ? `${product.length}L x ${product.width}W x ${product.height}H`
-                : "-"}
-            </p>
-          </div>
+        <div className="space-y-2">
+          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Weight</span>
+          <p className="font-manrope text-[13px] text-accent/80 font-medium">{product.weight ? `${product.weight} g` : "340 g"}</p>
+        </div>
+        <div className="space-y-2">
+          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Dimensions</span>
+          <p className="font-manrope text-[13px] text-accent/80 font-medium">
+            {product.length && product.width && product.height
+              ? `${product.length}L x ${product.width}W x ${product.height}H`
+              : "Reg. Fit / True to Size"}
+          </p>
+        </div>
+        <div className="space-y-2">
+          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Origin</span>
+          <p className="font-manrope text-[13px] text-accent/80 font-medium">{product.origin_country ? product.origin_country : "Designed in Dubai"}</p>
         </div>
       </div>
     </div>
@@ -80,38 +100,23 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
 
 const ShippingInfoTab = () => {
   return (
-    <div className="text-small-regular py-8">
-      <div className="grid grid-cols-1 gap-y-8">
-        <div className="flex items-start gap-x-2">
-          <FastDelivery />
-          <div>
-            <span className="font-semibold">Fast delivery</span>
-            <p className="max-w-sm">
-              Your package will arrive in 3-5 business days at your pick up
-              location or in the comfort of your home.
-            </p>
-          </div>
+    <div className="py-2 space-y-8">
+      <div className="flex items-start gap-x-6">
+        <div className="pt-1"><FastDelivery /></div>
+        <div className="space-y-1">
+          <span className="font-manrope text-[11px] tracking-widest uppercase font-bold text-accent/80 italic leading-none">Global Logistics</span>
+          <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
+            Complimentary shipping on all Experience orders. Delivered within 3-5 business days via our premium courier network.
+          </p>
         </div>
-        <div className="flex items-start gap-x-2">
-          <Refresh />
-          <div>
-            <span className="font-semibold">Simple exchanges</span>
-            <p className="max-w-sm">
-              Is the fit not quite right? No worries - we&apos;ll exchange your
-              product for a new one.
-            </p>
-          </div>
-        </div>
-        <div className="flex items-start gap-x-2">
-          <Back />
-          <div>
-            <span className="font-semibold">Easy returns</span>
-            <p className="max-w-sm">
-              Just return your product and we&apos;ll refund your money. No
-              questions asked – we&apos;ll do our best to make sure your return
-              is hassle-free.
-            </p>
-          </div>
+      </div>
+      <div className="flex items-start gap-x-6">
+        <div className="pt-1"><Refresh /></div>
+        <div className="space-y-1">
+          <span className="font-manrope text-[11px] tracking-widest uppercase font-bold text-accent/80 italic leading-none">Exchanges</span>
+          <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
+            If the fit does not meet your personal standards, we provide a seamless 14-day exchange window.
+          </p>
         </div>
       </div>
     </div>

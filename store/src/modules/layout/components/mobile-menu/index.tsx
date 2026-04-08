@@ -9,32 +9,33 @@ import {
   WhatsappFreeIcons, 
   Cancel01Icon 
 } from "@hugeicons/core-free-icons"
-import Image from "next/image"
+import { usePathname } from "next/navigation"
+import { clx } from "@medusajs/ui"
 
 const menuVariants = {
   closed: {
-    x: "100%",
+    x: "-100%",
     transition: {
-      duration: 0.6,
+      duration: 0.8,
       ease: [0.16, 1, 0.3, 1] as any
     }
   },
   open: {
     x: 0,
     transition: {
-      duration: 0.6,
+      duration: 0.8,
       ease: [0.16, 1, 0.3, 1] as any
     }
   }
 }
 
 const itemVariants = {
-  closed: { opacity: 0, y: 20 },
+  closed: { opacity: 0, y: 30 },
   open: (i: number) => ({
     opacity: 1,
     y: 0,
     transition: {
-      delay: 0.3 + i * 0.1,
+      delay: 0.4 + i * 0.15,
       duration: 0.8,
       ease: [0.16, 1, 0.3, 1] as any
     }
@@ -44,7 +45,7 @@ const itemVariants = {
 const MENU_LINKS = [
   { name: "Home", href: "/" },
   { name: "Collections", href: "/store" },
-  { name: "Editorial", href: "/store" }, // Assuming editorial is part of store/blog
+  { name: "Editorial", href: "/store" },
   { name: "Account", href: "/account" },
 ]
 
@@ -55,6 +56,8 @@ export default function MobileMenu({
   isOpen: boolean 
   onClose: () => void 
 }) {
+  const pathname = usePathname()
+
   return (
     <AnimatePresence>
       {isOpen && (
@@ -74,11 +77,11 @@ export default function MobileMenu({
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-y-0 right-0 z-[101] w-full max-w-sm bg-bg shadow-2xl pointer-events-auto flex flex-col"
+            className="fixed inset-y-0 left-0 z-[101] w-[80vw] bg-bg shadow-2xl pointer-events-auto flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-16 border-b border-black/5">
-              <span className="font-newsreader italic text-xl">The Club</span>
+              <span className="font-newsreader italic text-xl text-accent">The Club</span>
               <button 
                 onClick={onClose}
                 className="p-2 -mr-2 text-accent hover:rotate-90 transition-transform duration-300"
@@ -88,35 +91,51 @@ export default function MobileMenu({
             </div>
 
             {/* Links */}
-            <nav className="flex-1 px-8 py-12 flex flex-col justify-between">
-              <ul className="space-y-8">
-                {MENU_LINKS.map((link, i) => (
-                  <motion.li
-                    key={link.name}
-                    custom={i}
-                    variants={itemVariants}
-                    initial="closed"
-                    animate="open"
-                  >
-                    <LocalizedClientLink
-                      href={link.href}
-                      onClick={onClose}
-                      className="font-newsreader italic text-4xl hover:opacity-60 transition-opacity block"
+            <nav className="flex-1 px-8 py-16 flex flex-col justify-between">
+              <ul className="space-y-10">
+                {MENU_LINKS.map((link, i) => {
+                  // Handle localized pathnames (e.g. /us/store)
+                  const strippedPathname = pathname?.replace(/^\/[a-z]{2}(\/|$)/, "/") || "/"
+                  const isActive = strippedPathname === link.href || (link.href !== "/" && strippedPathname?.startsWith(link.href))
+                  
+                  return (
+                    <motion.li
+                      key={link.name}
+                      custom={i}
+                      variants={itemVariants}
+                      initial="closed"
+                      animate="open"
                     >
-                      {link.name}
-                    </LocalizedClientLink>
-                  </motion.li>
-                ))}
+                      <LocalizedClientLink
+                        href={link.href}
+                        onClick={onClose}
+                        className={clx(
+                          "font-newsreader italic text-5xl text-accent transition-all block relative w-fit",
+                          isActive ? "opacity-100 " : "opacity-20 hover:opacity-40"
+                        )}
+                      >
+                        {link.name}
+                        {isActive && (
+                          <motion.div 
+                            layoutId="mobile-active-underline"
+                            className="absolute -bottom-2 left-0 right-0 h-[1.5px] bg-accent"
+                            transition={{ duration: 0.6, ease: [0.16, 1, 0.3, 1] }}
+                          />
+                        )}
+                      </LocalizedClientLink>
+                    </motion.li>
+                  )
+                })}
               </ul>
 
               {/* Bottom Details */}
               <motion.div
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: 0.8 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 1, duration: 0.8 }}
                 className="space-y-8"
               >
-                <div className="space-y-2">
+                <div className="space-y-4">
                   <p className="font-manrope text-[10px] tracking-[0.4em] uppercase font-bold text-accent/30">
                     Connect With Us
                   </p>
@@ -129,9 +148,9 @@ export default function MobileMenu({
                       <a 
                         key={i}
                         href={social.href}
-                        className="w-10 h-10 flex items-center justify-center border border-black/5 rounded-full hover:bg-accent hover:text-bg transition-colors duration-300"
+                        className="w-12 h-12 flex items-center justify-center border border-accent/10 rounded-full text-accent hover:bg-accent hover:text-bg transition-all duration-300"
                       >
-                        <HugeiconsIcon icon={social.icon} size={18} />
+                        <HugeiconsIcon icon={social.icon} size={20} />
                       </a>
                     ))}
                   </div>

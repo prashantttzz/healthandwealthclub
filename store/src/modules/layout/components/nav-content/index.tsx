@@ -2,6 +2,7 @@
 
 import { useEffect, useState, Suspense } from "react"
 import { motion } from "framer-motion"
+import { usePathname } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 import Link from "next/link"
@@ -12,6 +13,11 @@ import MobileMenu from "../mobile-menu"
 export default function NavContent({ cartButton }: { cartButton: React.ReactNode }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const pathname = usePathname()
+
+  // The transparent header should ONLY be for the hero section on the homepage
+  // Home paths are usually "/" or "/[countryCode]"
+  const isHome = pathname.split('/').filter(Boolean).length <= 1
 
   useEffect(() => {
     const handleScroll = () => {
@@ -29,22 +35,25 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
     return () => window.removeEventListener("scroll", handleScroll)
   }, [isScrolled])
 
+  // If we are not on the homepage, we should ALWAYS show the "scrolled" state (solid background)
+  const showSolid = isScrolled || !isHome
+
   return (
     <div className="fixed top-0 inset-x-0 z-50 pointer-events-none">
       <motion.header 
-        key={isScrolled ? "scrolled" : "top"}
+        key={showSolid ? "scrolled" : "top"}
         initial={{ y: -64 }}
         animate={{ y: 0 }}
         transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
         className={`relative h-16 mx-auto pointer-events-auto transition-colors duration-500 ${
-          isScrolled ? "bg-bg shadow-md" : "text-white"
+          showSolid ? "bg-bg shadow-md" : "text-white"
         }`}
       >
         <nav className="content-container flex items-center justify-between w-full h-full text-small-regular px-6 lg:px-20">
           <div className="flex-1 basis-0 flex items-center">
             <button 
               onClick={() => setIsMenuOpen(true)}
-              className={`lg:hidden p-2 -ml-2 transition-colors duration-300 ${isScrolled ? "text-black" : "text-white"}`} 
+              className={`lg:hidden p-2 -ml-2 transition-colors duration-300 ${showSolid ? "text-black" : "text-white"}`} 
               aria-label="Open menu"
             >
               <HugeiconsIcon icon={Menu01Icon} size={24} />
@@ -52,7 +61,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
 
             <Link href="/" className="h-full hidden lg:flex items-center">
               <Image 
-                src={isScrolled ? "/main-logo.png" : "/main-logo-white.png"}
+                src={showSolid ? "/main-logo.png" : "/main-logo-white.png"}
                 height={40} 
                 width={150} 
                 className="h-10 w-auto" 
@@ -65,21 +74,21 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
           <div className="flex items-center justify-center h-full">
             <Link href="/" className="lg:hidden flex items-center">
               <Image 
-                src={isScrolled ? "/main-logo.png" : "/main-logo-white.png"}
+                src={showSolid ? "/main-logo.png" : "/main-logo-white.png"}
                 height={40} 
                 width={120} 
                 className="h-8 w-auto" 
                 alt="main-logo"
               />
             </Link>
-            <div className={`hidden lg:flex items-center text-xs gap-x-12 font-semibold ${isScrolled ? "text-black" : "text-white"}`}>
+            <div className={`hidden lg:flex items-center text-xs gap-x-12 font-semibold ${showSolid ? "text-black" : "text-white"}`}>
               <Link href="/store" className="font-manrope uppercase tracking-wider ">Collections</Link>
               <Link href="/store" className="font-manrope uppercase tracking-wider ">Editorial</Link>
               <Link href="/store" className="font-manrope uppercase tracking-wider ">Account</Link>
             </div>
           </div>
 
-          <div className={`flex-1 basis-0 flex items-center justify-end ${isScrolled ? "text-black" : "text-white"}`}>
+          <div className={`flex-1 basis-0 flex items-center justify-end ${showSolid ? "text-black" : "text-white"}`}>
             <Suspense
               fallback={
                 <LocalizedClientLink className="relative p-2" href="/cart">

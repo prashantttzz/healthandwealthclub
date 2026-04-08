@@ -1,59 +1,73 @@
-"use client"
-
-import { useEffect, useState } from "react"
+import { Metadata } from "next"
 import { notFound } from "next/navigation"
+
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 import { HttpTypes } from "@medusajs/types"
 
+import RelatedProducts from "@modules/products/components/related-products"
+import { Suspense } from "react"
+import SkeletonRelatedProducts from "@modules/skeletons/templates/skeleton-related-products"
+
 type Props = {
-  params: { countryCode: string; handle: string }
-  searchParams: { v_id?: string }
+  params: Promise<{ countryCode: string; handle: string }>
+  searchParams: Promise<{ v_id?: string }>
 }
 
-export default function ProductPage({ params, searchParams }: Props) {
-  const [product, setProduct] = useState<HttpTypes.StoreProduct | null>(null)
-  const [region, setRegion] = useState<HttpTypes.StoreRegion | null>(null)
-  const [loading, setLoading] = useState(true)
+export async function generateMetadata(props: Props): Promise<Metadata> {
+  const params = await props.params
+  const { response } = await listProducts({
+    countryCode: params.countryCode,
+    queryParams: { handle: params.handle },
+  })
 
-  const selectedVariantId = searchParams.v_id
+  const product = response.products[0]
 
-  useEffect(() => {
-    async function fetchData() {
-      try {
-        const regionData = await getRegion(params.countryCode)
-        if (!regionData) return notFound()
+  if (!product) {
+    notFound()
+  }
 
-        const { response } = await listProducts({
-          countryCode: params.countryCode,
-          queryParams: { handle: params.handle },
-        })
+  return {
+    title: `${product.title} | Health and Wealth Club`,
+    description: `${product.description}`,
+    openGraph: {
+      title: `${product.title} | Health and Wealth Club`,
+      description: `${product.description}`,
+      images: product.thumbnail ? [product.thumbnail] : [],
+    },
+  }
+}
 
-        const fetchedProduct = response.products[0]
-        if (!fetchedProduct) return notFound()
+export default async function ProductPage(props: Props) {
+  const params = await props.params
+  const searchParams = await props.searchParams
 
-        setProduct(fetchedProduct)
-        setRegion(regionData)
-      } catch (error) {
-        console.error("Failed to fetch product:", error)
-      } finally {
-        setLoading(false)
-      }
-    }
+  const region = await getRegion(params.countryCode)
 
-    fetchData()
-  }, [params.countryCode, params.handle])
+  if (!region) {
+    notFound()
+  }
 
-  if (loading) return <div>Loading...</div>
-  if (!product || !region) return notFound()
+  const fetchedProduct = await listProducts({
+    countryCode: params.countryCode,
+    queryParams: { handle: params.handle },
+  }).then(({ response }) => response.products[0])
+
+  if (!fetchedProduct) {
+    notFound()
+  }
 
   return (
     <ProductTemplate
-      product={product}
+      product={fetchedProduct}
       region={region}
       countryCode={params.countryCode}
-      images={product.images||[]}
+      relatedProducts={
+        <Suspense fallback={<SkeletonRelatedProducts />}>
+          <RelatedProducts product={fetchedProduct} countryCode={params.countryCode} />
+        </Suspense>
+      }
     />
   )
 }
