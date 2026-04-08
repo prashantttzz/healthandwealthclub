@@ -14,7 +14,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
   useEffect(() => {
     const handleScroll = () => {
       const scrollPos = window.scrollY
-      const threshold = 500
+      const threshold = 200
 
       if (scrollPos > threshold && !isScrolled) {
         setIsScrolled(true)
@@ -33,8 +33,8 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
         key={isScrolled ? "scrolled" : "top"}
         initial={{ y: -64 }}
         animate={{ y: 0 }}
-        transition={{ duration: 0.4, ease: "easeOut" }}
-        className={`relative h-16 mx-auto pointer-events-auto transition-colors duration-300 ${
+        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
+        className={`relative h-16 mx-auto pointer-events-auto transition-colors duration-500 ${
           isScrolled ? "bg-bg shadow-md" : "text-white"
         }`}
       >

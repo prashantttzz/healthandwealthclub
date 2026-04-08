@@ -3,7 +3,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 
 import Image from "next/image"
 
-export default async function ProductPreview({
+export default function ProductPreview({
   product,
   isFeatured,
 }: {

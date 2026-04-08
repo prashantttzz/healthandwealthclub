@@ -34,8 +34,8 @@ module.exports = {
           80: "#1F2937",
           90: "#111827",
         },
-        bg:"#F8F3EB",
-        accent:"#333B2A",
+        bg:"#FFF6EC",
+        accent:"#263723ff",
         text:"#3a3b38ff"
       },
       borderRadius: {
