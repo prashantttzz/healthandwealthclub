@@ -206,6 +206,14 @@ const ShippingAddress = ({
           data-testid="billing-address-checkbox"
           className="font-manrope text-[11px] uppercase tracking-widest text-accent/60"
         />
+        {customer && (
+          <Checkbox
+            label="Save address to my profile"
+            name="save_address"
+            data-testid="save-address-checkbox"
+            className="font-manrope text-[11px] uppercase tracking-widest text-accent/60 mt-4"
+          />
+        )}
       </div>
     </>
   )
