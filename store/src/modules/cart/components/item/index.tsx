@@ -13,6 +13,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import Spinner from "@modules/common/icons/spinner"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { useState } from "react"
+import QuantitySelector from "@modules/cart/components/item/quantity-selector"
 
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
@@ -45,99 +46,114 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
   const maxQuantity = item.variant?.manage_inventory ? 10 : maxQtyFromInventory
 
   return (
-    <Table.Row className="w-full" data-testid="product-row">
-      <Table.Cell className="!pl-0 p-4 w-24">
-        <LocalizedClientLink
-          href={`/products/${item.product_handle}`}
-          className={clx("flex", {
-            "w-16": type === "preview",
-            "small:w-24 w-12": type === "full",
-          })}
-        >
-          <Thumbnail
-            thumbnail={item.thumbnail}
-            images={item.variant?.product?.images}
-            size="square"
-          />
-        </LocalizedClientLink>
-      </Table.Cell>
-
-      <Table.Cell className="text-left">
-        <Text
-          className="txt-medium-plus text-ui-fg-base"
-          data-testid="product-title"
-        >
-          {item.product_title}
-        </Text>
-        <LineItemOptions variant={item.variant} data-testid="product-variant" />
-      </Table.Cell>
-
-      {type === "full" && (
-        <Table.Cell>
-          <div className="flex gap-2 items-center w-28">
-            <DeleteButton id={item.id} data-testid="product-delete-button" />
-            <CartItemSelect
-              value={item.quantity}
-              onChange={(value) => changeQuantity(parseInt(value.target.value))}
-              className="w-14 h-10 p-4"
-              data-testid="product-select-button"
-            >
-              {/* TODO: Update this with the v2 way of managing inventory */}
-              {Array.from(
-                {
-                  length: Math.min(maxQuantity, 10),
-                },
-                (_, i) => (
-                  <option value={i + 1} key={i}>
-                    {i + 1}
-                  </option>
-                )
-              )}
-
-              <option value={1} key={1}>
-                1
-              </option>
-            </CartItemSelect>
-            {updating && <Spinner />}
-          </div>
-          <ErrorMessage error={error} data-testid="product-error-message" />
-        </Table.Cell>
-      )}
-
-      {type === "full" && (
-        <Table.Cell className="hidden small:table-cell">
-          <LineItemUnitPrice
-            item={item}
-            style="tight"
-            currencyCode={currencyCode}
-          />
-        </Table.Cell>
-      )}
-
-      <Table.Cell className="!pr-0">
-        <span
-          className={clx("!pr-0", {
-            "flex flex-col items-end h-full justify-center": type === "preview",
-          })}
-        >
-          {type === "preview" && (
-            <span className="flex gap-x-1 ">
-              <Text className="text-ui-fg-muted">{item.quantity}x </Text>
-              <LineItemUnitPrice
-                item={item}
-                style="tight"
-                currencyCode={currencyCode}
+    <>
+      {/* Mobile Card View (< md) */}
+      <div className="md:hidden flex flex-col gap-6 py-8 border-b border-black/5 w-full bg-transparent" data-testid="product-row-mobile">
+        <div className="flex gap-6">
+          <div className="w-24 shrink-0">
+            <LocalizedClientLink href={`/products/${item.product_handle}`}>
+              <Thumbnail
+                thumbnail={item.thumbnail}
+                images={item.variant?.product?.images}
+                size="square"
               />
-            </span>
-          )}
+            </LocalizedClientLink>
+          </div>
+
+          <div className="flex flex-col gap-2 flex-grow">
+            <Text className="font-newsreader italic text-xl text-accent font-bold leading-tight">
+              {item.product_title}
+            </Text>
+            <div className="font-manrope text-[11px] uppercase tracking-widest text-accent/60 font-bold">
+              <LineItemOptions variant={item.variant} />
+            </div>
+            <LineItemUnitPrice item={item} style="tight" currencyCode={currencyCode} />
+          </div>
+        </div>
+
+        <div className="flex items-center justify-between pt-4 border-t border-black/5">
+          <div className="flex items-center gap-3">
+            <span className="font-manrope text-[10px] uppercase font-bold text-accent/90 tracking-widest">Qty</span>
+            <QuantitySelector
+              quantity={item.quantity}
+              onChange={(value) => changeQuantity(value)}
+              maxQuantity={maxQuantity}
+              loading={updating}
+            />
+          </div>
+          <DeleteButton id={item.id} />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <span className="font-manrope text-[10px] uppercase font-bold text-accent/30 tracking-widest">Total cost</span>
+          <LineItemPrice item={item} style="tight" currencyCode={currencyCode} />
+        </div>
+        <ErrorMessage error={error} />
+      </div>
+
+      {/* Desktop Table Row (>= md) */}
+      <Table.Row className="hidden md:table-row !bg-transparent border-b border-black/5 last:border-0 grow-0" data-testid="product-row-desktop">
+        <Table.Cell className="!pl-0 p-4 w-24 shrink-0">
+          <LocalizedClientLink
+            href={`/products/${item.product_handle}`}
+            className="flex small:w-24 w-16"
+          >
+            <Thumbnail
+              thumbnail={item.thumbnail}
+              images={item.variant?.product?.images}
+              size="square"
+            />
+          </LocalizedClientLink>
+        </Table.Cell>
+
+        <Table.Cell className="text-left py-4">
+          <div className="flex flex-col gap-1">
+            <Text
+              className="font-newsreader italic text-lg md:text-xl text-accent font-bold leading-tight"
+              data-testid="product-title"
+            >
+              {item.product_title}
+            </Text>
+            <div className="font-manrope text-[11px] uppercase tracking-widest text-accent/60 font-bold">
+               <LineItemOptions variant={item.variant} data-testid="product-variant" />
+            </div>
+          </div>
+        </Table.Cell>
+
+        {type === "full" && (
+          <Table.Cell className="py-4">
+            <div className="flex items-center gap-8">
+              <QuantitySelector
+                quantity={item.quantity}
+                onChange={(value) => changeQuantity(value)}
+                maxQuantity={maxQuantity}
+                loading={updating}
+              />
+              <DeleteButton id={item.id} data-testid="product-delete-button" />
+            </div>
+            <ErrorMessage error={error} data-testid="product-error-message" />
+          </Table.Cell>
+        )}
+
+        {type === "full" && (
+          <Table.Cell className="hidden md:table-cell">
+            <LineItemUnitPrice
+              item={item}
+              style="tight"
+              currencyCode={currencyCode}
+            />
+          </Table.Cell>
+        )}
+
+        <Table.Cell className="!pr-0 text-right py-4">
           <LineItemPrice
             item={item}
             style="tight"
             currencyCode={currencyCode}
           />
-        </span>
-      </Table.Cell>
-    </Table.Row>
+        </Table.Cell>
+      </Table.Row>
+    </>
   )
 }
 

@@ -56,49 +56,39 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
   }
 
   return (
-    <div className="w-full bg-white flex flex-col">
+    <div className="w-full bg-transparent flex flex-col">
       <div className="txt-medium">
         <form action={(a) => addPromotionCode(a)} className="w-full mb-5">
-          <Label className="flex gap-x-1 my-2 items-center">
-            <button
-              onClick={() => setIsOpen(!isOpen)}
-              type="button"
-              className="txt-medium text-ui-fg-interactive hover:text-ui-fg-interactive-hover"
-              data-testid="add-discount-button"
-            >
-              Add Promotion Code(s)
-            </button>
-
-            {/* <Tooltip content="You can add multiple promotion codes">
-              <InformationCircleSolid color="var(--fg-muted)" />
-            </Tooltip> */}
-          </Label>
-
-          {isOpen && (
-            <>
+           <div className="flex flex-col gap-3">
+              <label
+                htmlFor="promotion-input"
+                className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-accent/60"
+              >
+                Promo Code
+              </label>
               <div className="flex w-full gap-x-2">
-                <Input
-                  className="size-full"
+                <input
+                  className="w-full h-12 px-4 bg-accent/[0.03] border border-black/5 focus:border-accent/20 focus:bg-accent/[0.05] transition-all outline-none font-manrope text-[12px] uppercase tracking-widest text-accent placeholder:text-accent/20"
                   id="promotion-input"
                   name="code"
                   type="text"
-                  autoFocus={false}
+                  placeholder="Enter code"
                   data-testid="discount-input"
                 />
-                <SubmitButton
-                  variant="secondary"
+                <button
+                  type="submit"
                   data-testid="discount-apply-button"
+                  className="bg-accent text-bg px-6 font-manrope text-[11px] uppercase font-bold tracking-widest hover:bg-accent/90 transition-all duration-300"
                 >
                   Apply
-                </SubmitButton>
+                </button>
               </div>
+           </div>
 
-              <ErrorMessage
-                error={errorMessage}
-                data-testid="discount-error-message"
-              />
-            </>
-          )}
+           <ErrorMessage
+            error={errorMessage}
+            data-testid="discount-error-message"
+          />
         </form>
 
         {promotions.length > 0 && (

@@ -13,10 +13,11 @@ type InputProps = Omit<
   touched?: Record<string, unknown>
   name: string
   topLabel?: string
+  variant?: "default" | "editorial"
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-  ({ type, name, label, touched, required, topLabel, ...props }, ref) => {
+  ({ type, name, label, touched, required, topLabel, variant = "editorial", ...props }, ref) => {
     const inputRef = React.useRef<HTMLInputElement>(null)
     const [showPassword, setShowPassword] = useState(false)
     const [inputType, setInputType] = useState(type)
@@ -32,6 +33,40 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
     }, [type, showPassword])
 
     useImperativeHandle(ref, () => inputRef.current!)
+
+    if (variant === "editorial") {
+      return (
+        <div className="flex flex-col w-full gap-2">
+          <label
+            htmlFor={name}
+            className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-accent/60"
+          >
+            {label}
+            {required && <span className="text-rose-500 ml-1">*</span>}
+          </label>
+          <div className="relative flex w-full">
+            <input
+              type={inputType}
+              name={name}
+              placeholder={ ""}
+              required={required}
+              className="w-full h-12 px-4 bg-accent/[0.03] border border-black/5 focus:border-accent/20 focus:bg-accent/[0.05] transition-all outline-none font-manrope text-sm text-accent placeholder:text-accent/20 rounded-none!"
+              {...props}
+              ref={inputRef}
+            />
+            {type === "password" && (
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="text-accent/40 px-4 focus:outline-none transition-all duration-150 outline-none absolute right-0 top-1/2 -translate-y-1/2"
+              >
+                {showPassword ? <Eye size={16} /> : <EyeOff size={16} />}
+              </button>
+            )}
+          </div>
+        </div>
+      )
+    }
 
     return (
       <div className="flex flex-col w-full">

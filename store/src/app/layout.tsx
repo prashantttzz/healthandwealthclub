@@ -33,11 +33,15 @@ export const metadata: Metadata = {
   metadataBase: new URL(getBaseURL()),
 }
 
+import { UIProvider } from "@lib/context/ui-context"
+
 export default function RootLayout(props: { children: React.ReactNode }) {
   return (
     <html lang="en" data-mode="light" className={`${gilda.variable} ${manrope.variable} ${newsreader.variable} ${petitFormal.variable}`}>
       <body className="relative" suppressHydrationWarning>
-        <main>{props.children}</main>
+        <UIProvider>
+          <main>{props.children}</main>
+        </UIProvider>
       </body>
     </html>
   )

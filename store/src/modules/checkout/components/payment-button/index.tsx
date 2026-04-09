@@ -134,15 +134,14 @@ const StripePaymentButton = ({
 
   return (
     <>
-      <Button
+      <button
         disabled={disabled || notReady}
         onClick={handlePayment}
-        size="large"
-        isLoading={submitting}
+        className="w-full lg:w-fit min-w-[300px] h-14 bg-accent text-bg font-manrope text-[13px] uppercase font-bold tracking-[0.3em] hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
         data-testid={dataTestId}
       >
-        Place order
-      </Button>
+        {submitting ? "Processing..." : "Place order"}
+      </button>
       <ErrorMessage
         error={errorMessage}
         data-testid="stripe-payment-error-message"
@@ -173,15 +172,14 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
 
   return (
     <>
-      <Button
+      <button
         disabled={notReady}
-        isLoading={submitting}
         onClick={handlePayment}
-        size="large"
+        className="w-full lg:w-fit min-w-[300px] h-14 bg-accent text-bg font-manrope text-[13px] uppercase font-bold tracking-[0.3em] hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
         data-testid="submit-order-button"
       >
-        Place order
-      </Button>
+        {submitting ? "Processing..." : "Place order"}
+      </button>
       <ErrorMessage
         error={errorMessage}
         data-testid="manual-payment-error-message"

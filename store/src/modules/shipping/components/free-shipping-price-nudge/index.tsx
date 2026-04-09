@@ -12,6 +12,7 @@ import { Button, clx } from "@medusajs/ui"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useState } from "react"
 import { StoreFreeShippingPrice } from "types/global"
+import { useUI } from "@lib/context/ui-context"
 
 const computeTarget = (
   cart: HttpTypes.StoreCart,
@@ -81,6 +82,7 @@ export default function ShippingPriceNudge({
   cart: StoreCart
   shippingOptions: StoreCartShippingOption[]
 }) {
+  const { openCartSidebar } = useUI()
   if (!cart || !shippingOptions?.length) {
     return
   }
@@ -195,6 +197,7 @@ function FreeShippingPopup({
   cart: StoreCart
   price: StoreFreeShippingPrice
 }) {
+  const { openCartSidebar } = useUI()
   const [isClosed, setIsClosed] = useState(false)
 
   return (
@@ -263,12 +266,12 @@ function FreeShippingPopup({
         </div>
 
         <div className="flex gap-3">
-          <LocalizedClientLink
+          <button
             className="rounded-2xl bg-transparent shadow-none outline-none border-[1px] border-white text-[15px] py-2.5 px-4"
-            href="/cart"
+            onClick={openCartSidebar}
           >
             View cart
-          </LocalizedClientLink>
+          </button>
 
           <LocalizedClientLink
             className="flex-grow rounded-2xl bg-white text-neutral-950 shadow-none outline-none border-[1px] border-white text-[15px] py-2.5 px-4 text-center"
