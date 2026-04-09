@@ -23,6 +23,8 @@ sdk.client.fetch = async <T>(
   init?: FetchArgs
 ): Promise<T> => {
   const headers = init?.headers ?? {}
+  const publishableKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY
+
   let localeHeader: Record<string, string | null> | undefined
   try {
     localeHeader = await getLocaleHeader()
@@ -31,6 +33,7 @@ sdk.client.fetch = async <T>(
 
   const newHeaders = {
     ...localeHeader,
+    ...(publishableKey ? { "x-publishable-key": publishableKey } : {}),
     ...headers,
   }
   init = {

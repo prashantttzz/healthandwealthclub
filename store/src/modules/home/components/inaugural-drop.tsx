@@ -3,10 +3,15 @@
 import { motion } from "framer-motion"
 import ProductPreview from "@modules/products/components/product-preview"
 import { HttpTypes } from "@medusajs/types"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import Image from "next/image"
+import { ArrowRight } from "lucide-react"
 
 export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[] }) => {
+  if (!products || products.length === 0) return null
+
   return (
-    <div className="px-6 md:px-12 lg:px-16 py-20 md:py-32 w-full mx-auto bg-bg">
+    <div className="px-6 md:px-12 lg:px-16 py-20 md:py-32 w-full mx-auto bg-bg border-t border-black/5">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -50,8 +55,24 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
               show: { opacity: 1, y: 0, transition: { duration: 0.8, ease: [0.16, 1, 0.3, 1] } }
             }}
           >
-            <ProductPreview product={product} />
-          </motion.li>
+            <LocalizedClientLink
+              href={`/products/${product.handle}`}
+              className="group block w-full"
+            >
+              <div data-testid="product-wrapper" className="relative flex flex-col  gap-2">
+                <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F9F6F2]">
+                  <Image
+                    src={product.thumbnail || ""}
+                    alt={product.title}
+                    fill
+                    sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                    className="object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                  <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                </div>
+                <button className="w-full bg-accent text-bg text-xs md:text-sm uppercase font-newsreader h-10 justify-center items-center flex gap-5 ">Shop Now <ArrowRight className="h-3 w-3"/></button>
+                </div>
+            </LocalizedClientLink>          </motion.li>
         ))}
       </motion.ul>
     </div>

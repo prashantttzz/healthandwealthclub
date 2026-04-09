@@ -12,42 +12,53 @@ export default function ProductPreview({
   return (
     <LocalizedClientLink
       href={`/products/${product.handle}`}
-      className="group block w-full mx-auto"
+      className="group block w-full"
     >
-      <div data-testid="product-wrapper" className="relative flex flex-col bg-bg overflow-hidden gap-5">
-
+      <div data-testid="product-wrapper" className="relative flex flex-col gap-6">
+        
         {/* Image Container */}
-        <div className="relative aspect-[419/502] w-full overflow-hidden">
-
-          {/* Sale Badge */}
-          <div className="absolute top-2 left-2 md:top-3 md:left-3 z-10">
-            <span className="bg-accent text-bg text-[8px] md:text-[10px] tracking-widest uppercase px-2 py-0.5 md:px-3 md:py-1 opacity-90">
-              Sale
-            </span>
-          </div>
-
+        <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F9F6F2]">
           <Image
             src={product.thumbnail || ""}
             alt={product.title}
             fill
             sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-            className="object-cover transition-transform duration-500 group-hover:scale-105"
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
+          
+          {/* Sale Badge */}
+          {product.variants?.[0]?.calculated_price?.calculated_amount < product.variants?.[0]?.calculated_price?.original_amount && (
+            <div className="absolute top-4 left-4 bg-red-600 text-white text-[9px] font-bold px-2 py-1 tracking-widest uppercase z-10">
+              Sale
+            </div>
+          )}
+
+          {/* Subtle Overlay on Hover */}
+          <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
         </div>
 
-        <div className="bg-accent py-2.5 md:py-4 flex items-center justify-center gap-1.5 md:gap-2 text-bg transition-colors group-hover:opacity-90">
-          <span className="font-manrope text-[10px] md:text-[11px] tracking-[0.2em] md:tracking-[0.3em] uppercase font-bold">
-            Shop Now
-          </span>
-          <svg
-            className="w-3 h-3 md:w-4 md:h-4"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            strokeWidth="1.5"
-          >
-            <path d="M5 12h14M12 5l7 7-7 7" />
-          </svg>
+        {/* Product Details */}
+        <div className="flex flex-col gap-1.5">
+          <div className="flex items-start justify-between gap-4">
+            <div className="space-y-1">
+              <h3 className="font-manrope text-[13px] font-medium text-accent leading-tight">
+                {product.title}
+              </h3>
+              <div className="font-manrope text-[11px] text-accent/40 font-medium">
+                {product.variants?.length || 1} {product.variants?.length === 1 ? 'Color' : 'Colors'}
+              </div>
+            </div>
+            <div className="flex flex-col items-end">
+              <div className="font-manrope text-[11px] md:text-sm font-bold text-accent">
+                {(product as any).calculated_price || "$85"}
+              </div>
+              {product.variants?.[0]?.calculated_price?.calculated_amount < product.variants?.[0]?.calculated_price?.original_amount && (
+                <div className="font-manrope text-[9px] text-accent/30 line-through">
+                  $124
+                </div>
+              )}
+            </div>
+          </div>
         </div>
       </div>
     </LocalizedClientLink>

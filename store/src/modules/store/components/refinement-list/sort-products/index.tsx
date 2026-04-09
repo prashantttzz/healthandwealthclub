@@ -35,13 +35,27 @@ const SortProducts = ({
   }
 
   return (
-    <FilterRadioGroup
-      title="Sort by"
-      items={sortOptions}
-      value={sortBy}
-      handleChange={handleChange}
-      data-testid={dataTestId}
-    />
+    <div className="flex flex-col gap-y-4">
+      <h4 className="text-[10px] tracking-[0.4em] uppercase font-bold text-accent/60 mb-2">
+        Sort By
+      </h4>
+      <div className="flex flex-col gap-2">
+        {sortOptions.map((option) => (
+          <button
+            key={option.value}
+            onClick={() => handleChange(option.value as SortOptions)}
+            className={`flex items-center justify-between px-4 py-3 text-[11px] uppercase tracking-widest transition-all ${
+              sortBy === option.value 
+                ? "bg-accent text-bg font-bold" 
+                : "bg-transparent text-accent/60 border border-black/5 hover:border-black/20"
+            }`}
+          >
+            {option.label}
+            {sortBy === option.value && <span className="text-[14px]">→</span>}
+          </button>
+        ))}
+      </div>
+    </div>
   )
 }
 

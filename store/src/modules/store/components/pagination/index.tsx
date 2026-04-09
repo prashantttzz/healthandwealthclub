@@ -35,9 +35,13 @@ export function Pagination({
   ) => (
     <button
       key={p}
-      className={clx("txt-xlarge-plus text-ui-fg-muted", {
-        "text-ui-fg-base hover:text-ui-fg-subtle": isCurrent,
-      })}
+      className={clx(
+        "flex items-center justify-center min-w-[32px] md:min-w-[40px] aspect-square rounded-lg text-[11px] font-bold transition-all duration-300",
+        {
+          "bg-accent text-bg shadow-lg": isCurrent,
+          "text-accent/40 hover:bg-accent/5 hover:text-accent": !isCurrent,
+        }
+      )}
       disabled={isCurrent}
       onClick={() => handlePageChange(p)}
     >
@@ -49,7 +53,7 @@ export function Pagination({
   const renderEllipsis = (key: string) => (
     <span
       key={key}
-      className="txt-xlarge-plus text-ui-fg-muted items-center cursor-default"
+      className="flex items-center justify-center min-w-[32px] md:min-w-[40px] aspect-square text-accent/20 cursor-default"
     >
       ...
     </span>
@@ -59,7 +63,7 @@ export function Pagination({
   const renderPageButtons = () => {
     const buttons = []
 
-    if (totalPages <= 7) {
+    if (totalPages <= 5) {
       // Show all pages
       buttons.push(
         ...arrayRange(1, totalPages).map((p) =>
@@ -68,26 +72,23 @@ export function Pagination({
       )
     } else {
       // Handle different cases for displaying pages and ellipses
-      if (page <= 4) {
-        // Show 1, 2, 3, 4, 5, ..., lastpage
+      if (page <= 3) {
         buttons.push(
-          ...arrayRange(1, 5).map((p) => renderPageButton(p, p, p === page))
+          ...arrayRange(1, 4).map((p) => renderPageButton(p, p, p === page))
         )
         buttons.push(renderEllipsis("ellipsis1"))
         buttons.push(
           renderPageButton(totalPages, totalPages, totalPages === page)
         )
-      } else if (page >= totalPages - 3) {
-        // Show 1, ..., lastpage - 4, lastpage - 3, lastpage - 2, lastpage - 1, lastpage
+      } else if (page >= totalPages - 2) {
         buttons.push(renderPageButton(1, 1, 1 === page))
         buttons.push(renderEllipsis("ellipsis2"))
         buttons.push(
-          ...arrayRange(totalPages - 4, totalPages).map((p) =>
+          ...arrayRange(totalPages - 3, totalPages).map((p) =>
             renderPageButton(p, p, p === page)
           )
         )
       } else {
-        // Show 1, ..., page - 1, page, page + 1, ..., lastpage
         buttons.push(renderPageButton(1, 1, 1 === page))
         buttons.push(renderEllipsis("ellipsis3"))
         buttons.push(
@@ -107,8 +108,32 @@ export function Pagination({
 
   // Render the component
   return (
-    <div className="flex justify-center w-full mt-12">
-      <div className="flex gap-3 items-end" data-testid={dataTestid}>{renderPageButtons()}</div>
+    <div className="flex flex-col items-center gap-6 w-full mt-24 py-8 border-t border-black/5">
+      <div className="text-[10px] uppercase font-bold tracking-[0.3em] text-accent/30">
+        Page <span className="text-accent">{page}</span> of {totalPages}
+      </div>
+      
+      <div className="flex items-center gap-2 md:gap-4">
+        <button 
+          onClick={() => handlePageChange(page - 1)}
+          disabled={page === 1}
+          className="px-4 py-2 text-[10px] uppercase font-bold tracking-widest text-accent disabled:opacity-20 hover:bg-accent/5 rounded-lg transition-all"
+        >
+          Previous
+        </button>
+
+        <div className="flex gap-1 md:gap-2 items-center" data-testid={dataTestid}>
+          {renderPageButtons()}
+        </div>
+
+        <button 
+          onClick={() => handlePageChange(page + 1)}
+          disabled={page === totalPages}
+          className="px-4 py-2 text-[10px] uppercase font-bold tracking-widest text-accent disabled:opacity-20 hover:bg-accent/5 rounded-lg transition-all"
+        >
+          Next
+        </button>
+      </div>
     </div>
   )
 }

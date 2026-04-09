@@ -91,6 +91,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
                 height={40} 
                 width={150} 
                 className="h-10 w-auto" 
+                style={{ height: 'auto' }}
                 alt="main-logo"
                 priority
               />
@@ -118,7 +119,9 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
                 height={40} 
                 width={120} 
                 className="h-8 w-auto" 
+                style={{ height: 'auto' }}
                 alt="main-logo"
+                priority
               />
             </LocalizedClientLink>
             
@@ -146,7 +149,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
                     animate={{ width: 200, opacity: 1 }}
                     exit={{ width: 0, opacity: 0 }}
                     onSubmit={handleSearchSubmit}
-                    className="absolute right-10 flex items-center bg-bg/10 backdrop-blur-md rounded-full px-4 py-1.5 border border-current/20"
+                    className="absolute right-10 flex items-center bg-bg/10 backdrop-blur-md rounded-full px-4 py-2 border border-current/20"
                   >
                     <input 
                       autoFocus
@@ -154,7 +157,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
                       placeholder="Search Experience..."
                       value={searchValue}
                       onChange={(e) => setSearchValue(e.target.value)}
-                      className="bg-transparent border-none outline-none text-[10px] w-full font-manrope placeholder:text-current/30 uppercase tracking-widest"
+                      className="bg-transparent border-none outline-none text-[10px] w-full font-manrope placeholder:text-current/30 italic"
                     />
                   </motion.form>
                 ) : null}
@@ -184,7 +187,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
                       placeholder="Search..."
                       value={searchValue}
                       onChange={(e) => setSearchValue(e.target.value)}
-                      className="bg-transparent border-none outline-none text-xs w-full text-accent placeholder:text-accent/30 uppercase tracking-widest"
+                      className="bg-transparent border-none outline-none text-xs w-full text-accent placeholder:text-accent/30 italic  tracking-widest"
                     />
                   </form>
                 </motion.div>

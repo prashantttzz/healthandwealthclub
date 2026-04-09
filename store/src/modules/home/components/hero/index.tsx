@@ -3,8 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 
-// --- Slide Definitions ---
-// Add or remove slides here. 'type: video' uses home-video.mp4
+
 const SLIDES = [
   {
     id: 0,
@@ -194,26 +193,26 @@ const Hero = () => {
       {/* Bottom Controls (optimized scroll link) */}
       <motion.div
         style={{ opacity: controlsOpacity }}
-        className="absolute bottom-8 left-0 right-0 z-20 flex flex-col items-center gap-6"
+        className="absolute bottom-10 left-0 right-0 z-20 flex flex-col items-center gap-8"
       >
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-4">
           {SLIDES.map((s, i) => (
             <button
               key={s.id}
               onClick={() => goToSlide(i)}
-              className="relative flex items-center justify-center w-6 h-6"
+              className="relative flex items-center justify-center p-2"
             >
-              <div className={`h-[12px] w-[1px] transition-all duration-700 ${i === activeIndex ? "bg-white scale-y-150" : "bg-white/20"}`} />
+              <div className={`h-[2px] transition-all duration-700 rounded-full ${i === activeIndex ? "w-8 bg-white" : "w-2 bg-white/30"}`} />
             </button>
           ))}
         </div>
-        <div className="flex flex-col items-center gap-2">
+        <div className="flex flex-col items-center gap-3">
           <motion.div 
-            animate={{ y: [0, 8, 0] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-[1px] h-10 bg-gradient-to-b from-white to-transparent" 
+            animate={{ y: [0, 10, 0] }}
+            transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
+            className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent" 
           />
-          <span className="text-[9px] text-white/40 uppercase tracking-[0.3em] font-medium font-manrope">The Club Experience</span>
+          <span className="text-[10px] text-white/50 uppercase font-manrope font-medium tracking-[0.4em]">Scroll to Explore</span>
         </div>
       </motion.div>
     </section>

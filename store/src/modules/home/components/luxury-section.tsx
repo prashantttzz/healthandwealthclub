@@ -29,8 +29,8 @@ export default function LuxurySection() {
         style={{
           y: imageY,
           position: "absolute",
-          top: "-15%",
-          bottom: "-15%",
+          top: "-20%",
+          bottom: "-20%",
           left: 0,
           right: 0,
           willChange: "transform",
@@ -63,7 +63,7 @@ export default function LuxurySection() {
         {/* Heading */}
         <div style={{ overflow: "hidden" }}>
           <motion.h2
-            className="text-white font-newsreader text-4xl sm:text-6xl lg:text-8xl italic tracking-tighter leading-none"
+            className="text-white font-newsreader text-5xl sm:text-6xl lg:text-8xl italic tracking-tighter leading-none"
             initial={{ y: "100%", opacity: 0 }}
             whileInView={{ y: "0%", opacity: 1 }}
             viewport={{ once: true }}
