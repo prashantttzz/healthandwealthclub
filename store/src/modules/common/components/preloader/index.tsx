@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
+import Image from "next/image"
 
 export default function Preloader() {
   const [isLoading, setIsLoading] = useState(true)
@@ -51,23 +52,13 @@ export default function Preloader() {
               }}
               className="flex flex-col items-center gap-4"
             >
-              <h1 className="font-newsreader italic text-6xl md:text-8xl text-bg tracking-tighter">
-                The Club
-              </h1>
-              
-              {/* Animated Progress Bar */}
-              <div className="w-24 h-[1px] bg-bg/10 relative overflow-hidden mt-4">
-                <motion.div 
-                  initial={{ x: "-100%" }}
-                  animate={{ x: "100%" }}
-                  transition={{ 
-                    duration: 1.8, 
-                    ease: "easeInOut",
-                    repeat: 0
-                  }}
-                  className="absolute inset-0 bg-bg"
-                />
-              </div>
+              <Image 
+                src="/main-logo.png" 
+                alt="The Club Logo" 
+                width={400} 
+                height={400} 
+                className="invert brightness-0"
+              />
             </motion.div>
 
             {/* Subtle Texture/Grain */}

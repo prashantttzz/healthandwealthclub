@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from "framer-motion"
 import { clx } from "@medusajs/ui"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { StarIcon, CheckmarkCircle01Icon } from "@hugeicons/core-free-icons"
+import { sdk } from "@lib/config"
 
 type Review = {
   id: string
@@ -26,12 +27,14 @@ const ProductReviews = ({ productId }: { productId: string }) => {
   const fetchReviews = async () => {
     setIsLoading(true)
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"}/store/reviews?product_id=${productId}`, {
-        headers: {
-          "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
+      const data = await sdk.client.fetch<{ reviews: Review[] }>(
+        "/store/reviews",
+        {
+          query: {
+            product_id: productId,
+          },
         }
-      })
-      const data = await response.json()
+      )
       setReviews(data.reviews || [])
     } catch (error) {
       console.error("Failed to fetch reviews:", error)
@@ -52,27 +55,21 @@ const ProductReviews = ({ productId }: { productId: string }) => {
 
     setIsSubmitting(true)
     try {
-      const response = await fetch(`${process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"}/store/reviews`, {
+      await sdk.client.fetch("/store/reviews", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || "",
-        },
-        body: JSON.stringify({
+        body: {
           product_id: productId,
           customer_name: name,
           rating,
           comment,
-        }),
+        },
       })
 
-      if (response.ok) {
-        setShowForm(false)
-        setRating(0)
-        setName("")
-        setComment("")
-        fetchReviews()
-      }
+      setShowForm(false)
+      setRating(0)
+      setName("")
+      setComment("")
+      fetchReviews()
     } catch (error) {
       console.error("Failed to submit review:", error)
     } finally {
@@ -85,7 +82,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
     : "0.0"
 
   return (
-    <div className="bg-[#F2EDE5] py-24 lg:py-32 border-t border-black/5">
+    <div className="bg-[#F2EDE5] py-10 lg:py-20 border-t border-black/5">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
         <div className="flex flex-col lg:flex-row gap-20">
           
@@ -220,17 +217,17 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                       <div key={review.id} className="pb-12 border-b border-black/5 last:border-0 space-y-4">
                         <div className="flex items-center justify-between">
                           <div className="space-y-1">
-                            <h4 className="font-manrope text-[11px] font-bold tracking-[0.2em] uppercase text-accent">{review.customer_name}</h4>
-                            <span className="font-manrope text-[9px] tracking-widest uppercase text-accent/30">{new Date(review.created_at).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()}</span>
+                            <h4 className="font-newsreader text-[14px] font-semibold italic text-accent">{review.customer_name}</h4>
+                            <span className="font-manrope text-[9px] tracking-widest uppercase text-accent/70">{new Date(review.created_at).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()}</span>
                           </div>
                           <StarRating rating={review.rating} />
                         </div>
-                        <p className="font-manrope text-[14px] leading-relaxed text-accent/60 max-w-2xl">
+                        <p className="font-manrope text-[14px] leading-relaxed text-accent max-w-2xl">
                           {review.comment}
                         </p>
-                        <div className="flex items-center gap-1.5 text-accent/40">
-                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12} />
-                          <span className="font-manrope text-[9px] tracking-widest uppercase italic">Verified Experience</span>
+                        <div className="flex items-center gap-1.5 text-accent/60">
+                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12}/>
+                          <span className="font-manrope text-[9px] tracking-widest uppercase italic font-bold">Verified Experience</span>
                         </div>
                       </div>
                     ))

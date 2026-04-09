@@ -11,6 +11,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { usePathname } from "next/navigation"
 import { clx } from "@medusajs/ui"
+import Image from "next/image"
 
 const menuVariants = {
   closed: {
@@ -81,7 +82,7 @@ export default function MobileMenu({
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-16 border-b border-black/5">
-              <span className="font-newsreader italic text-xl text-accent">The Club</span>
+            <Image className="" src={"/main-logo.png"} alt="logo" height={150} width={150}/>
               <button 
                 onClick={onClose}
                 className="p-2 -mr-2 text-accent hover:rotate-90 transition-transform duration-300"
@@ -110,8 +111,8 @@ export default function MobileMenu({
                         href={link.href}
                         onClick={onClose}
                         className={clx(
-                          "font-newsreader italic text-3xl text-accent transition-all block relative w-fit uppercase",
-                          isActive ? "opacity-100 " : "opacity-20 hover:opacity-40"
+                          "font-newsreader italic text-3xl text-accent transition-all block relative w-fit ",
+                          isActive ? "opacity-100 " : "text-black/40"
                         )}
                       >
                         {link.name}

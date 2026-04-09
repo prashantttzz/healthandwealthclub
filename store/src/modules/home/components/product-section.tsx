@@ -112,7 +112,7 @@ export default function ProductSection({ products }: { products: HttpTypes.Store
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
 
         {/* Section Header */}
-        <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 mb-8 lg:mb-12">
+        <div className="flex flex-row md:items-end justify-between gap-6 mb-8 lg:mb-12">
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}

@@ -118,22 +118,22 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             </div>
           </div>
 
-          <div className="w-full lg:w-[40%]  flex flex-col pt-10 space-y-10">
+          <div className="w-full lg:w-[40%]  flex flex-col pt-10 space-y-5 md:space-y-10">
 
             <div className="space-y-4">
-              <span className="font-manrope text-[12x] tracking-[0.3em] uppercase font-regular text-accent/80 block">
+              <span className="font-manrope text-xs md:text-[12x] tracking-[0.3em] uppercase font-regular text-accent/80 block">
                 {product.collection?.title || "Limited Edition Collection"}
               </span>
-              <h1 className="font-newsreader italic text-6xl lg:text-8xl leading-none text-accent tracking-tighter">
+              <h1 className="font-newsreader italic text-4xl lg:text-8xl leading-none text-accent tracking-tighter">
                 {product.title}
               </h1>
-              <p className="font-newsreader italic text-[20px] text-accent/60">
+              <p className="font-newsreader italic text-[15px] md:text-[20px] text-accent/60">
                 {selectedVariant?.title || "Experience Selection"}
               </p>
             </div>
 
             {/* Pricing */}
-            <div className="text-3xl font-manrope font-light tracking-tight text-accent">
+            <div className="text-2xl md:text-3xl font-manrope font-light tracking-tight text-accent">
               {selectedPrice?.calculated_price}
             </div>
 
@@ -223,7 +223,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             </div>
 
             {/* PRODUCT TABS */}
-            <div className="pt-4 border-t border-black/5 mt-8">
+            <div className="pt-4 mt-8">
               <ProductTabs product={product} />
             </div>
           </div>

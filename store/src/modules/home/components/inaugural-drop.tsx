@@ -15,7 +15,7 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
         className="w-full items-center justify-center flex flex-col mb-12"
       >
         {/* Overline */}
-        <span className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent/40 mb-4">
+        <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/70 mb-4">
           Explore the Pillars
         </span>
 
@@ -24,10 +24,6 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
           The Inaugural Drop
         </h2>
 
-        {/* Sub-overline */}
-        <p className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent/30 mt-4 text-center">
-          Intentional Living &amp; Timeless Style
-        </p>
       </motion.div>
 
       <motion.ul

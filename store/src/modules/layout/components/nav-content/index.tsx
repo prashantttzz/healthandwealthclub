@@ -59,7 +59,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
   const showSolid = isScrolled || !isHome
 
   return (
-    <div className="fixed top-0 inset-x-0 z-50 pointer-events-none">
+    <div className="fixed top-0 inset-x-0 z-[1000] pointer-events-none">
       <motion.header 
         key={showSolid ? "scrolled" : "top"}
         initial={{ y: -64 }}
