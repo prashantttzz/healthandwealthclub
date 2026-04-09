@@ -1,6 +1,7 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback } from "react"
+import React, { createContext, useContext, useState, useCallback, useEffect } from "react"
+import { usePathname } from "next/navigation"
 
 interface UIContextType {
   isCartSidebarOpen: boolean
@@ -13,6 +14,11 @@ const UIContext = createContext<UIContextType | undefined>(undefined)
 
 export const UIProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [isCartSidebarOpen, setIsCartSidebarOpen] = useState(false)
+  const pathname = usePathname()
+
+  useEffect(() => {
+    setIsCartSidebarOpen(false)
+  }, [pathname])
 
   const openCartSidebar = useCallback(() => setIsCartSidebarOpen(true), [])
   const closeCartSidebar = useCallback(() => setIsCartSidebarOpen(false), [])

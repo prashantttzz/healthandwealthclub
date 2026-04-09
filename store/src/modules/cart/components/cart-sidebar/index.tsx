@@ -164,7 +164,6 @@ const CartSidebar = ({
                       >
                         <LocalizedClientLink
                           href={`/products/${item.product_handle}`}
-                          onClick={closeCartSidebar}
                           className="w-20 h-24 shrink-0 group relative bg-black/5 overflow-hidden rounded-sm"
                         >
                           <Thumbnail
@@ -180,7 +179,6 @@ const CartSidebar = ({
                             <h3 className="font-manrope text-[13px] font-medium leading-snug max-w-[180px]">
                               <LocalizedClientLink
                                 href={`/products/${item.product_handle}`}
-                                onClick={closeCartSidebar}
                                 className="hover:opacity-70 transition-opacity"
                               >
                                 {item.title}
@@ -215,7 +213,6 @@ const CartSidebar = ({
                   </div>
                   <LocalizedClientLink
                     href="/store"
-                    onClick={closeCartSidebar}
                     className="w-full max-w-[260px]"
                   >
                     <button className="w-full py-4 border border-black/10 text-black font-manrope text-[10px] uppercase font-bold tracking-[0.3em] hover:bg-black hover:text-white transition-all duration-300 rounded-none">
@@ -248,7 +245,6 @@ const CartSidebar = ({
                   
                   <LocalizedClientLink
                     href="/checkout"
-                    onClick={closeCartSidebar}
                     className="block w-full"
                   >
                     <button className="w-full py-5 bg-accent text-white font-manrope text-[13px]  tracking-[0.3em] hover:bg-accent transition-all duration-300 uppercase">
