@@ -4,9 +4,11 @@ import React, { useState, useMemo, useEffect } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { convertToLocale } from "@lib/util/money"
 import { updateLineItem, deleteLineItem, applyPromotions, getAvailablePromotions } from "@lib/data/cart"
-import { deleteCustomerAddress } from "@lib/data/customer"
+import { deleteCustomerAddress, addCustomerAddress, login, signup } from "@lib/data/customer"
 import Thumbnail from "@modules/products/components/thumbnail"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { useActionState } from "react"
+import { useRouter } from "next/navigation"
 
 import { Check, X, Minus, Plus, ChevronRight, ChevronLeft, Home, Truck, CreditCard, ShieldCheck, Tag, MoreHorizontal, Banknote, ShoppingBag, ArrowRight } from "lucide-react"
 
@@ -154,10 +156,10 @@ const BagStep = ({ cart, onContinue }: { cart: HttpTypes.StoreCart; onContinue: 
       <p className="font-manrope text-[13px] uppercase font-bold tracking-[0.2em] text-accent/40">{items.length} Item{items.length > 1 ? "s" : ""}</p>
 
       {/* Items */}
-      <div className="flex flex-col divide-y divide-accent/5">
+      <div className="flex flex-col gap-4 lg:gap-0 lg:divide-y lg:divide-accent/5">
         {items.map((item) => (
-          <div key={item.id} className={`flex gap-6 py-8 first:pt-0 transition-opacity duration-300 ${updatingId === item.id ? "opacity-30 pointer-events-none" : ""}`}>
-            <div className="w-[90px] h-[115px] bg-accent/[0.02] flex-shrink-0 overflow-hidden">
+          <div key={item.id} className={`flex gap-6 p-4 bg-black/[0.04] lg:bg-transparent lg:p-0 lg:py-8 lg:first:pt-0 transition-opacity duration-300 ${updatingId === item.id ? "opacity-30 pointer-events-none" : ""}`}>
+            <div className="w-[90px] h-[115px] bg-accent/[0.04] lg:bg-accent/[0.02] flex-shrink-0 overflow-hidden">
               <Thumbnail thumbnail={item.thumbnail} images={item.variant?.product?.images} size="square" />
             </div>
             <div className="flex-1 flex flex-col justify-between min-w-0">
@@ -188,13 +190,11 @@ const BagStep = ({ cart, onContinue }: { cart: HttpTypes.StoreCart; onContinue: 
       </div>
 
       {/* Coupons */}
-      <div className="flex items-center justify-between border border-accent/5 bg-black/[0.02] p-6">
+      <div className="flex items-center justify-between border border-accent/5 bg-black/[0.04] lg:bg-black/[0.02] p-6">
         <div className="flex items-center gap-3">{Ico.tag("text-accent/60 w-4 h-4")}<span className="font-manrope text-[14px] font-bold text-accent">Coupons & Offers</span></div>
         <button onClick={() => setCouponOpen(true)} className="font-manrope text-[12px] uppercase font-bold tracking-[0.15em] text-accent/60 flex items-center gap-1 hover:text-accent transition-colors">Apply Coupon {Ico.chevRight("w-4 h-4")}</button>
       </div>
 
-      <button onClick={onContinue} className="w-full py-5 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all duration-300 lg:hidden mt-2">Proceed to Address</button>
-      
       <CouponSidebar isOpen={couponOpen} onClose={() => setCouponOpen(false)} onApply={async (code) => { setUpdatingId("promo"); try { await applyPromotions([code]) } finally { setUpdatingId(null) } }} />
     </div>
   )
@@ -207,7 +207,23 @@ const AddressSidebar = ({ isOpen, onClose, addresses, onSelect, onDelete }: {
 }) => {
   const [view, setView] = useState<"list" | "form">("list")
   const [formData, setFormData] = useState({ first_name: "", last_name: "", phone: "", address_1: "", address_2: "", city: "", province: "", postal_code: "", country_code: "in", address_name: "Home" })
+  const [isSaving, setIsSaving] = useState(false)
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }))
+
+  const handleSave = async () => {
+    setIsSaving(true)
+    const fd = new FormData()
+    Object.entries(formData).forEach(([k, v]) => fd.append(k, v))
+    const res = await addCustomerAddress({}, fd)
+    setIsSaving(false)
+    if (res.success) {
+      setView("list")
+      onClose()
+    } else {
+      console.error(res.error)
+    }
+  }
 
   return (
     <>
@@ -261,8 +277,114 @@ const AddressSidebar = ({ isOpen, onClose, addresses, onSelect, onDelete }: {
                   <button key={t} onClick={() => setFormData(p => ({ ...p, address_name: t }))} className={`px-5 py-3 font-manrope text-[11px] font-bold uppercase tracking-widest border transition-all ${formData.address_name === t ? "bg-accent text-bg border-accent" : "bg-transparent text-accent/40 border-accent/10 hover:border-accent/30"}`}>{t}</button>
                 ))}
               </div>
-              <button onClick={() => { onSelect(formData as any); setView("list"); onClose() }} className="w-full py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase mt-4 hover:bg-accent/90 transition-all">Save Address</button>
+              <button onClick={handleSave} disabled={isSaving} className="w-full py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase mt-4 hover:bg-accent/90 transition-all disabled:opacity-50">
+                {isSaving ? "Saving..." : "Save Address"}
+              </button>
             </div>
+          )}
+        </div>
+      </div>
+    </>
+  )
+}
+
+/* ━━━━━━━━━━ AUTH SIDEBAR ━━━━━━━━━━ */
+const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
+  const [view, setView] = useState<"login" | "signup">("login")
+  const [loginMessage, loginAction, pendingLogin] = useActionState(login, null)
+  const [signupMessage, signupAction, pendingSignup] = useActionState(signup, null)
+
+  // Listen to successful login (message is undefined on success)
+  useEffect(() => {
+    if (isOpen && pendingLogin === false && loginMessage === undefined) {
+      window.location.reload()
+    }
+  }, [pendingLogin, loginMessage, isOpen])
+
+  // Listen to successful signup (message is an object on success)
+  useEffect(() => {
+    if (isOpen && pendingSignup === false && signupMessage && typeof signupMessage === "object") {
+      window.location.reload()
+    }
+  }, [pendingSignup, signupMessage, isOpen])
+
+  return (
+    <>
+      <div className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[90] transition-opacity duration-500 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={onClose} />
+      <div className={`fixed top-0 right-0 h-full w-full max-w-[460px] bg-bg z-[100] shadow-2xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+        <div className="flex items-center justify-between px-8 py-6 border-b border-accent/5">
+          <h2 className="font-newsreader italic text-3xl text-accent">{view === "login" ? "Welcome Back" : "Join the Club"}</h2>
+          <button onClick={onClose} className="p-2 text-accent/30 hover:text-accent transition-colors">{Ico.x("w-5 h-5")}</button>
+        </div>
+
+        <div className="flex-1 overflow-y-auto px-8 py-8">
+          {view === "login" ? (
+            <form action={loginAction} className="flex flex-col gap-5">
+              <p className="font-manrope text-[13px] text-accent/50 mb-4 leading-relaxed">Sign in to sync your bag and access your saved addresses for a seamless experience.</p>
+              
+              <div className="flex flex-col gap-2">
+                <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Email Address</label>
+                <input name="email" type="email" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
+              </div>
+              <div className="flex flex-col gap-2">
+                <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Password</label>
+                <input name="password" type="password" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
+              </div>
+              
+              {loginMessage && typeof loginMessage === "string" && (
+                <p className="text-red-500 font-manrope text-[11px] font-bold mt-2">{loginMessage}</p>
+              )}
+
+              <button disabled={pendingLogin} className="w-full py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase mt-4 hover:bg-accent/90 transition-all disabled:opacity-50">
+                {pendingLogin ? "Authenticating..." : "Sign In"}
+              </button>
+
+              <button type="button" onClick={() => setView("signup")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
+                New here? create an account
+              </button>
+            </form>
+          ) : (
+            <form action={signupAction} className="flex flex-col gap-5">
+              <p className="font-manrope text-[13px] text-accent/50 mb-4 leading-relaxed">Create an account to checkout faster and track your orders seamlessly.</p>
+              
+              <div className="flex gap-4">
+                <div className="flex flex-col gap-2 flex-1">
+                  <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">First Name</label>
+                  <input name="first_name" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors" />
+                </div>
+                <div className="flex flex-col gap-2 flex-1">
+                  <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Last Name</label>
+                  <input name="last_name" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors" />
+                </div>
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Phone</label>
+                <input name="phone" type="tel" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors" />
+              </div>
+
+              <div className="flex flex-col gap-2">
+                <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Email Address</label>
+                <input name="email" type="email" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors" />
+              </div>
+              
+              <div className="flex flex-col gap-2">
+                <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Password</label>
+                <input name="password" type="password" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors" />
+              </div>
+
+              {signupMessage && typeof signupMessage === "string" && (
+                <p className="text-red-500 font-manrope text-[11px] font-bold mt-2">{signupMessage}</p>
+              )}
+
+              <button disabled={pendingSignup} className="w-full py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase mt-4 hover:bg-accent/90 transition-all disabled:opacity-50">
+                {pendingSignup ? "Creating..." : "Create Account"}
+              </button>
+
+              <button type="button" onClick={() => setView("login")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
+                Already a member? Sign in
+              </button>
+            </form>
           )}
         </div>
       </div>
@@ -304,9 +426,12 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
             <button onClick={() => setSidebarOpen(true)} className="px-5 py-3 border border-accent/10 font-manrope text-[11px] font-bold text-accent uppercase tracking-widest hover:border-accent hover:bg-accent hover:text-bg transition-all duration-300 flex-shrink-0">Change Address</button>
           </div>
         ) : (
-          <button onClick={() => setSidebarOpen(true)} className="w-full flex items-center justify-center gap-4 py-14 border-2 border-dashed border-accent/10 text-accent/25 hover:border-accent/30 hover:text-accent/50 transition-all duration-300 bg-black/[0.02]">
-            {Ico.home("w-6 h-6")}
-            <span className="font-manrope text-[13px] font-bold uppercase tracking-widest">No address selected — tap to choose one</span>
+          <button onClick={() => setSidebarOpen(true)} className="w-full flex items-center justify-between p-5 border border-accent/10 text-accent/50 hover:border-accent/30 hover:bg-black/[0.02] transition-all duration-300 bg-black/[0.04] lg:bg-black/[0.02] shadow-sm">
+            <div className="flex items-center gap-4">
+              {Ico.plus("w-5 h-5")}
+              <span className="font-manrope text-[13px] font-bold uppercase tracking-widest">Add New Address</span>
+            </div>
+            {Ico.chevRight("w-4 h-4")}
           </button>
         )}
       </div>
@@ -342,7 +467,7 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
       {selectedAddress && cart.items?.[0] && (
         <div>
           <h3 className="font-manrope text-[13px] font-bold text-accent uppercase tracking-[0.2em] mb-6">Delivery Estimates</h3>
-          <div className="flex items-center gap-5 p-6 bg-black/[0.02] border border-accent/5 shadow-sm">
+          <div className="flex items-center gap-5 p-6 bg-black/[0.04] lg:bg-black/[0.02] border border-accent/5 shadow-sm">
             <div className="w-14 h-16 bg-accent/[0.02] overflow-hidden flex-shrink-0"><Thumbnail thumbnail={cart.items[0].thumbnail} size="square" /></div>
             <div>
               <p className="font-manrope text-[14px] font-bold text-accent">{cart.items[0].product_title}</p>
@@ -352,18 +477,15 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
         </div>
       )}
 
-      <button onClick={onContinue} disabled={!selectedAddress} className="w-full py-5 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all duration-300 lg:hidden disabled:opacity-30 disabled:cursor-not-allowed mt-2">Continue</button>
-
       <AddressSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} addresses={customer?.addresses ?? []} onSelect={setSelectedAddress} onDelete={async (id) => { try { await deleteCustomerAddress(id) } catch {} }} />
     </div>
   )
 }
 
 /* ━━━━━━━━━━ STEP 3 — PAYMENT ━━━━━━━━━━ */
-const PaymentStep = ({ cart, onPlaceOrder }: { cart: HttpTypes.StoreCart; onPlaceOrder: () => void }) => {
+const PaymentStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
   const [method, setMethod] = useState<"card" | "cod" | "">("")
   const [cardForm, setCardForm] = useState({ number: "", name: "", expiry: "", cvv: "" })
-  const [showSuccess, setShowSuccess] = useState(false)
 
   const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target
@@ -375,45 +497,27 @@ const PaymentStep = ({ cart, onPlaceOrder }: { cart: HttpTypes.StoreCart; onPlac
 
   const brand = () => { const n = cardForm.number.replace(/\s/g, ""); return n.startsWith("4") ? "VISA" : n.startsWith("5") ? "MASTERCARD" : "" }
 
-  if (showSuccess) {
-    return (
-      <div className="fixed inset-0 bg-black/30 z-[200] flex items-center justify-center p-6">
-        <div className="bg-bg p-12 max-w-md w-full flex flex-col items-center gap-8 shadow-2xl animate-in zoom-in-95 fade-in duration-500">
-          <div className="w-20 h-20 bg-green-50 flex items-center justify-center rounded-full">
-            {Ico.check("w-10 h-10 text-green-500")}
-          </div>
-          <h2 className="font-newsreader italic text-3xl text-accent">Order Placed!</h2>
-          <p className="font-manrope text-[14px] text-accent/50 text-center leading-relaxed">Estimated delivery by <span className="font-bold text-accent">{new Date(Date.now() + 5 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span></p>
-          <div className="bg-accent/[0.03] border border-accent/5 p-6 w-full">
-            <div className="flex justify-between font-manrope text-[13px] uppercase tracking-widest font-bold"><span className="text-accent/40">Total Paid</span><span className="text-accent">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</span></div>
-          </div>
-          <LocalizedClientLink href="/store" className="px-10 py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all">Continue Shopping</LocalizedClientLink>
-        </div>
-      </div>
-    )
-  }
-
   return (
     <div className="flex flex-col gap-10">
       <h3 className="font-manrope text-[13px] font-bold text-accent uppercase tracking-[0.2em]">Select Payment Method</h3>
 
       {/* Card */}
       <div className={`border transition-all duration-300 overflow-hidden ${method === "card" ? "border-accent/20 shadow-sm" : "border-accent/5"}`}>
-        <button onClick={() => setMethod(method === "card" ? "" : "card")} className="w-full flex items-center justify-between p-6 bg-black/[0.02]">
+        <button onClick={() => setMethod(method === "card" ? "" : "card")} className="w-full flex items-center justify-between p-6 bg-black/[0.04] lg:bg-black/[0.02]">
           <div className="flex items-center gap-5">{Ico.card(`w-6 h-6 ${method === "card" ? "text-accent" : "text-accent/20"}`)}<span className={`font-manrope text-[15px] font-bold ${method === "card" ? "text-accent" : "text-accent/40"}`}>Credit / Debit Card</span></div>
           <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${method === "card" ? "border-accent bg-accent" : "border-accent/10"}`}>{method === "card" && <div className="w-2 h-2 rounded-full bg-bg" />}</span>
         </button>
         {method === "card" && (
-          <div className="px-6 pb-6 border-t border-accent/5 pt-5 animate-in slide-in-from-top-2 fade-in duration-300 bg-black/[0.02]">
+          <div className="px-6 pb-6 border-t border-accent/5 pt-5 animate-in slide-in-from-top-2 fade-in duration-300 bg-black/[0.04] lg:bg-black/[0.02]">
             <div className="flex flex-col gap-4">
               <div className="relative">
-                <input name="number" value={cardForm.number} onChange={handleCardChange} placeholder="Card Number" className="w-full h-13 px-4 pr-24 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
+                <input name="number" value={cardForm.number} onChange={handleCardChange} placeholder="Card Number" className="w-full h-13 px-4 pr-24 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
                 {brand() && <span className="absolute right-4 top-1/2 -translate-y-1/2 font-manrope text-[10px] font-bold text-accent/30 tracking-widest">{brand()}</span>}
               </div>
-              <input name="name" value={cardForm.name} onChange={handleCardChange} placeholder="Cardholder Name" className="w-full h-13 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
+              <input name="name" value={cardForm.name} onChange={handleCardChange} placeholder="Cardholder Name" className="w-full h-13 px-4 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
               <div className="grid grid-cols-2 gap-4">
-                <input name="expiry" value={cardForm.expiry} onChange={handleCardChange} placeholder="MM/YY" className="w-full h-13 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
-                <input name="cvv" value={cardForm.cvv} onChange={handleCardChange} type="password" placeholder="CVV" className="w-full h-13 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
+                <input name="expiry" value={cardForm.expiry} onChange={handleCardChange} placeholder="MM/YY" className="w-full h-13 px-4 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
+                <input name="cvv" value={cardForm.cvv} onChange={handleCardChange} type="password" placeholder="CVV" className="w-full h-13 px-4 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
               </div>
               <div className="flex items-center gap-2 text-accent/20 mt-1">{Ico.shield("w-4 h-4")}<span className="font-manrope text-[10px] uppercase tracking-widest">Secured by 256-bit SSL encryption</span></div>
             </div>
@@ -423,19 +527,18 @@ const PaymentStep = ({ cart, onPlaceOrder }: { cart: HttpTypes.StoreCart; onPlac
 
       {/* COD */}
       <div className={`border transition-all duration-300 overflow-hidden ${method === "cod" ? "border-accent/20 shadow-sm" : "border-accent/5"}`}>
-        <button onClick={() => setMethod(method === "cod" ? "" : "cod")} className="w-full flex items-center justify-between p-6 bg-black/[0.02]">
+        <button onClick={() => setMethod(method === "cod" ? "" : "cod")} className="w-full flex items-center justify-between p-6 bg-black/[0.04] lg:bg-black/[0.02]">
           <div className="flex items-center gap-5">{Ico.money(`w-6 h-6 ${method === "cod" ? "text-accent" : "text-accent/20"}`)}<span className={`font-manrope text-[15px] font-bold ${method === "cod" ? "text-accent" : "text-accent/40"}`}>Cash on Delivery (COD)</span></div>
           <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${method === "cod" ? "border-accent bg-accent" : "border-accent/10"}`}>{method === "cod" && <div className="w-2 h-2 rounded-full bg-bg" />}</span>
         </button>
         {method === "cod" && (
-          <div className="px-6 pb-6 border-t border-accent/5 pt-4 animate-in slide-in-from-top-2 fade-in duration-300 bg-black/[0.02]">
+          <div className="px-6 pb-6 border-t border-accent/5 pt-4 animate-in slide-in-from-top-2 fade-in duration-300 bg-black/[0.04] lg:bg-black/[0.02]">
             <p className="font-manrope text-[14px] text-accent/50">Pay <span className="font-bold text-accent">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</span> in cash at the time of delivery.</p>
           </div>
         )}
       </div>
 
-      <button onClick={() => { setShowSuccess(true); onPlaceOrder() }} disabled={!method} className="w-full py-5 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all duration-300 disabled:opacity-30 disabled:cursor-not-allowed mt-2">Place Order</button>
-      <p className="font-manrope text-[11px] text-accent/25 text-center -mt-6 uppercase tracking-widest">By placing order you agree to our <span className="underline cursor-pointer">Terms & Conditions</span></p>
+      <p className="font-manrope text-[11px] text-accent/25 text-center mt-2 uppercase tracking-widest">By placing order you agree to our <span className="underline cursor-pointer">Terms & Conditions</span></p>
     </div>
   )
 }
@@ -478,7 +581,7 @@ const OrderSummary = ({ cart, currentStep, onContinue, selectedAddress }: {
   const label = currentStep === 0 ? "PROCEED TO ADDRESS" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"
 
   return (
-    <div className="bg-black/[0.02] border border-accent/5 p-8 flex flex-col gap-8 shadow-sm">
+    <div className="bg-black/[0.04] lg:bg-black/[0.02] border border-accent/5 p-8 flex flex-col gap-8 shadow-sm">
       <div className="flex items-center justify-between">
         <h3 className="font-newsreader italic text-2xl text-accent">Price Details</h3>
         <span className="font-manrope text-[11px] uppercase font-bold tracking-widest text-accent/40 cursor-pointer hover:text-accent transition-colors">View {items.length} Item{items.length > 1 ? "s" : ""}</span>
@@ -517,8 +620,38 @@ const CheckoutFlow = ({ cart, customer }: { cart: HttpTypes.StoreCart; customer:
     customer?.addresses?.find(a => a.is_default_shipping) ?? customer?.addresses?.[0] ?? null
   )
   const [drawerOpen, setDrawerOpen] = useState(false)
+  const [showSuccess, setShowSuccess] = useState(false)
+  const [authOpen, setAuthOpen] = useState(false)
 
   const goToStep = (s: number) => { setCurrentStep(s); window.scrollTo({ top: 0, behavior: "smooth" }) }
+
+  const handleProceed = () => {
+    if (currentStep === 0 && !customer) {
+      setAuthOpen(true)
+    } else if (currentStep < 2) {
+      goToStep(currentStep + 1)
+    } else {
+      setShowSuccess(true)
+    }
+  }
+
+  if (showSuccess) {
+    return (
+      <div className="fixed inset-0 bg-black/30 z-[200] flex items-center justify-center p-6">
+        <div className="bg-bg p-12 max-w-md w-full flex flex-col items-center gap-8 shadow-2xl animate-in zoom-in-95 fade-in duration-500">
+          <div className="w-20 h-20 bg-green-50 flex items-center justify-center rounded-full">
+            {Ico.check("w-10 h-10 text-green-500")}
+          </div>
+          <h2 className="font-newsreader italic text-3xl text-accent">Order Placed!</h2>
+          <p className="font-manrope text-[14px] text-accent/50 text-center leading-relaxed">Estimated delivery by <span className="font-bold text-accent">{new Date(Date.now() + 5 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span></p>
+          <div className="bg-accent/[0.03] border border-accent/5 p-6 w-full">
+            <div className="flex justify-between font-manrope text-[13px] uppercase tracking-widest font-bold"><span className="text-accent/40">Total Paid</span><span className="text-accent">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</span></div>
+          </div>
+          <LocalizedClientLink href="/store" className="px-10 py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all">Continue Shopping</LocalizedClientLink>
+        </div>
+      </div>
+    )
+  }
 
   return (
     <div className="min-h-screen bg-bg">
@@ -537,12 +670,12 @@ const CheckoutFlow = ({ cart, customer }: { cart: HttpTypes.StoreCart; customer:
 
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-12">
           <div className="flex-1 lg:max-w-[calc(100%-400px)]">
-            {currentStep === 0 && <BagStep cart={cart} onContinue={() => goToStep(1)} />}
-            {currentStep === 1 && <AddressStep cart={cart} customer={customer} selectedAddress={selectedAddress} setSelectedAddress={setSelectedAddress} onContinue={() => goToStep(2)} />}
-            {currentStep === 2 && <PaymentStep cart={cart} onPlaceOrder={() => {}} />}
+            {currentStep === 0 && <BagStep cart={cart} onContinue={handleProceed} />}
+            {currentStep === 1 && <AddressStep cart={cart} customer={customer} selectedAddress={selectedAddress} setSelectedAddress={setSelectedAddress} onContinue={handleProceed} />}
+            {currentStep === 2 && <PaymentStep cart={cart} />}
           </div>
           <div className="hidden lg:block w-[380px] flex-shrink-0">
-            <div className="sticky top-24"><OrderSummary cart={cart} currentStep={currentStep} onContinue={currentStep < 2 ? () => goToStep(currentStep + 1) : () => {}} selectedAddress={selectedAddress} /></div>
+            <div className="sticky top-24"><OrderSummary cart={cart} currentStep={currentStep} onContinue={handleProceed} selectedAddress={selectedAddress} /></div>
           </div>
         </div>
       </div>
@@ -553,7 +686,7 @@ const CheckoutFlow = ({ cart, customer }: { cart: HttpTypes.StoreCart; customer:
           <p className="font-newsreader italic text-xl text-accent">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</p>
           <button className="font-manrope text-[10px] uppercase font-bold tracking-widest text-accent/40 flex items-center gap-1 mt-0.5">View Details {Ico.chevRight("w-3 h-3 -rotate-90")}</button>
         </div>
-        <button onClick={() => currentStep < 2 ? goToStep(currentStep + 1) : null} disabled={currentStep === 1 && !selectedAddress}
+        <button onClick={handleProceed} disabled={currentStep === 1 && !selectedAddress}
           className="px-8 py-4 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
           {currentStep === 0 ? "PROCEED" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"}
         </button>
@@ -561,6 +694,9 @@ const CheckoutFlow = ({ cart, customer }: { cart: HttpTypes.StoreCart; customer:
 
       {/* Mobile Price Drawer */}
       <MobilePriceDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} cart={cart} />
+
+      {/* Auth Sidebar */}
+      <AuthSidebar isOpen={authOpen} onClose={() => setAuthOpen(false)} />
     </div>
   )
 }

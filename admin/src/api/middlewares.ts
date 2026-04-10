@@ -9,7 +9,7 @@ export default defineMiddlewares({
     },
     {
       matcher: "/admin/reviews*",
-      middlewares: [authenticate("admin", ["session", "bearer", "api-key"])],
+      middlewares: [authenticate("user", ["session", "bearer", "api-key"])],
     },
   ],
 })

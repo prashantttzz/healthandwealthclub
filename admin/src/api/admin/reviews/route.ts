@@ -11,6 +11,7 @@ export async function GET(
   )
 
   const [reviews, count] = await reviewsModuleService.listAndCountReviews()
+  console.log("Admin get reviews:", reviews.length, count)
 
   res.json({
     reviews,

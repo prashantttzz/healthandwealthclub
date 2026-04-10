@@ -1,10 +1,6 @@
 import { Metadata } from "next"
 
-import ProfilePhone from "@modules/account//components/profile-phone"
-import ProfileBillingAddress from "@modules/account/components/profile-billing-address"
-import ProfileEmail from "@modules/account/components/profile-email"
-import ProfileName from "@modules/account/components/profile-name"
-import ProfilePassword from "@modules/account/components/profile-password"
+import PersonalInformationComponent from "@modules/account/components/personal-information"
 
 import { notFound } from "next/navigation"
 import { listRegions } from "@lib/data/regions"
@@ -34,21 +30,8 @@ export default async function Profile() {
         </p>
       </div>
       <div className="flex flex-col gap-y-8 w-full">
-        <ProfileName customer={customer} />
-        <Divider />
-        <ProfileEmail customer={customer} />
-        <Divider />
-        <ProfilePhone customer={customer} />
-        <Divider />
-        {/* <ProfilePassword customer={customer} />
-        <Divider /> */}
-        <ProfileBillingAddress customer={customer} regions={regions} />
+        <PersonalInformationComponent customer={customer} />
       </div>
     </div>
   )
 }
-
-const Divider = () => {
-  return <div className="w-full h-px bg-gray-200" />
-}
-;``

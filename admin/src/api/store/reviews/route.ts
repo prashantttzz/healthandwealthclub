@@ -38,11 +38,15 @@ export async function GET(
     REVIEWS_MODULE
   )
 
-  const product_id = req.query.product_id as string
+  const product_id = req.query.product_id as string | undefined
 
-  const [reviews, count] = await reviewsModuleService.listAndCountReviews({
-    product_id
-  })
+  const filters: any = {}
+  if (product_id) {
+    filters.product_id = product_id
+  }
+
+  const [reviews, count] = await reviewsModuleService.listAndCountReviews(filters)
+  console.log("Store get reviews for product", product_id, ":", reviews.length, count)
 
   res.json({
     reviews,

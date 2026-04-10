@@ -43,8 +43,8 @@ const CartSidebar = ({
   const { isCartSidebarOpen, closeCartSidebar } = useUI()
   const [updatingItemId, setUpdatingItemId] = useState<string | null>(null)
   const [optimisticQuantities, setOptimisticQuantities] = useState<Record<string, number>>({})
+  const [isNavigating, setIsNavigating] = useState(false)
 
-  // Merge actual cart items with optimistic quantities for an instant feel
   const items = (cart?.items || []).map(item => ({
     ...item,
     quantity: optimisticQuantities[item.id] !== undefined ? optimisticQuantities[item.id] : item.quantity
@@ -247,8 +247,11 @@ const CartSidebar = ({
                     href="/checkout"
                     className="block w-full"
                   >
-                    <button className="w-full py-5 bg-accent text-white font-manrope text-[13px]  tracking-[0.3em] hover:bg-accent transition-all duration-300 uppercase">
-                      CHECK OUT
+                    <button 
+                      onClick={() => setIsNavigating(true)}
+                      className="w-full py-5 bg-accent text-white font-manrope text-[13px] tracking-[0.3em] hover:bg-accent transition-all duration-300 uppercase flex items-center justify-center gap-2"
+                    >
+                      {isNavigating ? <Spinner /> : "CHECK OUT"}
                     </button>
                   </LocalizedClientLink>
                 </div>

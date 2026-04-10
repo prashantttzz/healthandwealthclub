@@ -4,6 +4,8 @@ import { clx } from "@medusajs/ui"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { StarIcon, CheckmarkCircle01Icon } from "@hugeicons/core-free-icons"
 import { sdk } from "@lib/config"
+import { useRouter } from "next/navigation"
+import { retrieveCustomer } from "@lib/data/customer"
 
 type Review = {
   id: string
@@ -23,6 +25,33 @@ const ProductReviews = ({ productId }: { productId: string }) => {
   const [hoverRating, setHoverRating] = useState(0)
   const [name, setName] = useState("")
   const [comment, setComment] = useState("")
+  const [isCheckingAuth, setIsCheckingAuth] = useState(false)
+  const router = useRouter()
+
+  const handleShareExperience = async () => {
+    if (showForm) {
+      setShowForm(false)
+      return
+    }
+
+    setIsCheckingAuth(true)
+    try {
+      const customer = await retrieveCustomer()
+      if (!customer) {
+        router.push("/account")
+      } else {
+        // Pre-fill name if available
+        if (customer.first_name && !name) {
+          setName(`${customer.first_name} ${customer.last_name || ""}`.trim())
+        }
+        setShowForm(true)
+      }
+    } catch (e) {
+      router.push("/account")
+    } finally {
+      setIsCheckingAuth(false)
+    }
+  }
 
   const fetchReviews = async () => {
     setIsLoading(true)
@@ -30,9 +59,10 @@ const ProductReviews = ({ productId }: { productId: string }) => {
       const data = await sdk.client.fetch<{ reviews: Review[] }>(
         "/store/reviews",
         {
-          query: {
-            product_id: productId,
-          },
+          method: "GET"
+        },
+        {
+          product_id: productId,
         }
       )
       setReviews(data.reviews || [])
@@ -108,11 +138,12 @@ const ProductReviews = ({ productId }: { productId: string }) => {
             </div>
 
             <button 
-              onClick={() => setShowForm(!showForm)}
-              className="group flex items-center gap-4 bg-accent text-bg px-8 py-4 rounded-full transition-all hover:scale-105"
+              onClick={handleShareExperience}
+              disabled={isCheckingAuth}
+              className="group flex items-center gap-4 bg-accent text-bg px-8 py-4 rounded-full transition-all hover:scale-105 disabled:opacity-75 disabled:cursor-wait"
             >
               <span className="font-manrope text-[10px] font-bold tracking-widest uppercase">
-                {showForm ? "Close Form" : "Share Your Experience"}
+                {isCheckingAuth ? "Authenticating..." : showForm ? "Close Form" : "Share Your Experience"}
               </span>
             </button>
           </div>
@@ -158,7 +189,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         <div className="space-y-2">
                           <label className="font-manrope text-[10px] tracking-widest uppercase font-bold text-accent/60">Your Name</label>
                           <input 
@@ -191,7 +222,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                       <button 
                         type="submit"
                         disabled={isSubmitting}
-                        className="w-full h-14 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.3em] uppercase transition-all hover:opacity-90 disabled:opacity-50"
+                        className="w-full h-14 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.3em] uppercase transition-all hover:opacity-90 disabled:opacity-50 mt-4"
                       >
                         {isSubmitting ? "Submitting..." : "Submit Experience"}
                       </button>
@@ -213,30 +244,34 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                       <p className="font-manrope text-[13px] text-accent/40 italic">No reviews yet for this piece. Be the first to share your experience.</p>
                     </div>
                   ) : (
-                    reviews.map((review) => (
-                      <div key={review.id} className="pb-12 border-b border-black/5 last:border-0 space-y-4">
-                        <div className="flex items-center justify-between">
-                          <div className="space-y-1">
-                            <h4 className="font-newsreader text-[14px] font-semibold italic text-accent">{review.customer_name}</h4>
-                            <span className="font-manrope text-[9px] tracking-widest uppercase text-accent/70">{new Date(review.created_at).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()}</span>
+                    <div className="grid grid-cols-1 gap-4">
+                      {reviews.map((review) => (
+                        <div key={review.id} className="bg-white/40 border border-black/5 rounded-2xl p-5 lg:p-6 space-y-4 shadow-sm hover:shadow-md hover:bg-white/60 transition-all duration-300">
+                          <div className="flex items-center justify-between">
+                            <div className="space-y-1">
+                              <h4 className="font-newsreader text-[16px] xl:text-[18px] font-semibold italic text-accent">{review.customer_name}</h4>
+                              <span className="font-manrope text-[9px] tracking-widest uppercase text-accent/50 block font-semibold">{new Date(review.created_at).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()}</span>
+                            </div>
+                            <StarRating rating={review.rating} size={14} />
                           </div>
-                          <StarRating rating={review.rating} />
+                          <p className="font-manrope text-[13px] xl:text-[14px] leading-relaxed text-accent/80 max-w-2xl">
+                            "{review.comment}"
+                          </p>
+                          <div className="flex items-center gap-1.5 pt-1 text-accent">
+                            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-green-700/80" />
+                            <span className="font-manrope text-[9px] tracking-widest uppercase italic font-bold text-green-700/80">Verified Experience</span>
+                          </div>
                         </div>
-                        <p className="font-manrope text-[14px] leading-relaxed text-accent max-w-2xl">
-                          {review.comment}
-                        </p>
-                        <div className="flex items-center gap-1.5 text-accent/60">
-                          <HugeiconsIcon icon={CheckmarkCircle01Icon} size={12}/>
-                          <span className="font-manrope text-[9px] tracking-widest uppercase italic font-bold">Verified Experience</span>
-                        </div>
-                      </div>
-                    ))
+                      ))}
+                    </div>
                   )}
 
                   {reviews.length > 0 && (
-                    <button className="font-manrope text-[10px] font-bold tracking-widest uppercase text-accent border-b border-accent pb-1 hover:opacity-50 transition-all">
-                      View All {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
-                    </button>
+                    <div className="pt-4">
+                      <button className="font-manrope text-[10px] font-bold tracking-widest uppercase text-accent border-b border-accent pb-1 hover:opacity-50 transition-all">
+                        View All {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
+                      </button>
+                    </div>
                   )}
                 </motion.div>
               )}

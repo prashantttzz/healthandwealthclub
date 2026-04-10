@@ -14,48 +14,59 @@ const Login = ({ setCurrentView }: Props) => {
 
   return (
     <div
-      className="max-w-sm w-full flex flex-col items-center"
+      className="max-w-sm w-full flex flex-col items-center font-manrope text-accent"
       data-testid="login-page"
     >
-      <h1 className="text-large-semi uppercase mb-6">Welcome back</h1>
-      <p className="text-center text-base-regular text-ui-fg-base mb-8">
-        Sign in to access an enhanced shopping experience.
+      <h1 className="text-4xl lg:text-5xl font-newsreader italic tracking-tight mb-2">Welcome Back</h1>
+      <p className="text-center text-[13px] text-accent/60 mb-10">
+        Sign in to access your account and enhanced shopping experience.
       </p>
-      <form className="w-full" action={formAction}>
-        <div className="flex flex-col w-full gap-y-2">
-          <Input
-            label="Email"
-            name="email"
-            type="email"
-            title="Enter a valid email address."
-            autoComplete="email"
-            required
-            data-testid="email-input"
-          />
-          <Input
-            label="Password"
-            name="password"
-            type="password"
-            autoComplete="current-password"
-            required
-            data-testid="password-input"
-          />
+      <form className="w-full space-y-6" action={formAction}>
+        <div className="flex flex-col w-full gap-5">
+          <div className="flex flex-col gap-2">
+            <label className="text-[12px] font-bold tracking-wide">Email</label>
+            <input
+              name="email"
+              type="email"
+              title="Enter a valid email address."
+              autoComplete="email"
+              required
+              className="w-full h-14 px-4 bg-transparent border border-accent/20 text-[14px] text-accent outline-none focus:border-accent/60 transition-colors placeholder:text-accent/30"
+              placeholder="hello@example.com"
+              data-testid="email-input"
+            />
+          </div>
+          <div className="flex flex-col gap-2">
+            <label className="text-[12px] font-bold tracking-wide">Password</label>
+            <input
+              name="password"
+              type="password"
+              autoComplete="current-password"
+              required
+              className="w-full h-14 px-4 bg-transparent border border-accent/20 text-[14px] text-accent outline-none focus:border-accent/60 transition-colors placeholder:text-accent/30"
+              placeholder="••••••••"
+              data-testid="password-input"
+            />
+          </div>
         </div>
         <ErrorMessage error={message} data-testid="login-error-message" />
-        <SubmitButton data-testid="sign-in-button" className="w-full mt-6">
+        <button 
+          type="submit"
+          className="w-full h-14 bg-accent text-bg font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50 mt-4" 
+          data-testid="sign-in-button"
+        >
           Sign in
-        </SubmitButton>
+        </button>
       </form>
-      <span className="text-center text-ui-fg-base text-small-regular mt-6">
+      <span className="text-center text-accent/60 text-[13px] mt-8">
         Not a member?{" "}
         <button
           onClick={() => setCurrentView(LOGIN_VIEW.REGISTER)}
-          className="underline"
+          className="font-bold text-accent underline tracking-wide"
           data-testid="register-button"
         >
-          Join us
+          Join us.
         </button>
-        .
       </span>
     </div>
   )

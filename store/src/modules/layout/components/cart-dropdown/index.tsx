@@ -23,7 +23,6 @@ const CartDropdown = ({
 
   const itemRef = useRef<number>(totalItems || 0)
 
-  // Automatic open when items are added, but only if not on checkout or already on cart
   useEffect(() => {
     if (itemRef.current !== totalItems && !pathname.includes("/checkout")) {
       openCartSidebar()
@@ -35,7 +34,7 @@ const CartDropdown = ({
     <div className="h-full z-50">
       <button 
         onClick={openCartSidebar}
-        className="h-full outline-none flex items-center p-2 relative group text-accent"
+        className="h-full outline-none flex items-center p-2 relative group"
       >
         <HugeiconsIcon 
           icon={ShoppingBag01Icon} 

@@ -202,7 +202,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
             {/* Cart */}
             <Suspense
               fallback={
-                <div className="relative p-2">
+                <div className="relative p-2 ">
                   <HugeiconsIcon icon={ShoppingBag01Icon} size={20} />
                 </div>
               }

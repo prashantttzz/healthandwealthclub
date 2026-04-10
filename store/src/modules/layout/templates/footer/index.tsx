@@ -173,8 +173,8 @@ export default function ClubFooter() {
               <ul className="flex flex-col gap-3">
                 {[
                   { label: "Our Ethos", href: "/about" },
-                  { label: "Get in Touch", href: "/contact" },
-                  { label: "Shipping", href: "/shipping" }
+                  { label: "Get in Touch", href: "/customer-service" },
+                  { label: "Shipping", href: "/customer-service" }
                 ].map((link) => (
                   <li key={link.label}>
                     <motion.div whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 300 }}>
@@ -239,8 +239,8 @@ export default function ClubFooter() {
             <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase text-center sm:text-left">
               <span>© 2026 THE HEALTH & WEALTH CLUB</span>
               <div className="flex gap-6">
-                <LocalizedClientLink href="/privacy" className="hover:text-white transition-colors">Privacy</LocalizedClientLink>
-                <LocalizedClientLink href="/terms" className="hover:text-white transition-colors">Terms</LocalizedClientLink>
+                <LocalizedClientLink href="/customer-service" className="hover:text-white transition-colors">Privacy</LocalizedClientLink>
+                <LocalizedClientLink href="/customer-service" className="hover:text-white transition-colors">Terms</LocalizedClientLink>
               </div>
             </div>
             

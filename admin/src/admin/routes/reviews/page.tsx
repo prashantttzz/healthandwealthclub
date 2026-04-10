@@ -10,10 +10,23 @@ export const config = defineRouteConfig({
 })
 
 const ReviewsPage = () => {
-  const { data, isLoading } = useQuery({
+  const { data, isLoading, error } = useQuery({
     queryKey: ["admin_reviews"],
-    queryFn: () => sdk.client.fetch(`/admin/reviews`)
+    queryFn: async () => {
+      const res = await fetch(`/admin/reviews`, { 
+        method: "GET",
+        credentials: "include",
+        headers: {
+          "Accept": "application/json"
+        }
+      })
+      if (!res.ok) throw new Error("Failed to fetch reviews: " + res.statusText)
+      return res.json()
+    }
   })
+
+  // To help debug if it fails
+  if (error) console.error("Error fetching admin reviews:", error)
 
   const reviews = (data as any)?.reviews || []
 
