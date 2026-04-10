@@ -51,7 +51,11 @@ const PersonalInformationComponent = ({ customer }: { customer: HttpTypes.StoreC
   const currentGender = (customer.metadata?.gender as string) || "Female" // Defaulting or empty
 
   return (
-    <div className="w-full max-w-3xl font-manrope space-y-10">
+    <div className="w-full max-w-3xl font-manrope space-y-12 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      <div className="flex flex-col gap-2 border-b border-accent/5 pb-8">
+        <h1 className="font-newsreader italic text-4xl text-accent">Personal Information</h1>
+        <p className="text-[13px] text-accent/50 tracking-wide font-medium">Update your profile details and membership settings.</p>
+      </div>
       
       {/* Avatar section */}
       <div className="relative w-32 h-32 rounded-full bg-[#F2EDE5] border-2 border-black/5 flex items-center justify-center overflow-hidden shrink-0 group">

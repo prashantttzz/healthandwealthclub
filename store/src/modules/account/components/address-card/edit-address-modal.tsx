@@ -16,6 +16,15 @@ import {
   updateCustomerAddress,
 } from "@lib/data/customer"
 
+import { HugeiconsIcon } from "@hugeicons/react"
+import { 
+  PencilEdit02Icon, 
+  Delete02Icon, 
+  Location01Icon,
+  Home01Icon,
+  OfficeIcon
+} from "@hugeicons/core-free-icons"
+
 type EditAddressProps = {
   region: HttpTypes.StoreRegion
   address: HttpTypes.StoreCustomerAddress
@@ -65,29 +74,33 @@ const EditAddress: React.FC<EditAddressProps> = ({
     <>
       <div
         className={clx(
-          "border rounded-rounded p-5 min-h-[220px] h-full w-full flex flex-col justify-between transition-colors",
+          "bg-secondary/30 border border-accent/5 p-8 min-h-[220px] h-full w-full flex flex-col justify-between transition-all duration-500 hover:bg-white hover:border-accent/10 hover:shadow-2xl group relative overflow-hidden",
           {
-            "border-gray-900": isActive,
+            "border-accent/20 bg-white shadow-lg": isActive,
           }
         )}
         data-testid="address-container"
       >
-        <div className="flex flex-col">
-          <Heading
-            className="text-left text-base-semi"
-            data-testid="address-name"
-          >
-            {address.first_name} {address.last_name}
-          </Heading>
-          {address.company && (
-            <Text
-              className="txt-compact-small text-ui-fg-base"
-              data-testid="address-company"
-            >
-              {address.company}
-            </Text>
-          )}
-          <Text className="flex flex-col text-left text-base-regular mt-2">
+        <div className="flex flex-col gap-4 relative z-10 text-left">
+          <div className="flex justify-between items-start">
+             <div className="w-10 h-10 bg-accent text-bg flex items-center justify-center rounded-full mb-2 opacity-80 group-hover:opacity-100 transition-opacity">
+               <HugeiconsIcon icon={Location01Icon} size={18} />
+             </div>
+             <span className="text-[10px] uppercase font-bold tracking-[0.3em] text-accent/30">Primary</span>
+          </div>
+
+          <div className="flex flex-col gap-1">
+            <h3 className="font-newsreader italic text-2xl text-accent tracking-tighter" data-testid="address-name">
+              {address.first_name} {address.last_name}
+            </h3>
+            {address.company && (
+              <span className="font-manrope text-[11px] font-bold uppercase tracking-widest text-accent/50" data-testid="address-company">
+                {address.company}
+              </span>
+            )}
+          </div>
+
+          <div className="flex flex-col gap-1 font-manrope text-[13px] text-accent/60 leading-relaxed font-medium">
             <span data-testid="address-address">
               {address.address_1}
               {address.address_2 && <span>, {address.address_2}</span>}
@@ -99,25 +112,31 @@ const EditAddress: React.FC<EditAddressProps> = ({
               {address.province && `${address.province}, `}
               {address.country_code?.toUpperCase()}
             </span>
-          </Text>
+          </div>
         </div>
-        <div className="flex items-center gap-x-4">
+
+        <div className="flex items-center gap-x-6 pt-6 border-t border-accent/5 relative z-10">
           <button
-            className="text-small-regular text-ui-fg-base flex items-center gap-x-2"
+            className="text-[11px] font-bold uppercase tracking-widest text-accent hover:opacity-100 opacity-40 flex items-center gap-x-2 transition-all duration-300"
             onClick={open}
             data-testid="address-edit-button"
           >
-            <Edit />
+            <HugeiconsIcon icon={PencilEdit02Icon} size={14} />
             Edit
           </button>
           <button
-            className="text-small-regular text-ui-fg-base flex items-center gap-x-2"
+            className="text-[11px] font-bold uppercase tracking-widest text-rose-600 hover:opacity-100 opacity-40 flex items-center gap-x-2 transition-all duration-300"
             onClick={removeAddress}
             data-testid="address-delete-button"
           >
-            {removing ? <Spinner /> : <Trash />}
+            {removing ? <Spinner /> : <HugeiconsIcon icon={Delete02Icon} size={14} />}
             Remove
           </button>
+        </div>
+
+        {/* Subtle background decoration */}
+        <div className="absolute top-0 right-0 p-4 opacity-[0.03] select-none pointer-events-none group-hover:opacity-[0.08] transition-opacity">
+           <HugeiconsIcon icon={Home01Icon} size={80} />
         </div>
       </div>
 

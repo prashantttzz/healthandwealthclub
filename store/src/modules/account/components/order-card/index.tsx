@@ -1,7 +1,14 @@
-import { useMemo } from "react"
-import Thumbnail from "@modules/products/components/thumbnail"
+import { HugeiconsIcon } from "@hugeicons/react"
+import { 
+  Note01Icon, 
+  Package01Icon, 
+  PackageCheck, 
+  TruckDeliveryIcon, 
+  Tick01Icon,
+  CheckListIcon
+} from "@hugeicons/core-free-icons"
 import { HttpTypes } from "@medusajs/types"
-import { ClipboardList, ClipboardCheck, Package, Truck, CheckCircle, Check } from "lucide-react"
+import Thumbnail from "@modules/products/components/thumbnail"
 
 type OrderCardProps = {
   order: HttpTypes.StoreOrder
@@ -19,54 +26,69 @@ const OrderCard = ({ order }: OrderCardProps) => {
   const currentStep = getStepLevel()
 
   const steps = [
-    { label: "Order Placed", date: new Date(order.created_at).toLocaleDateString(), time: new Date(order.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), icon: ClipboardList },
-    { label: "Accepted", date: currentStep >= 1 ? new Date(order.updated_at).toLocaleDateString() : "Expected", time: "", icon: ClipboardCheck },
-    { label: "In Progress", date: currentStep >= 2 ? "Done" : "Expected", time: "", icon: Package },
-    { label: "On the Way", date: currentStep >= 3 ? "Done" : "Expected", time: "", icon: Truck },
-    { label: "Delivered", date: currentStep >= 4 ? "Done" : "Expected", time: "", icon: CheckCircle },
+    { label: "Placed", icon: Note01Icon },
+    { label: "Validated", icon: PackageCheck },
+    { label: "Prepared", icon: Package01Icon },
+    { label: "In Transit", icon: TruckDeliveryIcon },
+    { label: "Arrived", icon: Tick01Icon },
   ]
 
   return (
-    <div className="font-manrope space-y-8" data-testid="order-card">
+    <div className="font-manrope space-y-12 animate-in fade-in slide-in-from-bottom-2 duration-700" data-testid="order-card">
       
-      {/* Header */}
-      <div className="flex flex-col gap-1">
-        <h3 className="font-bold text-[14px] text-accent tracking-wide">Order Status</h3>
-        <p className="text-[12px] text-accent/60 uppercase tracking-widest">Order ID: <span className="font-bold">#{order.display_id}</span></p>
+      {/* Editorial Header */}
+      <div className="flex flex-col lg:flex-row justify-between items-start lg:items-end gap-6 border-b border-accent/5 pb-8">
+        <div className="flex flex-col gap-2 text-left">
+          <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-accent/30">Order Dossier</span>
+          <h3 className="font-newsreader italic text-4xl text-accent tracking-tighter">#{order.display_id}</h3>
+        </div>
+        <div className="flex flex-col lg:items-end gap-1 text-left lg:text-right">
+           <span className="text-[10px] uppercase font-bold tracking-[0.4em] text-accent/30">Purchased On</span>
+           <span className="font-manrope text-[13px] font-bold text-accent">{new Date(order.created_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+        </div>
       </div>
 
-      {/* Tracker Graphic */}
-      <div className="w-full bg-transparent border border-accent/10 rounded-2xl p-8 lg:p-10 shadow-sm relative">
-        <div className="flex justify-between relative mb-8">
-          {/* Connecting Line Backdrop */}
-          <div className="absolute top-6 left-8 right-8 h-[2px] bg-black/5 -z-10" />
+      {/* Cinematic Tracker */}
+      <div className="relative py-12 px-2">
+        <div className="flex justify-between items-center relative gap-4">
+          {/* Tracker Background Line (Laser Thin) */}
+          <div className="absolute top-6 left-0 right-0 h-[1px] bg-accent/5 -z-0" />
           
-          {/* Connecting Line Active */}
+          {/* Active Line */}
           <div 
-            className="absolute top-6 left-8 h-[2px] bg-[#3d2f20] -z-10 transition-all duration-500" 
-            style={{ width: `${(currentStep / 4) * (100 - (16 / window.innerWidth * 100))}%` }} 
+            className="absolute top-6 left-0 h-[1px] bg-accent transition-all duration-1000 ease-out z-0 shadow-[0_0_10px_rgba(23,37,33,0.2)]" 
+            style={{ width: `${(currentStep / 4) * 100}%` }} 
           />
 
           {steps.map((step, index) => {
             const isActive = index <= currentStep
-            const Icon = step.icon
+            const isLastActive = index === currentStep
             return (
-              <div key={index} className="flex flex-col items-center gap-3 relative bg-[#F2EDE5] px-2 h-full z-10">
-                <div className={`w-12 h-12 rounded-full flex items-center justify-center transition-all ${isActive ? 'bg-accent text-[#F2EDE5]' : 'bg-transparent border border-accent/10 text-accent/30'}`}>
-                   <Icon size={20} strokeWidth={isActive ? 2 : 1.5} />
+              <div key={index} className="flex flex-col items-center gap-6 relative z-10 w-20">
+                <div 
+                  className={`w-12 h-12 rounded-full flex items-center justify-center transition-all duration-500 border-bg border-4 ${
+                    isActive 
+                      ? 'bg-accent text-bg shadow-xl scale-110' 
+                      : 'bg-bg text-accent/20 border-accent/5'
+                  }`}
+                >
+                   <HugeiconsIcon icon={step.icon} size={18}  />
+                   
+                   {isActive && !isLastActive && (
+                     <div className="absolute -top-1 -right-1 w-4 h-4 bg-accent border-2 border-bg rounded-full flex items-center justify-center">
+                        <HugeiconsIcon icon={CheckListIcon} size={8} />
+                     </div>
+                   )}
+
+                   {isLastActive && (
+                      <div className="absolute inset-0 rounded-full border border-accent animate-ping opacity-20" />
+                   )}
                 </div>
                 
-                {/* Active checkmark badge */}
-                {isActive && (
-                  <div className="absolute top-0 right-0 w-4 h-4 bg-accent rounded-full flex items-center justify-center border-2 border-[#F2EDE5] translate-x-1 -translate-y-1">
-                    <Check size={10} className="text-[#F2EDE5]" strokeWidth={3} />
-                  </div>
-                )}
-
-                <div className="text-center">
-                   <p className={`text-[11px] font-bold tracking-wide uppercase ${isActive ? 'text-accent' : 'text-accent/30'}`}>{step.label}</p>
-                   <p className="text-[10px] text-accent/50 mt-1">{step.date}</p>
-                   {step.time && <p className="text-[9px] text-accent/40">{step.time}</p>}
+                <div className="text-center flex flex-col gap-1">
+                   <p className={`text-[10px] font-bold tracking-[0.2em] uppercase transition-colors duration-500 ${isActive ? 'text-accent' : 'text-accent/20'}`}>
+                     {step.label}
+                   </p>
                 </div>
               </div>
             )
@@ -74,23 +96,31 @@ const OrderCard = ({ order }: OrderCardProps) => {
         </div>
       </div>
 
-      {/* Products List */}
-      <div className="w-full bg-transparent border border-accent/10 rounded-2xl shadow-sm overflow-hidden text-accent">
-        <div className="px-8 py-5 border-b border-accent/10 bg-accent/5">
-           <h3 className="text-[13px] font-bold tracking-wide">Products</h3>
+      {/* Premium Product List */}
+      <div className="bg-secondary/20 border border-accent/5 rounded-3xl overflow-hidden shadow-sm">
+        <div className="px-8 py-6 border-b border-accent/5 flex justify-between items-center">
+           <h4 className="text-[11px] font-bold uppercase tracking-[0.4em] text-accent/40">Manifest Items</h4>
+           <div className="flex items-center gap-2">
+              <div className="w-2 h-2 rounded-full bg-accent opacity-40" />
+              <span className="text-[10px] font-bold uppercase tracking-widest text-accent/40">{order?.items?.length} Units</span>
+           </div>
         </div>
         
-        <div className="flex flex-col">
+        <div className="p-4 grid grid-cols-1 md:grid-cols-2 gap-4">
           {order.items?.map((item) => (
-            <div key={item.id} className="flex gap-6 p-6 border-b border-accent/10 last:border-0 items-center">
-              <div className="w-20 h-20 bg-accent/5 rounded-xl border border-accent/10 overflow-hidden shrink-0">
-                <Thumbnail thumbnail={item.thumbnail} images={[]} size="full" className="object-cover" />
+            <div key={item.id} className="bg-bg/50 p-4 border border-accent/5 rounded-2xl flex gap-6 items-center group hover:bg-white transition-all duration-500">
+              <div className="w-20 h-24 bg-secondary/30 rounded-xl overflow-hidden shrink-0 relative">
+                <Thumbnail thumbnail={item.thumbnail} images={[]} size="full" className="object-cover group-hover:scale-105 transition-transform duration-700" />
+                <div className="absolute inset-0 bg-accent/5 mix-blend-multiply transition-opacity group-hover:opacity-0" />
               </div>
-              <div className="flex flex-col gap-1">
-                 <p className="font-bold text-[14px]">{item.title}</p>
-                 <p className="text-[12px] text-accent/60">
-                   Variant: {item.variant_title} | {item.quantity} Qty
-                 </p>
+              <div className="flex flex-col gap-2 text-left">
+                 <p className="font-newsreader italic text-xl text-accent leading-none">{item.title}</p>
+                 <div className="flex flex-col gap-1">
+                    <span className="text-[10px] font-bold uppercase tracking-widest text-accent/40">Specification</span>
+                    <span className="text-[11px] font-bold text-accent/70 uppercase tracking-tighter">
+                      {item.variant_title} • Qty {item.quantity}
+                    </span>
+                 </div>
               </div>
             </div>
           ))}

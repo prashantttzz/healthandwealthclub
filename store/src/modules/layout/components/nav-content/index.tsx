@@ -30,6 +30,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
   const countryCode = pathname.split('/')[1] || "us"
 
   const isHome = pathname.split('/').filter(Boolean).length <= 1
+  const isAbout = pathname.includes("/about")
 
   useEffect(() => {
     const handleScroll = () => {
@@ -56,7 +57,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
     }
   }
 
-  const showSolid = isScrolled || !isHome
+  const showSolid = isScrolled || (!isHome && !isAbout)
 
   return (
     <div className="fixed top-0 inset-x-0 z-[1000] pointer-events-none">

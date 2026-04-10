@@ -54,7 +54,7 @@ export default function Preloader() {
                   repeat: Infinity,
                   ease: "linear"
                 },
-                default: { duration: 0.8, ease: "easeOut" }
+                default: { duration: 1.5, ease: "easeOut" }
               }}
               style={{
                 WebkitMaskImage: "linear-gradient(-75deg, rgba(0,0,0,1) 40%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 60%)",

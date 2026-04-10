@@ -59,13 +59,13 @@ const Modal = ({
               <Dialog.Panel
                 data-testid={dataTestId}
                 className={clx(
-                  "flex flex-col justify-start w-full transform p-5 text-left align-middle transition-all max-h-[75vh] h-fit",
+                  "flex flex-col justify-start w-full transform p-8 text-left align-middle transition-all max-h-[90vh] overflow-y-auto",
                   {
                     "max-w-md": size === "small",
                     "max-w-xl": size === "medium",
                     "max-w-3xl": size === "large",
                     "bg-transparent shadow-none": search,
-                    "bg-white shadow-xl border rounded-rounded": !search,
+                    "bg-bg shadow-2xl border border-accent/10 rounded-3xl": !search,
                   }
                 )}
               >
@@ -83,11 +83,11 @@ const Title: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const { close } = useModal()
 
   return (
-    <Dialog.Title className="flex items-center justify-between">
-      <div className="text-large-semi">{children}</div>
+    <Dialog.Title className="flex items-center justify-between pb-6 border-b border-accent/5">
+      <div className="font-newsreader italic text-3xl text-accent tracking-tighter">{children}</div>
       <div>
-        <button onClick={close} data-testid="close-modal-button">
-          <X size={20} />
+        <button onClick={close} data-testid="close-modal-button" className="text-accent/40 hover:text-accent transition-colors">
+          <X size={24} />
         </button>
       </div>
     </Dialog.Title>
@@ -96,14 +96,14 @@ const Title: React.FC<{ children: React.ReactNode }> = ({ children }) => {
 
 const Description: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   return (
-    <Dialog.Description className="flex text-small-regular text-ui-fg-base items-center justify-center pt-2 pb-4 h-full">
+    <Dialog.Description className="flex text-small-regular text-accent/60 items-center justify-center pt-2 pb-4 h-full font-manrope">
       {children}
     </Dialog.Description>
   )
 }
 
 const Body: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  return <div className="flex justify-center">{children}</div>
+  return <div className="flex flex-col py-6">{children}</div>
 }
 
 const Footer: React.FC<{ children: React.ReactNode }> = ({ children }) => {

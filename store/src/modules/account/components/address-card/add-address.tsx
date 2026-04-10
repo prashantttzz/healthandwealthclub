@@ -12,6 +12,9 @@ import { SubmitButton } from "@modules/checkout/components/submit-button"
 import { HttpTypes } from "@medusajs/types"
 import { addCustomerAddress } from "@lib/data/customer"
 
+import { HugeiconsIcon } from "@hugeicons/react"
+import { PlusSignIcon } from "@hugeicons/core-free-icons"
+
 const AddAddress = ({
   region,
   addresses,
@@ -49,12 +52,17 @@ const AddAddress = ({
   return (
     <>
       <button
-        className="border border-ui-border-base rounded-rounded p-5 min-h-[220px] h-full w-full flex flex-col justify-between"
+        className="bg-secondary/10 border-2 border-dashed border-accent/10 p-8 min-h-[220px] h-full w-full flex flex-col items-center justify-center gap-4 transition-all duration-500 hover:bg-secondary/30 hover:border-accent/30 group"
         onClick={open}
         data-testid="add-address-button"
       >
-        <span className="text-base-semi">New address</span>
-        <Plus />
+        <div className="w-12 h-12 bg-accent text-bg flex items-center justify-center rounded-full scale-100 group-hover:scale-110 transition-transform shadow-xl">
+           <HugeiconsIcon icon={PlusSignIcon} size={20} />
+        </div>
+        <div className="flex flex-col gap-1">
+          <span className="font-newsreader italic text-2xl text-accent tracking-tighter">Add Address</span>
+          <span className="font-manrope text-[10px] uppercase font-bold tracking-[0.3em] text-accent/30">New Location</span>
+        </div>
       </button>
 
       <Modal isOpen={state} close={close} data-testid="add-address-modal">
