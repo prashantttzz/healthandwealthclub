@@ -3,15 +3,12 @@
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 import { useCallback } from "react"
 import { motion } from "framer-motion"
-import { Flame, Clock, Tag, ArrowDownNarrowWide, ArrowUpWideNarrow, Star } from "lucide-react"
+import { Clock, ArrowDownNarrowWide, ArrowUpWideNarrow } from "lucide-react"
 
 const sortOptions = [
-  { value: "popularity", label: "Popularity", icon: Flame },
   { value: "created_at", label: "Latest Arrivals", icon: Clock },
-  { value: "discount", label: "Discount", icon: Tag },
-  { value: "price_desc", label: "Price: High to Low", icon: ArrowDownNarrowWide },
   { value: "price_asc", label: "Price: Low to High", icon: ArrowUpWideNarrow },
-  { value: "customer_rating", label: "Customer Rating", icon: Star },
+  { value: "price_desc", label: "Price: High to Low", icon: ArrowDownNarrowWide },
 ]
 
 type SortModalProps = {

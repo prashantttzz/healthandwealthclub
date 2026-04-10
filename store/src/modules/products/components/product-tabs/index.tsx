@@ -54,13 +54,13 @@ const EthosTab = () => {
   return (
     <div className="py-2 space-y-6">
       <div className="space-y-4">
-        <h4 className="font-manrope text-[10px] tracking-[0.3em] uppercase font-bold text-accent/40">Craftsmanship</h4>
+        <h4 className="font-manrope text-[10px] tracking-[0.2em] uppercase font-semibold text-accent">Craftsmanship</h4>
         <p className="font-manrope text-[13px] leading-relaxed text-accent/70">
           Every piece in our collective is a testament to the intersection of health, wealth, and timeless design. We source only the finest materials from heritage mills, ensuring that your investment matures in quality over time.
         </p>
       </div>
       <div className="space-y-4">
-        <h4 className="font-manrope text-[10px] tracking-[0.3em] uppercase font-bold text-accent/40">Ethos</h4>
+        <h4 className="font-manrope text-[10px] tracking-[0.2em] uppercase font-semibold text-accent">Ethos</h4>
         <p className="font-manrope text-[13px] leading-relaxed text-accent/70">
           We believe in conscious consumption—creating fewer, better things that serve a purpose in your daily ritual.
         </p>
@@ -74,24 +74,24 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
     <div className="py-2">
       <div className="grid grid-cols-2 gap-y-10 gap-x-12">
         <div className="space-y-2">
-          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Material</span>
-          <p className="font-manrope text-[13px] text-accent/80 font-medium whitespace-pre-wrap">{product.material ? product.material : "Organic Cotton & Silk Blend"}</p>
+          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent">Material</span>
+          <p className="font-manrope text-[13px] text-accent/80 font-regular whitespace-pre-wrap">{product.material ? product.material : "Organic Cotton & Silk Blend"}</p>
         </div>
         <div className="space-y-2">
-          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Weight</span>
-          <p className="font-manrope text-[13px] text-accent/80 font-medium">{product.weight ? `${product.weight} g` : "340 g"}</p>
+          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent">Weight</span>
+          <p className="font-manrope text-[13px] text-accent/80 font-regular">{product.weight ? `${product.weight} g` : "340 g"}</p>
         </div>
         <div className="space-y-2">
-          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Dimensions</span>
-          <p className="font-manrope text-[13px] text-accent/80 font-medium">
+          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent">Dimensions</span>
+          <p className="font-manrope text-[13px] text-accent/80 font-regular">
             {product.length && product.width && product.height
               ? `${product.length}L x ${product.width}W x ${product.height}H`
               : "Reg. Fit / True to Size"}
           </p>
         </div>
         <div className="space-y-2">
-          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Origin</span>
-          <p className="font-manrope text-[13px] text-accent/80 font-medium">{product.origin_country ? product.origin_country : "Designed in Dubai"}</p>
+          <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent ">Origin</span>
+          <p className="font-manrope text-[13px] text-accent/80 font-regular">{product.origin_country ? product.origin_country : "Designed in Dubai"}</p>
         </div>
       </div>
     </div>
@@ -104,7 +104,7 @@ const ShippingInfoTab = () => {
       <div className="flex items-start gap-x-6">
         <div className="pt-1"><FastDelivery /></div>
         <div className="space-y-1">
-          <span className="font-manrope text-[11px] tracking-widest uppercase font-bold text-accent/80 italic leading-none">Global Logistics</span>
+          <span className="font-manrope text-[11px] tracking-widest uppercase font-semibold text-accent/80  leading-none">Global Logistics</span>
           <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
             Complimentary shipping on all Experience orders. Delivered within 3-5 business days via our premium courier network.
           </p>
@@ -113,7 +113,7 @@ const ShippingInfoTab = () => {
       <div className="flex items-start gap-x-6">
         <div className="pt-1"><Refresh /></div>
         <div className="space-y-1">
-          <span className="font-manrope text-[11px] tracking-widest uppercase font-bold text-accent/80 italic leading-none">Exchanges</span>
+          <span className="font-manrope text-[11px] tracking-widest uppercase font-semibold text-accent/80  leading-none">Exchanges</span>
           <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
             If the fit does not meet your personal standards, we provide a seamless 14-day exchange window.
           </p>

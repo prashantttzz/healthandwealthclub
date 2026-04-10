@@ -5,6 +5,8 @@ import { useCallback, useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
 
+export type sortOptions = string
+
 const sortOptions = [
   {
     value: "created_at",
@@ -85,9 +87,9 @@ const SortDropdown = ({ sortBy }: { sortBy?: string }) => {
               <button
                 key={option.value}
                 onClick={() => handleSelect(option.value)}
-                className={`w-full text-left px-4 py-3 text-[11px] uppercase font-regular rounded-lg transition-all ${
+                className={`w-full text-left px-4 py-3 text-[11px]  font-regular rounded-lg transition-all ${
                   sortBy === option.value 
-                    ? "bg-accent text-bg font-bold" 
+                    ? "bg-accent text-bg font-semibold" 
                     : "text-accent/60 hover:bg-accent/5"
                 }`}
               >

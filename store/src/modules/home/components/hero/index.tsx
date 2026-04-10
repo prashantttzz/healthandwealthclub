@@ -193,7 +193,7 @@ const Hero = () => {
       {/* Bottom Controls (optimized scroll link) */}
       <motion.div
         style={{ opacity: controlsOpacity }}
-        className="absolute bottom-10 left-0 right-0 z-20 flex flex-col items-center gap-8"
+        className="absolute bottom-20 left-0 right-0 z-20 flex flex-col items-center gap-8"
       >
         <div className="flex items-center gap-4">
           {SLIDES.map((s, i) => (
@@ -206,14 +206,14 @@ const Hero = () => {
             </button>
           ))}
         </div>
-        <div className="flex flex-col items-center gap-3">
+        {/* <div className="flex flex-col items-center gap-3">
           <motion.div 
             animate={{ y: [0, 10, 0] }}
             transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
             className="w-[1px] h-12 bg-gradient-to-b from-white to-transparent" 
           />
           <span className="text-[10px] text-white/50 uppercase font-manrope font-medium tracking-[0.4em]">Scroll to Explore</span>
-        </div>
+        </div> */}
       </motion.div>
     </section>
   )

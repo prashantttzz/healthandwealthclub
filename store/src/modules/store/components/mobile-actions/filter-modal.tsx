@@ -3,28 +3,73 @@
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { X } from "lucide-react"
-import PriceRange from "../refinement-list/price-range"
+
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
+import { HttpTypes } from "@medusajs/types"
+
 type FilterModalProps = {
+  categories?: HttpTypes.StoreProductCategory[]
+  activeCategory?: string
+  activeSize?: string
+  activeColor?: string
   onClose: () => void
 }
 
-const FilterModal = ({ onClose }: FilterModalProps) => {
+const FilterModal = ({ 
+  categories: medusaCategories, 
+  activeCategory, 
+  activeSize, 
+  activeColor, 
+  onClose 
+}: FilterModalProps) => {
   const [activeTab, setActiveTab] = useState("Category")
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
-  const tabs = ["Category", "Price", "Size", "Palette"]
+  const tabs = ["Category", "Size", "Palette"]
 
-  const categories = ["All Products", "Outerwear", "Knitwear", "The Club Set", "Track Assets"]
   const sizes = ["DX", "S", "M", "L", "XL"]
-  const colors = [
+  const palette = [
     { name: "Olive", class: "bg-[#424B35]" },
     { name: "Bone", class: "bg-[#F2EDE5]" },
     { name: "Black", class: "bg-black" },
   ]
+
+  const selectedSizes = activeSize?.split(",") || []
+  const selectedColors = activeColor?.split(",") || []
+
+  const handleToggle = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    const currentValues = params.get(name)?.split(",") || []
+
+    if (currentValues.includes(value)) {
+      const newValues = currentValues.filter((v) => v !== value)
+      if (newValues.length > 0) {
+        params.set(name, newValues.join(","))
+      } else {
+        params.delete(name)
+      }
+    } else {
+      currentValues.push(value)
+      params.set(name, currentValues.join(","))
+    }
+    params.delete("page")
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+  }
+
+  const handleCategorySelect = (categoryId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (params.get("category") === categoryId) {
+       params.delete("category")
+    } else {
+       params.set("category", categoryId)
+    }
+    params.delete("page")
+    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+  }
+
 
   const handleApply = () => {
     // Logic to apply all accumulated filters from a local state if implemented, 
@@ -79,28 +124,47 @@ const FilterModal = ({ onClose }: FilterModalProps) => {
         <div className="flex-1 bg-bg p-8 overflow-y-auto h-full">
           {activeTab === "Category" && (
             <ul className="space-y-6">
-              {categories.map((cat) => (
-                <li key={cat} className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium cursor-pointer">
+              <li 
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString())
+                  params.delete("category")
+                  params.delete("page")
+                  router.push(`${pathname}?${params.toString()}`, { scroll: false })
+                }}
+                className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium cursor-pointer"
+              >
+                <div className="w-4 h-4 border border-black/10 rounded-sm flex items-center justify-center">
+                  <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${!activeCategory ? "opacity-100" : "opacity-0"}`} />
+                </div>
+                <span>All Products</span>
+              </li>
+              {medusaCategories?.map((cat) => (
+                <li 
+                  key={cat.id} 
+                  onClick={() => handleCategorySelect(cat.id)}
+                  className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium cursor-pointer"
+                >
                   <div className="w-4 h-4 border border-black/10 rounded-sm flex items-center justify-center">
-                    {/* Placeholder for selection logic */}
-                    <div className="w-2 h-2 rounded-[1px] bg-accent opacity-0" />
+                    <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${activeCategory === cat.id ? "opacity-100" : "opacity-0"}`} />
                   </div>
-                  <span>{cat}</span>
+                  <span>{cat.name}</span>
                 </li>
               ))}
             </ul>
           )}
 
-          {activeTab === "Price" && (
-            <div className="pt-4">
-              <PriceRange />
-            </div>
-          )}
+
 
           {activeTab === "Size" && (
             <div className="grid grid-cols-2 gap-3">
               {sizes.map((size) => (
-                <button key={size} className="flex items-center justify-center border border-black/10 aspect-square text-[12px] font-bold text-accent opacity-60 rounded-md">
+                <button 
+                  key={size} 
+                  onClick={() => handleToggle("size", size)}
+                  className={`flex items-center justify-center border aspect-square text-[12px] font-bold transition-all rounded-md ${
+                    selectedSizes.includes(size) ? "bg-accent border-accent text-bg" : "border-black/10 text-accent opacity-60"
+                  }`}
+                >
                   {size}
                 </button>
               ))}
@@ -109,9 +173,15 @@ const FilterModal = ({ onClose }: FilterModalProps) => {
 
           {activeTab === "Palette" && (
             <ul className="space-y-6">
-              {colors.map((color) => (
-                <li key={color.name} className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium">
-                  <div className={`w-8 h-8 rounded-full border border-black/10 ${color.class}`} />
+              {palette.map((color) => (
+                <li 
+                  key={color.name} 
+                  onClick={() => handleToggle("color", color.name)}
+                  className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium cursor-pointer"
+                >
+                  <div className={`w-8 h-8 rounded-full border transition-all ${color.class} ${
+                    selectedColors.includes(color.name) ? "border-accent ring-2 ring-accent ring-offset-2" : "border-black/10"
+                  }`} />
                   <span>{color.name}</span>
                 </li>
               ))}

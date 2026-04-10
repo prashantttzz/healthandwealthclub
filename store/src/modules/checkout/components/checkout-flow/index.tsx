@@ -8,7 +8,6 @@ import { deleteCustomerAddress, addCustomerAddress, login, signup } from "@lib/d
 import Thumbnail from "@modules/products/components/thumbnail"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { useActionState } from "react"
-import { useRouter } from "next/navigation"
 
 import { Check, X, Minus, Plus, ChevronRight, ChevronLeft, Home, Truck, CreditCard, ShieldCheck, Tag, MoreHorizontal, Banknote, ShoppingBag, ArrowRight } from "lucide-react"
 
@@ -34,38 +33,65 @@ const Ico = {
 /* ━━━━━━━━━━ STEP INDICATOR (centered) ━━━━━━━━━━ */
 const StepIndicator = ({ currentStep, onStepClick }: { currentStep: number; onStepClick: (s: number) => void }) => {
   const steps = ["Bag", "Address", "Payment"]
+
   return (
-    <div className="flex items-center justify-center gap-0 mb-14 select-none max-w-[500px] mx-auto w-full">
+    <div className="flex items-center justify-between gap-0 mb-16 select-none max-w-[400px] md:max-w-[500px] mx-auto lg:mx-0 w-full relative">
+      {/* Background Progress Line */}
+      <div className="absolute top-[18px] left-10 right-10 h-[1.5px] bg-accent/10 -z-0" />
+      
+      {/* Active Progress Line */}
+      <div 
+        className="absolute top-[18px] left-10 h-[1.5px] bg-accent transition-all duration-1000 -z-0" 
+        style={{ 
+          width: currentStep === 0 ? "0%" : currentStep === 1 ? "42%" : "83%",
+        }}
+      />
+      
+      {/* Steps */}
       {steps.map((label, idx) => {
         const done = idx < currentStep, active = idx === currentStep, future = idx > currentStep
+        const status = done ? "Completed" : active ? "In Progress" : "Pending"
+        
         return (
-          <React.Fragment key={label}>
-            <button
-              onClick={() => done && onStepClick(idx)}
-              disabled={future}
-              className={`flex items-center gap-3 transition-all duration-300 ${done ? "cursor-pointer group" : "cursor-default"}`}
-            >
+          <button
+            key={label}
+            onClick={() => done && onStepClick(idx)}
+            disabled={future}
+            className="flex flex-col items-center gap-4 relative z-10 group"
+          >
+            {/* Step Marker */}
+            <div className={`
+              w-9 h-9 rounded-full border-2 flex items-center justify-center transition-all duration-700
+              ${done ? "border-accent bg-secondary shadow-sm" : ""}
+              ${active ? "border-accent bg-bg shadow-inner scale-105" : "border-accent/10 bg-bg"}
+              ${future ? "border-accent/5 opacity-40" : ""}
+            `}>
+              {done ? (
+                <Check className="w-5 h-5 text-accent" strokeWidth={3} />
+              ) : (
+                <span className={`font-manrope text-[11px] font-bold transition-colors duration-500 ${active ? "text-accent" : "text-accent/10"}`}>
+                  {idx + 1}
+                </span>
+              )}
+            </div>
+
+            {/* Labels */}
+            <div className="flex flex-col items-center gap-0.5">
               <span className={`
-                flex items-center justify-center w-7 h-7 rounded-full text-[11px] font-manrope font-bold border-2 transition-all duration-500
-                ${done ? "bg-accent border-accent text-white" : ""}
-                ${active ? "border-accent text-accent bg-transparent" : ""}
-                ${future ? "border-accent/10 text-accent/20 bg-transparent" : ""}
-              `}>
-                {done ? Ico.check("w-3 h-3 text-white") : idx + 1}
-              </span>
-              <span className={`
-                font-manrope text-[13px] uppercase font-bold tracking-[0.15em] transition-colors duration-300
-                ${active ? "text-accent" : ""}
-                ${done ? "text-accent/40 group-hover:text-accent" : ""}
-                ${future ? "text-accent/15" : ""}
+                font-newsreader text-[13px] font-bold tracking-tight transition-colors duration-500
+                ${active || done ? "text-accent" : "text-accent/30"}
               `}>
                 {label}
               </span>
-            </button>
-            {idx < steps.length - 1 && (
-              <div className={`flex-1 h-[1px] mx-5 transition-colors duration-700 ${idx < currentStep ? "bg-accent" : "bg-accent/5"}`} />
-            )}
-          </React.Fragment>
+              <span className={`
+                font-manrope text-[8px] uppercase font-bold tracking-[0.15em] px-2.5 py-1 rounded-full transition-all duration-500 mt-1.5
+                ${done ? "bg-accent/5 text-accent" : ""}
+                ${active ? "bg-accent/10 text-accent" : "bg-black/[0.02] text-black/10"}
+              `}>
+                {status}
+              </span>
+            </div>
+          </button>
         )
       })}
     </div>
@@ -129,7 +155,6 @@ const CouponSidebar = ({ isOpen, onClose, onApply }: { isOpen: boolean, onClose:
   )
 }
 
-/* ━━━━━━━━━━ STEP 1 — BAG ━━━━━━━━━━ */
 const BagStep = ({ cart, onContinue }: { cart: HttpTypes.StoreCart; onContinue: () => void }) => {
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [couponOpen, setCouponOpen] = useState(false)
@@ -153,26 +178,23 @@ const BagStep = ({ cart, onContinue }: { cart: HttpTypes.StoreCart; onContinue: 
 
   return (
     <div className={`flex flex-col gap-10 transition-opacity duration-300 ${updatingId === "promo" ? "opacity-30 pointer-events-none" : ""}`}>
-      <p className="font-manrope text-[13px] uppercase font-bold tracking-[0.2em] text-accent/40">{items.length} Item{items.length > 1 ? "s" : ""}</p>
-
-      {/* Items */}
       <div className="flex flex-col gap-4 lg:gap-0 lg:divide-y lg:divide-accent/5">
         {items.map((item) => (
-          <div key={item.id} className={`flex gap-6 p-4 bg-black/[0.04] lg:bg-transparent lg:p-0 lg:py-8 lg:first:pt-0 transition-opacity duration-300 ${updatingId === item.id ? "opacity-30 pointer-events-none" : ""}`}>
-            <div className="w-[90px] h-[115px] bg-accent/[0.04] lg:bg-accent/[0.02] flex-shrink-0 overflow-hidden">
+          <div key={item.id} className={`flex gap-6 p-4 bg-secondary border border-accent/10  lg:py-8  transition-opacity duration-300 ${updatingId === item.id ? "opacity-30 pointer-events-none" : ""}`}>
+            <div className="w-[90px] h-[95px] bg-accent/[0.04] lg:bg-accent/[0.02] flex-shrink-0 overflow-hidden">
               <Thumbnail thumbnail={item.thumbnail} images={item.variant?.product?.images} size="square" />
             </div>
             <div className="flex-1 flex flex-col justify-between min-w-0">
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="font-newsreader italic text-xl text-accent font-bold leading-snug truncate">{item.product_title}</p>
+                  <p className="font-manrope text-lg md:text-xl text-accent font-bold leading-snug truncate">{item.product_title}</p>
                   <p className="font-manrope text-[12px] text-accent/40 mt-1.5 uppercase tracking-widest">{item.variant?.title || "Default"}</p>
                 </div>
-                <button onClick={() => { setUpdatingId(item.id); deleteLineItem(item.id).finally(() => setUpdatingId(null)) }} className="p-1.5 text-accent/15 hover:text-red-500 transition-colors flex-shrink-0">{Ico.x("w-4 h-4")}</button>
+                <button onClick={() => { setUpdatingId(item.id); deleteLineItem(item.id).finally(() => setUpdatingId(null)) }} className="p-1.5 text-accent hover:text-red-500 transition-colors flex-shrink-0">{Ico.x("w-4 h-4")}</button>
               </div>
               <div className="flex items-center gap-4 mt-4">
                 {item.variant?.title && (
-                  <span className="font-manrope text-[11px] text-accent/40 border border-accent/10 px-3 py-1.5 uppercase tracking-widest font-bold">Size: {item.variant.title}</span>
+                  <span className="font-manrope text-[9px] md:text-[11px] text-accent/80 border border-accent/10 px-3 py-1.5 uppercase tracking-widest font-bold">Size: {item.variant.title}</span>
                 )}
                 <div className="flex items-center border border-accent/10">
                   <button onClick={() => changeQty(item.id, item.quantity - 1)} className="w-9 h-9 flex items-center justify-center text-accent/30 hover:text-accent hover:bg-accent/5 transition-all">{Ico.minus("w-3.5 h-3.5")}</button>
@@ -182,7 +204,7 @@ const BagStep = ({ cart, onContinue }: { cart: HttpTypes.StoreCart; onContinue: 
               </div>
               <div className="mt-4">
                 <p className="font-manrope text-[16px] font-bold text-accent">{convertToLocale({ amount: item.unit_price || 0, currency_code: cart.currency_code })}</p>
-                <p className="font-manrope text-[11px] text-accent/30 mt-1 uppercase tracking-widest">Estimated Delivery by {new Date(Date.now() + 5 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
+                <p className="font-manrope text-[11px] text-accent/70 mt-1  tracking-widest">Estimated Delivery by {new Date(Date.now() + 5 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short" })}</p>
               </div>
             </div>
           </div>
@@ -190,9 +212,9 @@ const BagStep = ({ cart, onContinue }: { cart: HttpTypes.StoreCart; onContinue: 
       </div>
 
       {/* Coupons */}
-      <div className="flex items-center justify-between border border-accent/5 bg-black/[0.04] lg:bg-black/[0.02] p-6">
-        <div className="flex items-center gap-3">{Ico.tag("text-accent/60 w-4 h-4")}<span className="font-manrope text-[14px] font-bold text-accent">Coupons & Offers</span></div>
-        <button onClick={() => setCouponOpen(true)} className="font-manrope text-[12px] uppercase font-bold tracking-[0.15em] text-accent/60 flex items-center gap-1 hover:text-accent transition-colors">Apply Coupon {Ico.chevRight("w-4 h-4")}</button>
+      <div className="flex items-center justify-between border border-accent bg-accent text-bg p-6">
+        <div className="flex items-center gap-3">{Ico.tag("text-bg w-4 h-4")}<span className="font-manrope text-[14px] font-bold text-bg">Coupons & Offers</span></div>
+        <button onClick={() => setCouponOpen(true)} className="font-manrope text-[12px] uppercase font-bold tracking-[0.15em] text-bg flex items-center gap-1 hover:text-accent transition-colors">Apply Coupon {Ico.chevRight("w-4 h-4")}</button>
       </div>
 
       <CouponSidebar isOpen={couponOpen} onClose={() => setCouponOpen(false)} onApply={async (code) => { setUpdatingId("promo"); try { await applyPromotions([code]) } finally { setUpdatingId(null) } }} />
@@ -407,12 +429,12 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
   ]
 
   return (
-    <div className="flex flex-col gap-14">
+    <div className="flex flex-col gap-14 mb-20 md:mt-0">
       {/* Delivery Address */}
       <div>
         <h3 className="font-manrope text-[13px] font-bold text-accent uppercase tracking-[0.2em] mb-6">Delivery Address</h3>
         {selectedAddress ? (
-          <div className="flex items-start justify-between p-6 border border-accent/5 bg-black/[0.02] shadow-sm">
+          <div className="flex items-start justify-between p-6 border border-accent/10 bg-secondary shadow-inner">
             <div className="flex items-start gap-4">
               {Ico.home("w-5 h-5 text-accent/30 mt-0.5 flex-shrink-0")}
               <div>
@@ -445,17 +467,19 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
             return (
               <button key={opt.id} disabled={!opt.enabled} onClick={() => opt.enabled && setDeliveryOption(opt.id)}
                 className={`w-full flex items-center justify-between p-6 border text-left transition-all duration-300
-                  ${sel ? "border-accent/20 bg-black/[0.02] shadow-sm" : "bg-transparent"}
-                  ${!opt.enabled ? "opacity-30 cursor-not-allowed border-accent/5" : "border-accent/5 hover:border-accent/20 cursor-pointer"}`}>
+                  ${sel ? "border-accent/10 bg-secondary shadow-inner translate-y-[1px]" : "bg-transparent border-accent/5 hover:border-accent/10 hover:bg-secondary/30"}
+                  ${!opt.enabled ? "opacity-30 cursor-not-allowed border-accent/5" : "cursor-pointer"}`}>
                 <div className="flex items-center gap-5">
-                  {Ico.truck(`w-6 h-6 ${sel ? "text-accent" : "text-accent/20"}`)}
+                  <div className={`transition-colors duration-300 ${sel ? "text-accent" : "text-accent/20"}`}>
+                    {Ico.truck("w-6 h-6")}
+                  </div>
                   <div>
-                    <p className={`font-manrope text-[15px] font-bold ${sel ? "text-accent" : "text-accent/30"}`}>{opt.label}</p>
-                    <p className="font-manrope text-[12px] text-accent/30 mt-0.5">{opt.sub}</p>
+                    <p className={`font-manrope text-[15px] font-bold transition-colors duration-300 ${sel ? "text-accent" : "text-accent/40"}`}>{opt.label}</p>
+                    <p className={`font-manrope text-[12px] transition-colors duration-300 ${sel ? "text-accent/60" : "text-accent/20"} mt-0.5`}>{opt.sub}</p>
                   </div>
                 </div>
-                <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${sel ? "border-accent bg-accent" : "border-accent/10"}`}>
-                  {sel && Ico.check("w-3 h-3 text-white")}
+                <span className={`w-6 h-6 rounded-full border flex items-center justify-center transition-all ${sel ? "border-accent bg-accent" : "border-accent/10"}`}>
+                  {sel && <div className="w-1.5 h-1.5 rounded-full bg-bg" />}
                 </span>
               </button>
             )
@@ -508,7 +532,7 @@ const PaymentStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
           <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${method === "card" ? "border-accent bg-accent" : "border-accent/10"}`}>{method === "card" && <div className="w-2 h-2 rounded-full bg-bg" />}</span>
         </button>
         {method === "card" && (
-          <div className="px-6 pb-6 border-t border-accent/5 pt-5 animate-in slide-in-from-top-2 fade-in duration-300 bg-black/[0.04] lg:bg-black/[0.02]">
+          <div className="px-6 pb-6 border-t border-accent/5 pt-5 animate-in slide-in-from-top-2 fade-in duration-300 bg-secondary/50">
             <div className="flex flex-col gap-4">
               <div className="relative">
                 <input name="number" value={cardForm.number} onChange={handleCardChange} placeholder="Card Number" className="w-full h-13 px-4 pr-24 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
@@ -532,7 +556,7 @@ const PaymentStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
           <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${method === "cod" ? "border-accent bg-accent" : "border-accent/10"}`}>{method === "cod" && <div className="w-2 h-2 rounded-full bg-bg" />}</span>
         </button>
         {method === "cod" && (
-          <div className="px-6 pb-6 border-t border-accent/5 pt-4 animate-in slide-in-from-top-2 fade-in duration-300 bg-black/[0.04] lg:bg-black/[0.02]">
+          <div className="px-6 pb-6 border-t border-accent/5 pt-4 animate-in slide-in-from-top-2 fade-in duration-300 bg-secondary/50">
             <p className="font-manrope text-[14px] text-accent/50">Pay <span className="font-bold text-accent">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</span> in cash at the time of delivery.</p>
           </div>
         )}
@@ -547,24 +571,29 @@ const PaymentStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
 const MobilePriceDrawer = ({ isOpen, onClose, cart }: { isOpen: boolean, onClose: () => void, cart: HttpTypes.StoreCart }) => {
   return (
     <>
-      <div className={`fixed inset-0 bg-black/40 z-[90] transition-opacity duration-300 lg:hidden ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={onClose} />
-      <div className={`fixed bottom-0 left-0 right-0 bg-bg z-[100] rounded-t-3xl border-t border-accent/5 flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden ${isOpen ? "translate-y-0" : "translate-y-full"}`}>
-        <div className="flex justify-center pt-5 pb-3" onClick={onClose}>
-          <div className="w-12 h-1 bg-accent/10 rounded-full" />
+      <div className={`fixed inset-0 bg-black/50 z-[90] transition-opacity duration-500 lg:hidden ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={onClose} />
+      <div className={`fixed bottom-0 left-0 right-0 bg-accent z-[100] rounded-t-[40px] shadow-2xl flex flex-col transition-transform duration-700 ease-[cubic-bezier(0.16,1,0.3,1)] lg:hidden ${isOpen ? "translate-y-0" : "translate-y-full"}`}>
+        <div className="flex justify-center pt-6 pb-2" onClick={onClose}>
+          <div className="w-12 h-1.5 bg-bg/20 rounded-full" />
         </div>
-        <div className="px-8 pb-10 pt-2 flex flex-col gap-6">
-          <div className="flex justify-between items-center mb-2">
-            <h3 className="font-newsreader italic text-3xl text-accent">Price Details</h3>
-            <button onClick={onClose} className="p-2 text-accent/30 hover:text-accent transition-colors">{Ico.x("w-5 h-5")}</button>
+        <div className="px-10 pb-12 pt-6 flex flex-col gap-10">
+          <div className="flex justify-between items-center">
+            <h3 className="font-manrope text-[11px] uppercase font-bold tracking-[0.3em] text-bg/40">Order Breakdown</h3>
+            <button onClick={onClose} className="p-2 text-bg/30 hover:text-bg transition-colors">{Ico.x("w-5 h-5")}</button>
           </div>
-          <div className="flex flex-col gap-4 font-manrope text-[13px] uppercase tracking-widest font-bold">
-            <div className="flex justify-between"><span className="text-accent/40">Total MRP</span><span className="text-accent/70">{convertToLocale({ amount: cart.item_subtotal || 0, currency_code: cart.currency_code })}</span></div>
-            {(cart.discount_total ?? 0) > 0 && <div className="flex justify-between"><span className="text-accent/40">Discount</span><span className="text-green-700">- {convertToLocale({ amount: cart.discount_total || 0, currency_code: cart.currency_code })}</span></div>}
-            <div className="flex justify-between"><span className="text-accent/40">Delivery Fee</span><span className="text-green-700">Free</span></div>
+          
+          <div className="flex flex-col gap-5 font-manrope text-[13px] uppercase tracking-[0.15em]">
+            <div className="flex justify-between"><span className="text-bg/60">Total MRP</span><span className="text-bg font-semibold">{convertToLocale({ amount: cart.item_subtotal || 0, currency_code: cart.currency_code })}</span></div>
+            {(cart.discount_total ?? 0) > 0 && <div className="flex justify-between"><span className="text-bg/60">Discount</span><span className="text-green-400 font-bold">- {convertToLocale({ amount: cart.discount_total || 0, currency_code: cart.currency_code })}</span></div>}
+            <div className="flex justify-between"><span className="text-bg/60">Delivery Fee</span><span className="text-green-400 font-bold">Free</span></div>
           </div>
-          <div className="border-t border-dashed border-accent/10 pt-6 flex justify-between items-center mt-2">
-            <span className="font-newsreader italic text-2xl text-accent">Total Payable</span>
-            <span className="font-newsreader italic text-2xl text-accent font-semibold">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</span>
+          
+          <div className="border-t border-dashed border-bg/10 pt-8 flex justify-between items-end">
+            <div className="flex flex-col gap-1">
+              <span className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-bg/30">Total Payable</span>
+              <span className="font-newsreader italic text-3xl text-bg leading-none">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</span>
+            </div>
+            <button onClick={onClose} className="bg-bg text-accent px-10 py-5 font-manrope text-[11px] font-bold uppercase tracking-[0.2em] shadow-lg animate-in fade-in zoom-in duration-500 delay-300">Got it</button>
           </div>
         </div>
       </div>
@@ -581,34 +610,33 @@ const OrderSummary = ({ cart, currentStep, onContinue, selectedAddress }: {
   const label = currentStep === 0 ? "PROCEED TO ADDRESS" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"
 
   return (
-    <div className="bg-black/[0.04] lg:bg-black/[0.02] border border-accent/5 p-8 flex flex-col gap-8 shadow-sm">
+    <div className="flex flex-col gap-8">
       <div className="flex items-center justify-between">
-        <h3 className="font-newsreader italic text-2xl text-accent">Price Details</h3>
-        <span className="font-manrope text-[11px] uppercase font-bold tracking-widest text-accent/40 cursor-pointer hover:text-accent transition-colors">View {items.length} Item{items.length > 1 ? "s" : ""}</span>
+        <h3 className="font-newsreader italic text-2xl text-bg">Order Summary</h3>
       </div>
       {firstItem && (
-        <div className="flex items-center gap-5 pb-6 border-b border-accent/5">
-          <div className="w-16 h-20 bg-accent/[0.02] overflow-hidden flex-shrink-0"><Thumbnail thumbnail={firstItem.thumbnail} size="square" /></div>
+        <div className="flex items-center bg-secondaryAccent  gap-5 pb-6 border p-2 border-secondaryAccent">
+          <div className="w-16 h-20  overflow-hidden flex-shrink-0"><Thumbnail thumbnail={firstItem.thumbnail} size="square" /></div>
           <div className="min-w-0">
-            <p className="font-manrope text-[14px] font-bold text-accent truncate">{firstItem.product_title}</p>
-            <p className="font-manrope text-[12px] text-accent/30 uppercase tracking-widest mt-0.5">{firstItem.variant?.title} · Qty: {firstItem.quantity}</p>
+            <p className="font-manrope text-[14px] font-bold text-bg truncate">{firstItem.product_title}</p>
+            <p className="font-manrope text-[12px] text-bg/30 uppercase tracking-widest mt-0.5">{firstItem.variant?.title} · Qty: {firstItem.quantity}</p>
           </div>
         </div>
       )}
-      <div className="flex flex-col gap-3 font-manrope text-[13px] uppercase tracking-widest font-bold">
-        <div className="flex justify-between"><span className="text-accent/40">Total MRP</span><span className="text-accent/70">{convertToLocale({ amount: cart.item_subtotal || 0, currency_code: cart.currency_code })}</span></div>
-        {(cart.discount_total ?? 0) > 0 && <div className="flex justify-between"><span className="text-accent/40">Discount</span><span className="text-green-700">- {convertToLocale({ amount: cart.discount_total || 0, currency_code: cart.currency_code })}</span></div>}
-        <div className="flex justify-between"><span className="text-accent/40">Delivery Fee</span><span className="text-green-700">Free</span></div>
+      <div className="flex flex-col gap-3 font-manrope text-[13px] uppercase  font-regular">
+        <div className="flex justify-between"><span className="text-bg">Total MRP</span><span className="text-bg font-semibold">{convertToLocale({ amount: cart.item_subtotal || 0, currency_code: cart.currency_code })}</span></div>
+        {(cart.discount_total ?? 0) > 0 && <div className="flex justify-between"><span className="text-bg">Discount</span><span className="text-green-700">- {convertToLocale({ amount: cart.discount_total || 0, currency_code: cart.currency_code })}</span></div>}
+        <div className="flex justify-between"><span className="text-bg">Delivery Fee</span><span className="text-green-700">Free</span></div>
       </div>
-      <div className="border-t border-dashed border-accent/10 pt-6 flex justify-between items-center">
-        <span className="font-newsreader italic text-2xl text-accent">Total Payable</span>
-        <span className="font-newsreader italic text-xl text-accent font-semibold">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</span>
+      <div className="border-t border-dashed border-bg/10 pt-6 flex justify-between items-center">
+        <span className="font-newsreader italic text-2xl text-bg">Total Payable</span>
+        <span className="font-manrope text-xl text-bg font-semibold">{convertToLocale({ amount: cart.total || 0, currency_code: cart.currency_code })}</span>
       </div>
       <button onClick={onContinue} disabled={currentStep === 1 && !selectedAddress}
-        className="w-full py-5 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-30 disabled:cursor-not-allowed">
+        className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-bg/90 transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-30 disabled:cursor-not-allowed">
         {label} {Ico.arrowRight("w-4 h-4 group-hover:translate-x-1 transition-transform")}
       </button>
-      <p className="font-manrope text-[10px] text-accent/20 text-center uppercase tracking-widest leading-relaxed">By continuing, you agree to our Terms of Use and Privacy Policy.</p>
+      <p className="font-manrope text-[10px] text-bg/80 text-center  tracking-widest leading-relaxed">By continuing, you agree to our Terms of Use and Privacy Policy.</p>
     </div>
   )
 }
@@ -665,17 +693,25 @@ const CheckoutFlow = ({ cart, customer }: { cart: HttpTypes.StoreCart; customer:
       </div>
 
       {/* Content */}
-      <div className="max-w-[1400px] mx-auto px-4 py-10 lg:py-12">
-        <StepIndicator currentStep={currentStep} onStepClick={goToStep} />
-
-        <div className="flex flex-col lg:flex-row gap-10 lg:gap-12">
-          <div className="flex-1 lg:max-w-[calc(100%-400px)]">
-            {currentStep === 0 && <BagStep cart={cart} onContinue={handleProceed} />}
-            {currentStep === 1 && <AddressStep cart={cart} customer={customer} selectedAddress={selectedAddress} setSelectedAddress={setSelectedAddress} onContinue={handleProceed} />}
-            {currentStep === 2 && <PaymentStep cart={cart} />}
+      <div className="mx-auto px-6 md:px-12 lg:px-16 py-10">
+        <div className="flex flex-col lg:flex-row gap-20 lg:gap-32">
+          
+          {/* LEFT: PROGRESS & FORMS */}
+          <div className="flex-1 lg:max-w-[55%]  flex flex-col justify-center items-center">
+            <StepIndicator currentStep={currentStep} onStepClick={goToStep} />
+            
+            <div className="mt-8  w-full">
+              {currentStep === 0 && <BagStep cart={cart} onContinue={handleProceed} />}
+              {currentStep === 1 && <AddressStep cart={cart} customer={customer} selectedAddress={selectedAddress} setSelectedAddress={setSelectedAddress} onContinue={handleProceed} />}
+              {currentStep === 2 && <PaymentStep cart={cart} />}
+            </div>
           </div>
-          <div className="hidden lg:block w-[380px] flex-shrink-0">
-            <div className="sticky top-24"><OrderSummary cart={cart} currentStep={currentStep} onContinue={handleProceed} selectedAddress={selectedAddress} /></div>
+          
+          {/* RIGHT: ORDER DETAIL SIDEBAR */}
+          <div className="hidden lg:block lg:flex-1 bg-accent border-l border-accent/5 min-h-screen -mt-24 -mr-16">
+            <div className="sticky top-0 py-24 px-12">
+              <OrderSummary cart={cart} currentStep={currentStep} onContinue={handleProceed} selectedAddress={selectedAddress} />
+            </div>
           </div>
         </div>
       </div>

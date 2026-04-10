@@ -2,17 +2,20 @@
 
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { ChevronRight } from "lucide-react"
+import { clx } from "@medusajs/ui"
+
 
 type BreadcrumbProps = {
   items: {
     label: string
     href?: string
   }[]
+  className?: string
 }
 
-const Breadcrumb = ({ items }: BreadcrumbProps) => {
+const Breadcrumb = ({ items, className }: BreadcrumbProps) => {
   return (
-    <nav className="flex items-center gap-2 py-4 mb-8 text-[15px] font-regular tracking-wide">
+    <nav className={clx("flex items-center gap-2 text-[15px] font-regular tracking-wide", className)}>
       {items.map((item, index) => (
         <div key={index} className="flex items-center gap-2">
           {item.href ? (

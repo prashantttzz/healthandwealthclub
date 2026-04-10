@@ -7,11 +7,23 @@ import { AnimatePresence } from "framer-motion"
 import SortModal from "./sort-modal"
 import FilterModal from "./filter-modal"
 
+import { HttpTypes } from "@medusajs/types"
+
 type MobileActionsProps = {
   sortBy: string
+  categories?: HttpTypes.StoreProductCategory[]
+  activeCategory?: string
+  activeSize?: string
+  activeColor?: string
 }
 
-const MobileActions = ({ sortBy }: MobileActionsProps) => {
+const MobileActions = ({ 
+  sortBy, 
+  categories, 
+  activeCategory, 
+  activeSize, 
+  activeColor 
+}: MobileActionsProps) => {
   const [showSort, setShowSort] = useState(false)
   const [showFilters, setShowFilters] = useState(false)
 
@@ -47,6 +59,10 @@ const MobileActions = ({ sortBy }: MobileActionsProps) => {
       <AnimatePresence>
         {showFilters && (
           <FilterModal
+            categories={categories}
+            activeCategory={activeCategory}
+            activeSize={activeSize}
+            activeColor={activeColor}
             onClose={() => setShowFilters(false)}
           />
         )}

@@ -137,14 +137,14 @@ const CartSidebar = ({
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-y-0 right-0 z-[1002] w-[85%] sm:w-[450px] bg-bg shadow-2xl pointer-events-auto flex flex-col"
+            className="fixed inset-y-0 right-0 z-[1002] w-[85%] sm:w-[450px] bg-accent shadow-2xl pointer-events-auto flex flex-col"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-8 h-24 border-b border-black/5">
-              <h2 className="font-newsreader italic text-4xl tracking-tight uppercase">CART</h2>
+            <div className="flex items-center justify-between px-8 h-24 border-b border-bg/10">
+              <h2 className="font-newsreader italic text-4xl tracking-tight uppercase text-bg">CART</h2>
               <button
                 onClick={closeCartSidebar}
-                className="p-2 -mr-2 text-accent hover:rotate-90 transition-transform duration-300"
+                className="p-2 -mr-2 text-bg/40 hover:text-bg hover:rotate-90 transition-all duration-300"
               >
                 <HugeiconsIcon icon={Cancel01Icon} size={24} strokeWidth={1} />
               </button>
@@ -160,23 +160,23 @@ const CartSidebar = ({
                     .map((item) => (
                       <div
                         key={item.id}
-                        className="p-8 border-b border-black/5 flex gap-x-6"
+                        className="p-8 border-b border-bg/5 flex gap-x-6"
                       >
                         <LocalizedClientLink
                           href={`/products/${item.product_handle}`}
-                          className="w-20 h-24 shrink-0 group relative bg-black/5 overflow-hidden rounded-sm"
+                          className="w-20 h-24 shrink-0 group relative bg-bg/5 overflow-hidden rounded-sm"
                         >
                           <Thumbnail
                             thumbnail={item.thumbnail}
                             images={item.variant?.product?.images}
                             size="full"
-                            className="object-cover group-hover:scale-105 transition-transform duration-700"
+                            className="object-contain group-hover:scale-105 transition-transform duration-700"
                           />
                         </LocalizedClientLink>
 
                         <div className="flex flex-col flex-1">
                           <div className="flex flex-col gap-0.5">
-                            <h3 className="font-manrope text-[13px] font-medium leading-snug max-w-[180px]">
+                            <h3 className="font-manrope text-[13px] font-medium leading-snug max-w-[180px] text-bg">
                               <LocalizedClientLink
                                 href={`/products/${item.product_handle}`}
                                 className="hover:opacity-70 transition-opacity"
@@ -184,17 +184,19 @@ const CartSidebar = ({
                                 {item.title}
                               </LocalizedClientLink>
                             </h3>
-                            <div className="font-manrope text-[10px] text-accent/40 uppercase tracking-wider">
+                            <div className="font-manrope text-[10px] text-bg/40 uppercase tracking-wider">
                               <LineItemOptions variant={item.variant} />
                             </div>
                           </div>
 
                           <div className="mt-3 flex items-center justify-between">
-                            <QuantitySelector
-                              quantity={item.quantity}
-                              onChange={(val) => handleQuantityChange(item.id, val)}
-                              loading={updatingItemId === item.id}
-                            />
+                            <div className="border border-bg/10">
+                              <QuantitySelector
+                                quantity={item.quantity}
+                                onChange={(val) => handleQuantityChange(item.id, val)}
+                                loading={updatingItemId === item.id}
+                              />
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -202,12 +204,12 @@ const CartSidebar = ({
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full p-12 text-center gap-8">
-                  <div className="w-16 h-16 bg-black/5 rounded-full flex items-center justify-center opacity-50">
-                    <HugeiconsIcon icon={ShoppingBag01Icon} size={32} />
+                  <div className="w-16 h-16 bg-bg/5 rounded-full flex items-center justify-center opacity-50">
+                    <HugeiconsIcon icon={ShoppingBag01Icon} size={32} className="text-bg" />
                   </div>
                   <div className="space-y-3">
-                    <p className="font-newsreader italic text-3xl">Empty collection</p>
-                    <p className="font-manrope text-[12px] uppercase font-bold tracking-[0.2em] text-accent/30 max-w-[240px] leading-relaxed mx-auto">
+                    <p className="font-newsreader italic text-3xl text-bg">Empty collection</p>
+                    <p className="font-manrope text-[12px] uppercase font-bold tracking-[0.2em] text-bg/30 max-w-[240px] leading-relaxed mx-auto">
                       Your bag is waiting for its first treasure. Explore our curated experiences.
                     </p>
                   </div>
@@ -215,7 +217,7 @@ const CartSidebar = ({
                     href="/store"
                     className="w-full max-w-[260px]"
                   >
-                    <button className="w-full py-4 border border-black/10 text-black font-manrope text-[10px] uppercase font-bold tracking-[0.3em] hover:bg-black hover:text-white transition-all duration-300 rounded-none">
+                    <button className="w-full py-4 border border-bg/10 text-bg font-manrope text-[10px] uppercase font-bold tracking-[0.3em] hover:bg-bg hover:text-accent transition-all duration-300 rounded-none">
                       START EXPLORING
                     </button>
                   </LocalizedClientLink>
@@ -225,12 +227,12 @@ const CartSidebar = ({
 
             {/* Footer */}
             {cart && items.length > 0 && (
-              <div className="p-8 border-t border-black/5">
+              <div className="p-8 border-t border-bg/10 bg-bg/5">
                 <div className="flex items-center justify-between mb-8 pt-2">
-                  <span className="font-manrope text-[13px] uppercase tracking-[0.2em] text-accent font-medium">
+                  <span className="font-manrope text-[13px] uppercase tracking-[0.2em] text-bg/40 font-medium">
                     SUBTOTAL
                   </span>
-                  <span className="font-manrope text-[15px] font-bold">
+                  <span className="font-manrope text-[15px] font-bold text-bg">
                     {convertToLocale({
                       amount: subtotal,
                       currency_code: cart.currency_code,
@@ -239,7 +241,7 @@ const CartSidebar = ({
                 </div>
                 
                 <div className="space-y-6">
-                  <p className="font-manrope text-[12px] text-accent/60 text-center leading-relaxed px-4">
+                  <p className="font-manrope text-[12px] text-bg/40 text-center leading-relaxed px-4">
                     Shipping, taxes, and discount codes calculated at checkout.
                   </p>
                   
@@ -249,7 +251,7 @@ const CartSidebar = ({
                   >
                     <button 
                       onClick={() => setIsNavigating(true)}
-                      className="w-full py-5 bg-accent text-white font-manrope text-[13px] tracking-[0.3em] hover:bg-accent transition-all duration-300 uppercase flex items-center justify-center gap-2"
+                      className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] hover:bg-bg/90 transition-all duration-300 uppercase flex items-center justify-center gap-2"
                     >
                       {isNavigating ? <Spinner /> : "CHECK OUT"}
                     </button>

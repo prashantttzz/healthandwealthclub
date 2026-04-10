@@ -59,8 +59,8 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
               href={`/products/${product.handle}`}
               className="group block w-full"
             >
-              <div data-testid="product-wrapper" className="relative flex flex-col  gap-2">
-                <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F9F6F2]">
+              <div data-testid="product-wrapper" className="relative flex flex-col ">
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#F9F6F2]">
                   <Image
                     src={product.thumbnail || ""}
                     alt={product.title}

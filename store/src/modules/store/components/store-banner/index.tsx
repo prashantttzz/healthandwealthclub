@@ -4,7 +4,7 @@ export default function StoreBanner() {
   return (
     <div className="relative w-full h-[40vh] md:h-[50vh] overflow-hidden bg-accent">
       <Image
-        src="/brain/7eb41b04-837e-4729-a4f2-efab3b99abfd/store_editorial_banner_png_1775711884358.png"
+        src="/about.png"
         alt="Store Banner"
         fill
         className="object-cover opacity-80"

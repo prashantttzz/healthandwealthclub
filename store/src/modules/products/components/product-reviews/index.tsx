@@ -20,6 +20,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
   const [showForm, setShowForm] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isLoading, setIsLoading] = useState(true)
+  const [showAll, setShowAll] = useState(false)
   
   const [rating, setRating] = useState(0)
   const [hoverRating, setHoverRating] = useState(0)
@@ -112,27 +113,27 @@ const ProductReviews = ({ productId }: { productId: string }) => {
     : "0.0"
 
   return (
-    <div className="bg-[#F2EDE5] py-10 lg:py-20 border-t border-black/5">
+    <div className="bg-bg py-8 lg:py-16 border-t border-black/5">
       <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
         <div className="flex flex-col lg:flex-row gap-20">
           
           {/* LEFT: SUMMARY */}
-          <div className="lg:w-1/3 space-y-8">
-            <div className="space-y-4">
-              <span className="font-manrope text-[11px] tracking-[0.4em] uppercase font-bold text-accent/30 block">
+          <div className="lg:w-1/3 space-y-6">
+            <div className="space-y-2">
+              <span className="font-manrope text-[9px] tracking-[0.3em] uppercase font-bold text-accent/30 block">
                 Social Proof
               </span>
-              <h2 className="font-newsreader italic text-5xl lg:text-7xl leading-none text-accent tracking-tighter">
-                Voices of the Club
+              <h2 className="font-newsreader italic text-3xl lg:text-4xl leading-tight text-accent tracking-tight">
+                Customer Stories
               </h2>
             </div>
 
-            <div className="flex items-center gap-6">
-              <div className="font-newsreader italic text-6xl text-accent">{averageRating}</div>
-              <div className="space-y-1">
-                <StarRating rating={Math.round(Number(averageRating))} size={16} />
-                <p className="font-manrope text-[10px] tracking-widest uppercase text-accent/40 font-bold">
-                  Based on {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
+            <div className="flex items-center gap-4">
+              <div className="font-newsreader italic text-4xl text-accent">{averageRating}</div>
+              <div className="space-y-0.5">
+                <StarRating rating={Math.round(Number(averageRating))} size={12} />
+                <p className="font-manrope text-[9px] tracking-widest uppercase text-accent/40 font-bold">
+                  {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
                 </p>
               </div>
             </div>
@@ -140,10 +141,10 @@ const ProductReviews = ({ productId }: { productId: string }) => {
             <button 
               onClick={handleShareExperience}
               disabled={isCheckingAuth}
-              className="group flex items-center gap-4 bg-accent text-bg px-8 py-4 rounded-full transition-all hover:scale-105 disabled:opacity-75 disabled:cursor-wait"
+              className="group flex items-center justify-center bg-accent text-bg px-6 py-3 rounded-md transition-all hover:opacity-90 disabled:opacity-75 disabled:cursor-wait min-w-[180px]"
             >
-              <span className="font-manrope text-[10px] font-bold tracking-widest uppercase">
-                {isCheckingAuth ? "Authenticating..." : showForm ? "Close Form" : "Share Your Experience"}
+              <span className="font-manrope text-[9px] font-bold tracking-widest uppercase">
+                {isCheckingAuth ? "Authenticating..." : showForm ? "Close Form" : "Share a Review"}
               </span>
             </button>
           </div>
@@ -160,9 +161,9 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                   className="bg-white/50 border border-black/5 p-8 lg:p-12 space-y-10"
                 >
                   <form onSubmit={handleSubmit} className="space-y-8">
-                    <div className="space-y-2">
-                      <h3 className="font-newsreader italic text-3xl text-accent">Submit a Review</h3>
-                      <p className="font-manrope text-[12px] text-accent/40">Your feedback helps us refine the intentional lifestyle.</p>
+                    <div className="space-y-1">
+                      <h3 className="font-newsreader italic text-2xl text-accent leading-none">Submit Review</h3>
+                      <p className="font-manrope text-[11px] text-accent/40">Refine the intentional lifestyle.</p>
                     </div>
 
                     <div className="space-y-8">
@@ -244,32 +245,35 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                       <p className="font-manrope text-[13px] text-accent/40 italic">No reviews yet for this piece. Be the first to share your experience.</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 gap-4">
-                      {reviews.map((review) => (
-                        <div key={review.id} className="bg-white/40 border border-black/5 rounded-2xl p-5 lg:p-6 space-y-4 shadow-sm hover:shadow-md hover:bg-white/60 transition-all duration-300">
-                          <div className="flex items-center justify-between">
-                            <div className="space-y-1">
-                              <h4 className="font-newsreader text-[16px] xl:text-[18px] font-semibold italic text-accent">{review.customer_name}</h4>
-                              <span className="font-manrope text-[9px] tracking-widest uppercase text-accent/50 block font-semibold">{new Date(review.created_at).toLocaleDateString("en-US", { month: 'long', day: 'numeric', year: 'numeric' }).toUpperCase()}</span>
+                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+                      {reviews.slice(0, showAll ? undefined : 5).map((review) => (
+                        <div key={review.id} className="bg-white/30 border border-black/5 rounded-xl p-4 lg:p-5 space-y-3 shadow-sm hover:shadow-md hover:bg-white/50 transition-all duration-300">
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-0.5">
+                              <h4 className="font-newsreader text-[15px] xl:text-[16px] font-semibold italic text-accent">{review.customer_name}</h4>
+                              <span className="font-manrope text-[8px] tracking-widest uppercase text-accent/50 block font-semibold">{new Date(review.created_at).toLocaleDateString("en-US", { month: 'short', day: 'numeric', year: 'numeric' }).toUpperCase()}</span>
                             </div>
-                            <StarRating rating={review.rating} size={14} />
+                            <StarRating rating={review.rating} size={11} />
                           </div>
-                          <p className="font-manrope text-[13px] xl:text-[14px] leading-relaxed text-accent/80 max-w-2xl">
+                          <p className="font-manrope text-[12px] xl:text-[13px] leading-relaxed text-accent/70 max-w-xl">
                             "{review.comment}"
                           </p>
-                          <div className="flex items-center gap-1.5 pt-1 text-accent">
-                            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={14} className="text-green-700/80" />
-                            <span className="font-manrope text-[9px] tracking-widest uppercase italic font-bold text-green-700/80">Verified Experience</span>
+                          <div className="flex items-center gap-1 pt-0.5 text-accent/40">
+                            <HugeiconsIcon icon={CheckmarkCircle01Icon} size={11} className="text-accent/60" />
+                            <span className="font-manrope text-[8px] tracking-widest uppercase italic font-bold">Verified Order</span>
                           </div>
                         </div>
                       ))}
                     </div>
                   )}
 
-                  {reviews.length > 0 && (
-                    <div className="pt-4">
-                      <button className="font-manrope text-[10px] font-bold tracking-widest uppercase text-accent border-b border-accent pb-1 hover:opacity-50 transition-all">
-                        View All {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
+                  {reviews.length > 5 && (
+                    <div className="pt-2 text-center lg:text-left">
+                      <button 
+                        onClick={() => setShowAll(!showAll)}
+                        className="font-manrope text-[9px] font-bold tracking-widest uppercase text-accent border-b border-accent pb-0.5 hover:opacity-50 transition-all"
+                      >
+                        {showAll ? "Show Less" : `Discover All ${reviews.length} Experiences`}
                       </button>
                     </div>
                   )}

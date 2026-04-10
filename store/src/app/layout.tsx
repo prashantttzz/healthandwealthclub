@@ -1,6 +1,6 @@
 import { getBaseURL } from "@lib/util/env"
 import { Metadata } from "next"
-import { Gilda_Display, Manrope, Newsreader, Petit_Formal_Script } from 'next/font/google';
+import { Gilda_Display, Manrope, Newsreader, Petit_Formal_Script, Poppins } from 'next/font/google';
 import "styles/globals.css"
 
 
@@ -11,8 +11,9 @@ const gilda = Gilda_Display({
 });
 
 // 2. Manrope (Variable font)
-const manrope = Manrope({
+const manrope = Poppins({
   subsets: ['latin'],
+    weight: '400',
   variable: '--font-manrope',
 });
 

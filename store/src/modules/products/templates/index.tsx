@@ -14,6 +14,7 @@ import { getProductPrice } from "@lib/util/get-product-price"
 import CraftsmanshipSection from "../components/craftsmanship-section"
 import ProductTabs from "../components/product-tabs"
 import ProductReviews from "../components/product-reviews"
+import ImageCarousel from "../components/image-carousel"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -94,37 +95,50 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     <>
       <div className="bg-bg w-full min-h-screen">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 py-24 lg:py-32 flex flex-col lg:flex-row items-start relative gap-x-12 lg:gap-x-24">
-          <div className="w-full lg:w-[50%] space-y-4">
-            <div className="relative aspect-[3/4] w-full overflow-hidden bg-white/50 group">
-              <Image
-                src={selectedVariant?.metadata?.image_url as string || product.images?.[0]?.url || ""}
-                alt={product.title || "Product image"}
-                fill
-                priority
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
+          {/* PRODUCT IMAGE GALLERY */}
+          <div className="w-full lg:w-[60%]">
+            {/* Mobile Carousel */}
+            <div className="lg:hidden mb-8">
+              <ImageCarousel 
+                images={product.images || []} 
+                title={product.title || ""} 
               />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              {(product.images || []).slice(1, 4).map((image, i) => (
-                <div key={image.id} className="relative aspect-square w-full overflow-hidden bg-white/50">
-                  <Image
-                    src={image.url}
-                    alt={`Product detail ${i + 1}`}
-                    fill
-                    className="object-cover"
-                  />
-                </div>
-              ))}
+
+            {/* Desktop Editorial Grid */}
+            <div className="hidden lg:flex flex-col gap-4">
+              <div 
+                className="relative aspect-[4/5] w-full overflow-hidden bg-white/50 group rounded-3xl border border-black/5"
+              >
+                <Image
+                  src={selectedVariant?.metadata?.image_url as string || product.images?.[0]?.url || ""}
+                  alt={product.title || "Product main image"}
+                  fill
+                  priority
+                  className="object-cover transition-transform duration-700 group-hover:scale-105"
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                {(product.images || []).slice(1, 4).map((image, i) => (
+                  <div key={image.id} className="relative aspect-square w-full overflow-hidden bg-white/50 rounded-2xl border border-black/5">
+                    <Image
+                      src={image.url}
+                      alt={`Product detail ${i + 1}`}
+                      fill
+                      className="object-cover"
+                    />
+                  </div>
+                ))}
+              </div>
             </div>
           </div>
-
-          <div className="w-full lg:w-[40%]  flex flex-col pt-10 space-y-5 md:space-y-10">
+          <div className="w-full lg:w-[40%]  flex flex-col  space-y-5 md:space-y-5">
 
             <div className="space-y-4">
-              <span className="font-manrope text-xs md:text-[12x] tracking-[0.3em] uppercase font-regular text-accent/80 block">
+              <span className="font-manrope text-xs md:text-[12x] tracking-[0.2em] uppercase font-regular text-accent/80 block">
                 {product.collection?.title || "Limited Edition Collection"}
               </span>
-              <h1 className="font-newsreader italic text-4xl lg:text-8xl leading-none text-accent tracking-tighter">
+              <h1 className="font-newsreader italic text-4xl lg:text-6xl leading-none text-accent tracking-tighter">
                 {product.title}
               </h1>
               <p className="font-newsreader italic text-[15px] md:text-[20px] text-accent/60">
@@ -138,11 +152,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             </div>
 
             {/* Description */}
-            <div className="max-w-md">
-              <p className="font-manrope text-[15px] leading-relaxed font-regular text-black/50 whitespace-pre-line">
-                {product.description}
-              </p>
-            </div>
+         
             <div className="space-y-12" ref={actionsRef}>
               {(product.options || []).map((option) => {
                 const isColor = option.title?.toLowerCase() === "color"
@@ -211,17 +221,21 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 onClick={handleAddToCart}
                 disabled={!isValidVariant || isAdding}
                 className={clx(
-                  "w-full h-16 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.4em] uppercase transition-all duration-500 overflow-hidden relative group",
+                  "w-full h-16 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden relative group",
                   { "opacity-50 cursor-not-allowed": !isValidVariant || isAdding }
                 )}
               >
                 <span className="relative z-10">
-                  {isAdding ? "Processing Experience..." : (isValidVariant ? "Add to Experience →" : "Select Selection")}
+                  {isAdding ? "Processing ..." : (isValidVariant ? "Add to cart →" : "Select Selection")}
                 </span>
                 <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
               </button>
             </div>
-
+            <div className="max-w-md pt-8 border-t border-accent/10 mt-8">
+              <p className="font-manrope text-[15px] leading-relaxed font-regular text-black/50 whitespace-pre-line">
+                {product.description}
+              </p>
+            </div>
             {/* PRODUCT TABS */}
             <div className="pt-4 mt-8">
               <ProductTabs product={product} />

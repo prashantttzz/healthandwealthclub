@@ -57,7 +57,7 @@ export default function FeaturesSection() {
 
               <div className="space-y-3">
                 {/* Title — overline tier */}
-                <h3 className="font-newsreader italic text-[16px] text-center font-semibold text-accent">
+                <h3 className="font-newsreader italic text-[18px] text-center font-semibold text-accent">
                   {feature.title}
                 </h3>
 

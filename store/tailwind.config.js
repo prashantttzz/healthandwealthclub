@@ -35,6 +35,8 @@ module.exports = {
           90: "#111827",
         },
         bg:"#FFF6EC",
+        secondary:"#f9f0e8ff",
+        secondaryAccent:"#3a4c37ff",
         accent:"#263723ff",
         text:"#3a3b38ff"
       },

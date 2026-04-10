@@ -74,7 +74,7 @@ export default function CategoryStickyScroll() {
               The Club Shop
             </h2>
           </div>
-          <p className="font-manrope tracking-widest font-semibold text-bg/90 uppercase text-[10px] md:text-[12px] max-w-xl text-center">
+          <p className="font-manrope tracking-widest font-medium text-bg/90 uppercase text-[10px] md:text-[12px] max-w-xl text-center">
             A curated selection of seasonal staples designed with an emphasis on silhouette and longevity.
           </p>
         </motion.div>
@@ -94,7 +94,7 @@ export default function CategoryStickyScroll() {
             {CATEGORIES.map((item, index) => (
               <div 
                 key={item.title + index} 
-                className="min-h-[60vh] md:min-h-screen flex flex-col justify-center py-10 md:py-20"
+                className="min-h-[60vh] md:min-h-screen flex flex-col justify-center py-10"
               >
                 <div className="md:hidden w-full max-w-[280px] mx-auto aspect-[4/5] mb-8 overflow-hidden rounded-sm">
                   <Image
@@ -110,15 +110,16 @@ export default function CategoryStickyScroll() {
                   initial={{ opacity: 0, x: -20 }}
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                  viewport={{ margin: "-20%" }}
+                  viewport={{ margin: "-10%" }}
+                  className="md:-mt-32 md:text-start  text-center"
                 >
-                  <span className="font-manrope text-[9px] font-bold tracking-[0.3em] uppercase text-bg/40 mb-2 block">
+                  <span className="font-manrope text-[9px] font-semibold tracking-[0.3em] uppercase text-bg/40 mb-2 block">
                     {item.sub}
                   </span>
-                  <h3 className="text-5xl lg:text-7xl font-newsreader font-regular italic text-bg leading-[0.95] mb-6">
+                  <h3 className="text-5xl lg:text-7xl font-newsreader font-regular italic text-bg leading-[0.95] mb-6 mt-3 md:mt-0">
                     {item.title}
                   </h3>
-                  <p className="text-base lg:text-lg font-manrope text-bg/70 max-w-sm mb-10 leading-relaxed">
+                  <p className="text-sm lg:text-lg font-manrope text-bg/70 max-w-sm mb-10 leading-relaxed">
                     {item.description}
                   </p>
                   <Link href={`/collections/${item.id}`} className="group inline-flex items-center gap-4">
@@ -173,7 +174,7 @@ export default function CategoryStickyScroll() {
       </div>
 
       <div className="py-5 md:py-24 text-center border-b border-black/5">
-        <Link href="/shop-all" className="group text-[11px] font-bold uppercase tracking-[0.2em] text-bg/40 hover:text-bg transition-colors">
+        <Link href="/shop-all" className="group text-[12px] font-semibold uppercase tracking-[0.2em] text-bg/80 hover:text-bg transition-colors">
           Browse All Departments 
           <motion.span className="inline-block ml-2 group-hover:translate-x-2 transition-transform">→</motion.span>
         </Link>

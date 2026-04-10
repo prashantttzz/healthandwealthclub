@@ -189,7 +189,8 @@ export const addCustomerAddress = async (
     .then(async ({ customer }) => {
       const customerCacheTag = await getCacheTag("customers")
       revalidateTag(customerCacheTag)
-      return { success: true, error: null }
+      const newAddress = customer.addresses?.[customer.addresses.length - 1]
+      return { success: true, address: newAddress, error: null }
     })
     .catch((err) => {
       return { success: false, error: err.toString() }

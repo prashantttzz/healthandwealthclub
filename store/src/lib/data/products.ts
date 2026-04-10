@@ -94,11 +94,17 @@ export const listProductsWithSort = async ({
   queryParams,
   sortBy = "created_at",
   countryCode,
+  sizes,
+  colors,
+
 }: {
   page?: number
   queryParams?: HttpTypes.FindParams & HttpTypes.StoreProductParams
   sortBy?: SortOptions
   countryCode: string
+  sizes?: string[]
+  colors?: string[]
+
 }): Promise<{
   response: { products: HttpTypes.StoreProduct[]; count: number }
   nextPage: number | null
@@ -106,29 +112,47 @@ export const listProductsWithSort = async ({
 }> => {
   const limit = queryParams?.limit || 12
 
-  const {
+  let {
     response: { products, count },
   } = await listProducts({
     pageParam: 0,
     queryParams: {
       ...queryParams,
-      limit: 100,
+      limit: 100, // Fetch max to allow local filtering
     },
     countryCode,
   })
 
-  const sortedProducts = sortProducts(products, sortBy)
+  // Local Variant Filtering (Size and Color)
+  let filteredProducts = products;
+  if (sizes && sizes.length > 0) {
+    filteredProducts = filteredProducts.filter(p => 
+      p.variants?.some(v => 
+        v.options?.some(opt => sizes.includes(opt.value))
+      )
+    );
+  }
+  if (colors && colors.length > 0) {
+    filteredProducts = filteredProducts.filter(p => 
+      p.variants?.some(v => 
+        v.options?.some(opt => colors.includes(opt.value))
+      )
+    );
+  }
+
+
+
+  const sortedProducts = sortProducts(filteredProducts, sortBy)
+  const filteredCount = sortedProducts.length
 
   const pageParam = (page - 1) * limit
-
-  const nextPage = count > pageParam + limit ? pageParam + limit : null
-
+  const nextPage = filteredCount > pageParam + limit ? pageParam + limit : null
   const paginatedProducts = sortedProducts.slice(pageParam, pageParam + limit)
 
   return {
     response: {
       products: paginatedProducts,
-      count,
+      count: filteredCount,
     },
     nextPage,
     queryParams,

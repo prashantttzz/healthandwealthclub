@@ -5,12 +5,18 @@ import { useCallback, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
 
-import SortProducts, { SortOptions } from "./sort-products"
-import PriceRange from "./price-range"
+
+import { sortOptions } from "./sort-dropdown"
+
+import { HttpTypes } from "@medusajs/types"
 
 type RefinementListProps = {
-  sortBy: SortOptions
+  sortBy: sortOptions
   search?: boolean
+  categories?: HttpTypes.StoreProductCategory[]
+  activeCategory?: string
+  activeSize?: string
+  activeColor?: string
   'data-testid'?: string
 }
 
@@ -21,7 +27,7 @@ const FilterAccordion = ({ title, children, defaultOpen = true }: { title: strin
     <div className="border-b border-black/5 last:border-0 pb-2">
       <button 
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center justify-between w-full py-4 text-[11px] uppercase font-bold tracking-[0.2em] text-accent/80 hover:text-accent transition-colors"
+        className="flex items-center justify-between w-full py-4 text-[11px] uppercase font-bold tracking-[0.2em] text-accent hover:text-accent transition-colors"
       >
         <span>{title}</span>
         <motion.div
@@ -50,7 +56,14 @@ const FilterAccordion = ({ title, children, defaultOpen = true }: { title: strin
   )
 }
 
-const RefinementList = ({ sortBy, 'data-testid': dataTestId }: RefinementListProps) => {
+const RefinementList = ({ 
+  sortBy, 
+  categories, 
+  activeCategory, 
+  activeSize, 
+  activeColor, 
+  'data-testid': dataTestId 
+}: RefinementListProps) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
@@ -65,37 +78,84 @@ const RefinementList = ({ sortBy, 'data-testid': dataTestId }: RefinementListPro
     [searchParams]
   )
 
-  const setQueryParams = (name: string, value: string) => {
-    const query = createQueryString(name, value)
-    router.push(`${pathname}?${query}`)
+  const handleToggle = (name: string, value: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    const currentValues = params.get(name)?.split(",") || []
+
+    if (currentValues.includes(value)) {
+      const newValues = currentValues.filter((v) => v !== value)
+      if (newValues.length > 0) {
+        params.set(name, newValues.join(","))
+      } else {
+        params.delete(name)
+      }
+    } else {
+      currentValues.push(value)
+      params.set(name, currentValues.join(","))
+    }
+
+    // Reset pagination when filtering
+    params.delete("page")
+    router.push(`${pathname}?${params.toString()}`)
   }
 
+  const handleCategorySelect = (categoryId: string) => {
+    const params = new URLSearchParams(searchParams.toString())
+    if (params.get("category") === categoryId) {
+       params.delete("category") // allow deselect
+    } else {
+       params.set("category", categoryId)
+    }
+    params.delete("page")
+    router.push(`${pathname}?${params.toString()}`)
+  }
+
+  const selectedSizes = activeSize?.split(",") || []
+  const selectedColors = activeColor?.split(",") || []
+
   return (
-    <div className="hidden lg:flex flex-col w-full font-manrope ">
-            <FilterAccordion  title="Category">
+    <div className="hidden lg:flex flex-col w-full font-manrope  bg-secondary p-5 py-3">
+        <FilterAccordion title="Category">
         <ul className="space-y-4">
-          {["All Products", "Outerwear", "Knitwear", "The Club Set", "Track Assets"].map((cat) => (
-            <li key={cat} className="flex items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-accent/60 group cursor-pointer hover:text-accent transition-all">
+          <li 
+            onClick={() => {
+               const params = new URLSearchParams(searchParams.toString())
+               params.delete("category")
+               params.delete("page")
+               router.push(`${pathname}?${params.toString()}`)
+            }} 
+            className="flex items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-accent/60 group cursor-pointer hover:text-accent transition-all"
+          >
+            <div className="w-4 h-4 border border-black/10 rounded-sm flex items-center justify-center group-hover:border-accent transition-colors">
+              <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${!activeCategory ? "opacity-100" : "opacity-0"}`} />
+            </div>
+            <span className="text-accent/70 lowercase">All Products</span>
+          </li>
+          {categories?.map((cat) => (
+            <li 
+              key={cat.id} 
+              onClick={() => handleCategorySelect(cat.id)}
+              className="flex items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-accent/60 group cursor-pointer hover:text-accent transition-all"
+            >
               <div className="w-4 h-4 border border-black/10 rounded-sm flex items-center justify-center group-hover:border-accent transition-colors">
-                <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${cat === "All Products" ? "opacity-100" : "opacity-0"}`} />
+                <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${activeCategory === cat.id ? "opacity-100" : "opacity-0"}`} />
               </div>
-              <span className="text-accent/70">{cat}</span>
-              <span className="ml-auto text-accent/80 text-[9px] font-bold">
-                {Math.floor(Math.random() * 20) + 1}
-              </span>
+              <span className="text-accent/70 lowercase">{cat.name}</span>
             </li>
           ))}
         </ul>
       </FilterAccordion>
-      <FilterAccordion title="Price">
-        <PriceRange />
-      </FilterAccordion>
+
 
       {/* Size Accordion */}
       <FilterAccordion title="Size">
         <div className="grid grid-cols-5 gap-2">
           {["DX", "S", "M", "L", "XL"].map((size) => (
-            <button key={size} className={`flex items-center justify-center border aspect-square text-[10px] font-bold tracking-tighter transition-all ${size === "S" ? "bg-accent border-accent text-bg" : "border-black/10 text-accent/60 hover:border-accent hover:text-accent"}`}>
+            <button 
+              key={size} 
+              onClick={() => handleToggle("size", size)}
+              className={`flex items-center justify-center border aspect-square text-[10px] font-bold tracking-tighter transition-all ${selectedSizes.includes(size) ? "bg-accent border-accent text-bg" : "border-black/10 text-accent/60 hover:border-accent hover:text-accent"}`}
+            >
               {size}
             </button>
           ))}
@@ -111,7 +171,8 @@ const RefinementList = ({ sortBy, 'data-testid': dataTestId }: RefinementListPro
           ].map((color) => (
             <div 
               key={color.name} 
-              className={`w-6 h-6 rounded-full border border-black/5 cursor-pointer hover:scale-110 transition-transform ${color.class}`} 
+              onClick={() => handleToggle("color", color.name)}
+              className={`w-8 h-8 rounded-md border cursor-pointer hover:scale-110 transition-transform ${color.class} ${selectedColors.includes(color.name) ? "border-2 border-accent/80 scale-110 shadow-sm" : "border-black/10"}`} 
               title={color.name}
             />
           ))}

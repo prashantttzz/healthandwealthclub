@@ -32,7 +32,7 @@ const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
     >
       <LocalizedClientLink href={`/products/${handle}`} className="block">
         {/* Image */}
-        <div className="relative aspect-square bg-neutral-100 overflow-hidden mb-5">
+        <div className="relative aspect-[4/5] bg-neutral-100 overflow-hidden mb-2">
           {image ? (
             <Image
               src={image}
@@ -49,29 +49,12 @@ const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
         </div>
 
         {/* Info */}
-        <div className="space-y-2">
-          {/* Category */}
-          {product.collection?.title && (
-            <span className="font-manrope text-[10px] tracking-[0.4em] uppercase font-bold text-accent/40 block">
-              {product.collection.title}
-            </span>
-          )}
+        <div className="space-y-1">
 
-          {/* Title and Price row */}
           <div className="flex justify-between items-start gap-4">
-            <h3 className="font-newsreader italic text-xl md:text-2xl text-accent leading-tight tracking-tighter group-hover:opacity-60 transition-opacity">
-              {product.title}
-            </h3>
-          </div>
-
-          <div className="flex items-center justify-between pt-1">
-            {/* Price */}
-            {price !== undefined && (
-              <span className="font-manrope text-[14px] font-light text-accent/50">
-                {currency} {price.toFixed(2)}
-              </span>
-            )}
-            <div className="flex items-center gap-1.5">
+            <h3 className="font-manrope text-xs md:text-base font-regular text-accent/90  ">
+              {product.title || "title"}           </h3>
+                 <div className="flex items-center gap-1.5">
               {product.options
                 ?.find(opt => opt.title?.toLowerCase() === "color")
                 ?.values?.map((v: any, idx: number) => {
@@ -84,17 +67,27 @@ const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
                     navy: "#1a1f2c",
                   }
                   const colorHex = colorMap[v.value.toLowerCase()] || "#cccccc"
-                  
+
                   return (
                     <div
                       key={idx}
-                      className="w-3 h-3 rounded-full border border-black/5 shadow-sm"
+                      className="w-4 h-4 rounded-md border border-black/40 shadow-sm"
                       style={{ backgroundColor: colorHex }}
                       title={v.value}
                     />
                   )
                 })}
             </div>
+          </div>
+
+          <div className="flex items-center justify-between">
+            {/* Price */}
+            {price !== undefined && (
+              <span className="font-manrope text-[14px] font-semibold text-accent">
+                {currency} {price.toFixed(2)}
+              </span>
+            )}
+         
           </div>
         </div>
       </LocalizedClientLink>
