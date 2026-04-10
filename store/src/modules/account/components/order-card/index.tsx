@@ -43,7 +43,7 @@ const OrderCard = ({ order }: OrderCardProps) => {
           
           {/* Connecting Line Active */}
           <div 
-            className="absolute top-6 left-8 h-[2px] bg-accent -z-10 transition-all duration-500" 
+            className="absolute top-6 left-8 h-[2px] bg-[#3d2f20] -z-10 transition-all duration-500" 
             style={{ width: `${(currentStep / 4) * (100 - (16 / window.innerWidth * 100))}%` }} 
           />
 

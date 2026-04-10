@@ -138,7 +138,7 @@ const PersonalInformationComponent = ({ customer }: { customer: HttpTypes.StoreC
           <button 
             type="submit"
             disabled={isPending}
-            className="px-10 py-4 bg-accent text-bg font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50"
+            className="px-10 py-4 bg-[#3d2f20] text-[#fbf8f1] font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50"
           >
             {isPending ? "Updating..." : "Update Changes"}
           </button>

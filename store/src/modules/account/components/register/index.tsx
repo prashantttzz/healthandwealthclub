@@ -98,14 +98,14 @@ const Register = ({ setCurrentView }: Props) => {
         <span className="block text-center text-accent/60 text-[11px] mt-2 mb-6">
           By creating an account, you agree to our{" "}
           <LocalizedClientLink
-            href="/customer-service"
+            href="/content/privacy-policy"
             className="font-bold underline text-accent"
           >
             Privacy Policy
           </LocalizedClientLink>{" "}
           and{" "}
           <LocalizedClientLink
-            href="/customer-service"
+            href="/content/terms-of-use"
             className="font-bold underline text-accent"
           >
             Terms of Use
@@ -114,7 +114,7 @@ const Register = ({ setCurrentView }: Props) => {
 
         <button 
           type="submit"
-          className="w-full h-14 bg-accent text-bg font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50" 
+          className="w-full h-14 bg-[#3d2f20] text-[#fbf8f1] font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50" 
           data-testid="register-button"
         >
           Join
