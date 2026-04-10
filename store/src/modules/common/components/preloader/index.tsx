@@ -38,7 +38,7 @@ export default function Preloader() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#1b2929] overflow-hidden"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#172521] overflow-hidden"
           >
             {/* Shimmer & Logo Container */}
             <motion.div
@@ -46,59 +46,29 @@ export default function Preloader() {
               animate={{ 
                 opacity: 1, 
                 scale: 1,
-                transition: { duration: 0.8, ease: "easeOut" } 
+                webkitMaskPosition: ["150%", "-50%"],
               }}
-              className="relative overflow-hidden flex justify-center items-center"
+              transition={{
+                webkitMaskPosition: {
+                  duration: 3,
+                  repeat: Infinity,
+                  ease: "linear"
+                },
+                default: { duration: 0.8, ease: "easeOut" }
+              }}
+              style={{
+                WebkitMaskImage: "linear-gradient(-75deg, rgba(0,0,0,1) 40%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 60%)",
+                WebkitMaskSize: "300%",
+              }}
+              className="relative w-[140%] max-w-[500px] md:w-[70%] md:max-center flex justify-center items-center"
             >
               <Image
-                src="/board_page-0002.jpg"
+                src="/logo.webp"
                 alt="The Health & Wealth Club"
                 width={500}
                 height={500}
                 priority
                 className="w-full h-auto object-contain transform scale-[1.3] md:scale-100"
-              />
-              
-              {/* SPECULAR SHINE EFFECT - Isolated to text via luminance mask */}
-              <motion.div
-                initial={{ x: "-100%", skewX: -20 }}
-                animate={{ 
-                  x: "200%",
-                  transition: { 
-                    duration: 2.5, 
-                    repeat: Infinity, 
-                    repeatDelay: 1,
-                    ease: "easeInOut" 
-                  }
-                }}
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/40 to-transparent w-full h-full pointer-events-none mix-blend-overlay"
-                style={{
-                  WebkitMaskImage: "url(/board_page-0002.jpg)",
-                  WebkitMaskSize: "contain",
-                  WebkitMaskRepeat: "no-repeat",
-                  WebkitMaskPosition: "center"
-                }}
-              />
-              
-              <motion.div
-                initial={{ x: "-100%", skewX: -20 }}
-                animate={{ 
-                  x: "200%",
-                  transition: { 
-                    duration: 2.5, 
-                    repeat: Infinity, 
-                    repeatDelay: 1,
-                    ease: "easeInOut",
-                    delay: 0.1
-                  }
-                }}
-                className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent w-[50%] h-full pointer-events-none mix-blend-screen"
-                style={{
-                  WebkitMaskImage: "url(/board_page-0002.jpg)",
-                  WebkitMaskSize: "contain",
-                  WebkitMaskRepeat: "no-repeat",
-                  WebkitMaskPosition: "center"
-                }}
               />
             </motion.div>
 
