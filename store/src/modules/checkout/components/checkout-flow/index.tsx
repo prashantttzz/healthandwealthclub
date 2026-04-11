@@ -38,6 +38,10 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
   const [showSuccess, setShowSuccess] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
 
+  const selectedShippingPrice = useMemo(() => {
+    return shippingOptions.find(o => o.id === selectedShippingOptionId)?.amount || cart?.shipping_total || 0
+  }, [selectedShippingOptionId, shippingOptions, cart?.shipping_total])
+
   // Fetch shipping options when address changes
   useEffect(() => {
     const fetchOptions = async () => {
@@ -98,7 +102,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
   }
 
   if (showSuccess && cart) {
-    const totalPayable = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total || 0)
+    const totalPayable = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total || 0) + selectedShippingPrice
     
     return (
       <div className="fixed inset-0 bg-black/30 z-[200] flex items-center justify-center p-6">
@@ -119,7 +123,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
 
   if (!cart) return null
 
-  const payableAmount = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total || 0)
+  const payableAmount = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total || 0) + selectedShippingPrice
 
   return (
     <div className="min-h-screen bg-bg">
@@ -167,6 +171,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
                 onContinue={handleProceed} 
                 selectedAddress={selectedAddress} 
                 isLoadingShipping={isLoadingShipping}
+                selectedShippingPrice={selectedShippingPrice}
               />
             </div>
           </div>
@@ -186,7 +191,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
       </div>
 
       {/* Mobile Price Drawer */}
-      <MobilePriceDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} />
+      <MobilePriceDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} selectedShippingPrice={selectedShippingPrice} />
 
       {/* Auth Sidebar */}
       <AuthSidebar isOpen={authOpen} onClose={() => setAuthOpen(false)} />

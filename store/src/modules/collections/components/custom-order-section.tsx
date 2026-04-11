@@ -1,83 +1,117 @@
+"use client"
+
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons"
 import Image from "next/image"
+import { motion } from "framer-motion"
 
 export default function CustomOrderSection() {
   return (
-    <section className="relative w-full flex h-[70vh] items-center bg-accent py-24 px-6 md:px-16 lg:px-24 overflow-hidden mt-10 border-t border-black/[0.03]">
-      {/* Background watermark — toned down and properly clipped */}
-      <div className="absolute inset-0 flex items-center overflow-hidden select-none pointer-events-none">
-        <span className="font-newsreader italic text-[18vw] leading-none whitespace-nowrap opacity-[0.025] text-accent">
-          Bespoke Craftsmanship
+    <section className="relative w-full bg-accent overflow-hidden mt-24 py-10 flex flex-col items-center">
+      {/* Background Decorative Element */}
+      <div className="absolute top-0 right-0 w-[60%] h-full opacity-[0.03] pointer-events-none select-none">
+        <span className="font-newsreader italic text-[40vw] leading-none absolute -top-20 -right-20 text-bg">
+          Bespoke
         </span>
       </div>
 
-      <div className="relative z-10 w-full max-w-7xl mx-auto">
-        <div className="flex flex-col lg:flex-row items-center gap-16 lg:gap-20">
+      <div className="relative z-10 w-full  px-6 md:px-12 lg:px-20">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-20 items-center">
+          
+          {/* Left Column: Image with Parallax & Frame */}
+          <motion.div 
+            initial={{ opacity: 0, x: -50 }}
+            whileInView={{ opacity: 1, x: 0 }}
+            transition={{ duration: 1, ease: [0.16, 1, 0.3, 1] }}
+            viewport={{ once: true, margin: "-100px" }}
+            className="lg:col-span-5 relative group"
+          >
+            <div className="relative aspect-[4/5] md:aspect-[1.2/1] lg:aspect-[4/5] w-full overflow-hidden shadow-2xl rounded-sm">
+              <motion.div
+                initial={{ scale: 1.2 }}
+                whileInView={{ scale: 1 }}
+                transition={{ duration: 1.5, ease: [0.16, 1, 0.3, 1] }}
+                viewport={{ once: true }}
+                className="w-full h-full"
+              >
+                <Image
+                  src="/bespoke.png"
+                  alt="Bespoke Craftsmanship"
+                  fill
+                  className="object-cover brightness-90 contrast-110"
+                />
+              </motion.div>
+              
+              {/* Overlay Gradient */}
+              <div className="absolute inset-0 bg-gradient-to-t from-[#162917]/40 to-transparent" />
+            </div>
 
-          {/* Left Content Column */}
-          <div className="flex-1 space-y-8 max-w-xl">
-            {/* Eyebrow */}
-            <span className="font-manrope text-[10px] font-bold tracking-[0.35em] uppercase text-accent/40 block">
-              The Club Exclusives
-            </span>
+            {/* Floating Atelier Label */}
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.5, duration: 0.8 }}
+              viewport={{ once: true }}
+              className="absolute -bottom-6 -right-4 md:right-10 bg-bg text-[#162917] px-6 py-4 shadow-2xl flex flex-col gap-1 rounded-sm"
+            >
+              <span className="font-manrope text-[10px] font-accent tracking-[0.4em] uppercase">Atelier Edition</span>
+              <span className="font-newsreader italic text-xs opacity-60">Handcrafted in our UAE workshop</span>
+            </motion.div>
+          </motion.div>
 
-            {/* Heading — tightened scale for better hierarchy */}
-            <h2 className="font-newsreader italic text-4xl md:text-5xl lg:text-6xl text-accent leading-[1.0] tracking-tight">
-              Elegance in <br className="hidden md:block" /> the unique
-            </h2>
+          {/* Right Column: Content */}
+          <div className="lg:col-span-7 flex flex-col items-start gap-8 lg:pl-10">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              viewport={{ once: true }}
+              className="space-y-6"
+            >
+              <span className="font-manrope text-[10px] font-bold tracking-[0.5em] uppercase text-white/40 block">
+                The Heritage Program
+              </span>
 
-            {/* Body copy */}
-            <p className="font-manrope text-sm text-accent/70 leading-relaxed max-w-md">
-              True luxury lies in the personal touch. Our bespoke program transforms your imagination into meticulously crafted reality. Every detail — from fabric selection to the final stitch — is a reflection of your individual journey.
-            </p>
+              <h2 className="font-newsreader italic text-5xl md:text-7xl lg:text-8xl text-white leading-[0.9] tracking-tight">
+                Crafting <br /> Your Legacy
+              </h2>
 
-            {/* CTA row */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-5 pt-2">
+              <p className="font-manrope text-sm md:text-base text-white/60 leading-relaxed max-w-lg mt-6">
+                Redefine luxury with our bespoke tailoring service. Every piece is a unique dialogue between our artisans and your vision, ensuring a silhouette that is as individual as your fingerprint.
+              </p>
+            </motion.div>
+
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3, duration: 0.8 }}
+              viewport={{ once: true }}
+              className="flex flex-col sm:flex-row items-start sm:items-center gap-6 pt-6 w-full"
+            >
               <LocalizedClientLink
                 href="/customer-service#contact"
-                className="group inline-flex items-center gap-4 border-2 border-accent px-8 py-4 rounded-full transition-all duration-300 hover:bg-accent hover:text-bg w-fit shadow-sm"
+                className="group relative inline-flex items-center gap-4 bg-bg text-[#162917] px-10 py-5  overflow-hidden transition-all duration-500 hover:pr-14 active:scale-95"
               >
-                <span className="font-manrope text-[11px] font-black tracking-[0.2em] uppercase">
-                  Inquire Now
+                <span className="relative z-10 font-manrope text-[11px] font-black tracking-[0.2em] uppercase">
+                  Customize
                 </span>
                 <HugeiconsIcon
                   icon={ArrowUpRight01Icon}
                   size={16}
-                  className="group-hover:rotate-45 transition-transform duration-300 stroke-2"
+                  className="relative z-10 group-hover:rotate-45 transition-transform duration-500"
                 />
               </LocalizedClientLink>
 
-              <p className="font-newsreader italic text-base text-accent/60 underline underline-offset-4 decoration-accent/30">
-                Customization starts at $2,400
-              </p>
-            </div>
-          </div>
-
-          {/* Right Image Column */}
-          <div className="flex-1 mt-10 w-full flex justify-center lg:justify-end">
-            <div className="relative w-full max-w-[320px] group">
-              {/* Shadow offset layer */}
-              <div className="absolute inset-0 bg-accent/8 translate-x-3 translate-y-3 rounded-sm transition-transform duration-700 group-hover:translate-x-1 group-hover:translate-y-1" />
-
-              {/* Image container — fixed aspect ratio */}
-              <div className="relative w-full aspect-[3/4] overflow-hidden border border-black/[0.06] bg-secondary rounded-sm">
-                <Image
-                  src="/about.png"
-                  alt="Bespoke Craftsmanship Detail"
-                  fill
-                  className="object-cover transition-transform duration-1000 group-hover:scale-105"
-                />
-              </div>
-
-              {/* Floating label */}
-              <div className="absolute bottom-10 -left-4 bg-accent text-bg px-5 py-3 shadow-xl">
-                <span className="font-manrope text-[10px] font-bold tracking-[0.3em] uppercase whitespace-nowrap">
-                  Atelier Edition
+              <div className="flex flex-col gap-1">
+                <span className="font-newsreader italic text-lg text-white/80">
+                  Customization starts from AED 8,500
+                </span>
+                <span className="font-manrope text-[9px] font-bold tracking-[0.2em] uppercase text-white/30">
+                  *Delivery within 21 business days
                 </span>
               </div>
-            </div>
+            </motion.div>
           </div>
 
         </div>

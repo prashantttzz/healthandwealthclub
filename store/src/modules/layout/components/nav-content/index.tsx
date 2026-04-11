@@ -263,7 +263,7 @@ export default function NavContent({
                           {categories.slice(0, 6).map((cat) => (
                             <LocalizedClientLink 
                               key={cat.id} 
-                              href={`/categories/${cat.handle}`}
+                              href={`/store?category=${cat.handle}`}
                               className="font-manrope text-[11px] font-bold text-accent/40 hover:text-accent tracking-[0.2em] uppercase transition-colors"
                             >
                               {cat.name}

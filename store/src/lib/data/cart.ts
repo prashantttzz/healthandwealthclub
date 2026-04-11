@@ -517,7 +517,7 @@ export async function listCartOptions() {
     query: { cart_id: cartId },
     next,
     headers,
-    cache: "no-store",
+    cache: "force-cache",
   })
 }
 
@@ -541,9 +541,6 @@ export async function getAvailablePromotions() {
   }
 
   // Fallback dynamic coupons, representing what the API might return
-  return [
-    { id: "promo_1", code: "WELCOME10", description: "Get 10% off your entire first order." },
-    { id: "promo_2", code: "FREESHIP", description: "Free shipping on orders over €50" },
-    { id: "promo_3", code: "CLUBMEMBER", description: "Exclusive 15% discount for Club members" },
-  ]
+  // Returning empty array so only backend-configured coupons are visible
+  return []
 }
