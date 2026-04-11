@@ -9,7 +9,7 @@ import { HttpTypes } from "@medusajs/types"
 const OrderOverview = ({ orders }: { orders: HttpTypes.StoreOrder[] }) => {
   if (orders?.length) {
     return (
-      <div className="flex flex-col gap-y-8 w-full">
+      <div className="flex flex-col gap-y-8 w-full md:mt-10">
         {orders.map((o) => (
           <div
             key={o.id}
@@ -24,7 +24,7 @@ const OrderOverview = ({ orders }: { orders: HttpTypes.StoreOrder[] }) => {
 
   return (
     <div
-      className="w-full flex flex-col items-center justify-center py-24 text-center"
+      className="w-full flex flex-col items-center justify-center py-24 text-center md:mt-10"
       data-testid="no-orders-container"
     >
       <div className="flex flex-col gap-6 items-center max-w-md">

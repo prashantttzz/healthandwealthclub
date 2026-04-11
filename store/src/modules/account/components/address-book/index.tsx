@@ -37,7 +37,7 @@ const AddressBook: React.FC<AddressBookProps> = ({ customer, region }) => {
   }
 
   return (
-    <div className="w-full flex flex-col gap-16">
+    <div className="w-full flex flex-col gap-16 md:mt-10">
       {/* Add New Address Trigger */}
       <div className="flex flex-col gap-6">
         <h3 className="font-manrope text-[13px] font-bold text-accent uppercase tracking-[0.2em]">Add New Address</h3>

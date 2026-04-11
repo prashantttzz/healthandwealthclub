@@ -25,7 +25,7 @@ export default async function Addresses(props: {
 
   return (
     <div className="w-full" data-testid="addresses-page-wrapper">
-      <div className="mb-12 flex flex-col gap-y-3 text-left">
+      <div className="my-12 flex flex-col gap-y-3 text-left">
         <h1 className="font-newsreader italic text-5xl lg:text-6xl text-accent tracking-tighter leading-tight">My Sanctuaries.</h1>
         <div className="flex flex-col gap-1">
           <span className="font-manrope text-[11px] uppercase font-bold tracking-[0.4em] text-accent/30">Your Shipping Destinations</span>

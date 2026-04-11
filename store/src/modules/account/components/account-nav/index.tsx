@@ -13,8 +13,10 @@ import {
   ShoppingBag01Icon, 
   Location01Icon, 
   CreditCardIcon, 
-  Settings01Icon 
+  Settings01Icon, 
+  Clock01Icon
 } from "@hugeicons/core-free-icons"
+import { useEffect, useRef } from "react"
 
 const AccountNav = ({
   customer,
@@ -29,17 +31,15 @@ const AccountNav = ({
   }
 
   return (
-    <div className="w-full mt-20  flex lg:flex-col font-manrope px-6 lg:px-10  lg:py-24 relative overflow-hidden bg-accent lg:bg-transparent sticky top-0 z-[100] lg:static">
-      {/* Cinematic Header - Desktop Only */}
-      <div className="hidden lg:flex flex-col gap-2 mb-16">
+    <div className="w-full mt-20  flex lg:flex-col font-manrope px-6 lg:px-10  py- relative overflow-hidden bg-accent lg:bg-transparent sticky top-0 z-[100] lg:static">
+      <div className="hidden lg:flex flex-col gap-2 pb-10 border-b border-white/10">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-[1px] bg-bg/20" />
           <span className="text-[9px] uppercase font-bold tracking-[0.5em] text-bg/40">Member Portal</span>
-        </div>
-        <h2 className="font-newsreader italic text-4xl text-bg leading-none mt-2">Welcome, <br/>{customer?.first_name}</h2>
+        </div>  
       </div>
 
       <div className="flex flex-row lg:flex-col gap-1 w-full flex-1 overflow-x-auto no-scrollbar snap-x snap-mandatory lg:snap-none">
+        <AccountNavLink href="/account" route={route} label="Account Overview" icon={<HugeiconsIcon icon={Clock01Icon} size={16} />} />
         <AccountNavLink href="/account/profile" route={route} label="Profile Details" icon={<HugeiconsIcon icon={UserCircleIcon} size={16} />} />
         <AccountNavLink href="/account/orders" route={route} label="Dossier & Orders" icon={<HugeiconsIcon icon={ShoppingBag01Icon} size={16} />} />
         <AccountNavLink href="/account/addresses" route={route} label="Address Book" icon={<HugeiconsIcon icon={Location01Icon} size={16} />} />
@@ -49,7 +49,6 @@ const AccountNav = ({
       
       {/* Brand Signature - Desktop Only */}
       <div className="hidden lg:flex py-12 mt-auto">
-        <div className="h-[1px] bg-bg/5 mb-12 w-full" />
         <div className="flex flex-col gap-4">
           <button
             type="button"
@@ -84,18 +83,42 @@ const AccountNavLink = ({
 }: AccountNavLinkProps) => {
   const { countryCode }: { countryCode: string } = useParams()
 
-  const pathSuffix = route.split(countryCode)[1]
-  const isProfileActive = (label === "Personal Information" || label === "Profile Details") && (pathSuffix === "/account" || pathSuffix === "/account/profile")
-  const isGenericActive = pathSuffix === href
-  const active = isProfileActive || isGenericActive
+  const pathPrefix = `/${countryCode}`
+  const pathSuffix = route.startsWith(pathPrefix) 
+    ? route.replace(pathPrefix, "") 
+    : route
+  
+  // Normalize empty path to root account path
+  const currentPath = pathSuffix || "/account"
+  
+  const isOverview = label === "Account Overview" && (currentPath === "/account" || currentPath === "/account/")
+  
+  const isProfile = (label === "Profile Details" || label === "Personal Information") && currentPath.startsWith("/account/profile")
+  
+  const isGeneric = currentPath === href || (href !== "/account" && currentPath.startsWith(href))
+  
+  const active = isOverview || isProfile || isGeneric
+
+  const ref = useRef<HTMLAnchorElement>(null)
+
+  useEffect(() => {
+    if (active && ref.current && window.innerWidth < 1024) {
+      ref.current.scrollIntoView({
+        behavior: "smooth",
+        block: "nearest",
+        inline: "center",
+      })
+    }
+  }, [active])
 
   return (
     <LocalizedClientLink
       href={href}
+      ref={ref}
       className={clx(
-        "flex-none lg:w-full flex items-center gap-3 lg:gap-5 px-4 lg:px-6 py-4 lg:py-5 transition-all duration-500 text-[10px] lg:text-[11px] font-bold uppercase tracking-[0.25em] group relative overflow-hidden shrink-0 snap-start",
+        "flex-none lg:w-full flex items-center gap-3 lg:gap-5 px-4 lg:px-6 py-4 lg:py-5 transition-all duration-500 text-[10px] lg:text-[11px] font-bold uppercase tracking-[0.25em] group relative overflow-hidden shrink-0 snap-center lg:snap-start",
         {
-          "text-bg": active,
+          "text-bg bg-bg/[0.03] lg:bg-bg/[0.05]": active,
           "text-bg/30 lg:text-bg/40 hover:text-bg lg:hover:translate-x-1": !active,
         }
       )}
