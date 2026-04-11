@@ -62,14 +62,47 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               align-items: center;
               justify-content: center;
             }
+            .loader-content {
+              position: relative;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              overflow: hidden;
+            }
             #hard-loader img {
               width: 80%;
               max-width: 500px;
-              transform: scale(0.8);
+              opacity: 0;
+              animation: fadeIn 1.2s ease-out 0.3s forwards;
+            }
+            .shimmer {
+              position: absolute;
+              top: 0;
+              left: -150%;
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(
+                90deg,
+                transparent,
+                rgba(255, 255, 255, 0.15),
+                transparent
+              );
+              transform: skewX(-20deg);
+              animation: shimmer 2.5s infinite;
+              pointer-events: none;
+            }
+            @keyframes fadeIn {
+              from { opacity: 0; transform: scale(0.95); }
+              to { opacity: 1; transform: scale(1); }
+            }
+            @keyframes shimmer {
+              0% { left: -150%; }
+              50% { left: 150%; }
+              100% { left: 150%; }
             }
             @media (min-width: 768px) {
               #hard-loader img {
-                transform: scale(1);
+                /* base scale 1 is now handled by fadeIn animation */
               }
             }
             .hard-loader-frame {
@@ -78,6 +111,8 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               border: 1px solid rgba(255,255,255,0.15);
               pointer-events: none;
               z-index: 100000;
+              opacity: 0;
+              animation: fadeIn 1s ease-out forwards;
             }
           `
         }} />
@@ -94,11 +129,20 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               var loader = document.createElement('div');
               loader.id = 'hard-loader';
 
+              var content = document.createElement('div');
+              content.className = 'loader-content';
+
               var img = document.createElement('img');
               img.src = '/loader.webp';
               img.alt = 'The Health & Wealth Club';
 
-              loader.appendChild(img);
+              var shimmer = document.createElement('div');
+              shimmer.className = 'shimmer';
+
+              content.appendChild(img);
+              content.appendChild(shimmer);
+              loader.appendChild(content);
+              
               document.documentElement.appendChild(frame);
               document.documentElement.appendChild(loader);
               document.documentElement.style.overflow = 'hidden';

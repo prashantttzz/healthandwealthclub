@@ -15,15 +15,15 @@ export default function Preloader() {
       const frame = document.querySelector(".hard-loader-frame")
 
       if (loader) {
-        loader.style.transition = "opacity 0.8s ease"
+        loader.style.transition = "opacity 1s ease"
         loader.style.opacity = "0"
-        setTimeout(() => loader.remove(), 800)
+        setTimeout(() => loader.remove(), 1000)
       }
 
       if (frame) {
-        (frame as HTMLElement).style.transition = "opacity 0.8s ease"
+        ;(frame as HTMLElement).style.transition = "opacity 1s ease"
         ;(frame as HTMLElement).style.opacity = "0"
-        setTimeout(() => frame.remove(), 800)
+        setTimeout(() => frame.remove(), 1000)
       }
 
       document.documentElement.style.overflow = "visible"
