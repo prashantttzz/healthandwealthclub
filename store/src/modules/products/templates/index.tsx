@@ -7,8 +7,8 @@ import { AnimatePresence, motion } from "framer-motion"
 import Image from "next/image"
 import { isEqual } from "lodash"
 import { clx } from "@medusajs/ui"
-
-import { addToCart } from "@lib/data/cart"
+import { useCart } from "@lib/context/cart-context"
+import { useUI } from "@lib/context/ui-context"
 import { useIntersection } from "@lib/hooks/use-in-view"
 import { getProductPrice } from "@lib/util/get-product-price"
 import CraftsmanshipSection from "../components/craftsmanship-section"
@@ -40,7 +40,10 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const searchParams = useSearchParams()
   const actionsRef = useRef<HTMLDivElement>(null)
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
+  const { addItem } = useCart()
+  const { openCartSidebar } = useUI()
   const [isAdding, setIsAdding] = useState(false)
+  const [isSuccess, setIsSuccess] = useState(false)
 
   useEffect(() => {
     if (product.variants && product.variants.length > 0) {
@@ -72,13 +75,33 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return
+    
+    // Optimistic UI updates
     setIsAdding(true)
-    await addToCart({
-      variantId: selectedVariant.id,
-      quantity: 1,
-      countryCode,
-    })
-    setIsAdding(false)
+    setIsSuccess(true)
+    openCartSidebar()
+    
+    try {
+      const optimisticData = {
+        product_title: product.title || "",
+        thumbnail: product.thumbnail || "",
+        unit_price: selectedPrice?.calculated_price || 0,
+        variant: {
+          title: selectedVariant.title || "",
+          product: {
+            images: product.images || []
+          }
+        }
+      }
+
+      await addItem(selectedVariant.id, 1, countryCode, optimisticData)
+      // Keep success state for a moment
+      setTimeout(() => setIsSuccess(false), 2000)
+    } catch (error) {
+      setIsSuccess(false)
+    } finally {
+      setIsAdding(false)
+    }
   }
 
   const { cheapestPrice, variantPrice } = getProductPrice({
@@ -138,10 +161,10 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
               <span className="font-manrope text-xs md:text-[12x] tracking-[0.2em] uppercase font-regular text-accent/80 block">
                 {product.collection?.title || "Limited Edition Collection"}
               </span>
-              <h1 className="font-manrope text-4xl lg:text-6xl leading-none text-accent tracking-tighter uppercase font-bold">
+              <h1 className="font-newsreader text-4xl lg:text-6xl leading-none text-accent  italic font-medium">
                 {product.title}
               </h1>
-              <p className="font-manrope text-[13px] md:text-[15px] uppercase tracking-widest text-accent/60 font-bold">
+              <p className="font-newsreader text-[13px] md:text-[15px] italic text-accent/60 font-regular">
                 {selectedVariant?.title || "Experience Selection"}
               </p>
             </div>
@@ -226,7 +249,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 )}
               >
                 <span className="relative z-10">
-                  {isAdding ? "Processing ..." : (isValidVariant ? "Add to cart →" : "Select Selection")}
+                  {isSuccess ? "Added to Cart!" : (isValidVariant ? "Add to cart →" : "Select Selection")}
                 </span>
                 <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
               </button>
@@ -291,7 +314,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     { "opacity-50": !isValidVariant || isAdding }
                   )}
                 >
-                  {isAdding ? "..." : "Add to Cart →"}
+                  {isSuccess ? "Added!" : (isAdding ? "..." : "Add to Cart →")}
                 </button>
               </div>
             </div>

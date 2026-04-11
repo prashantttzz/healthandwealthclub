@@ -286,33 +286,39 @@ export default function NavContent({
                         </div>
                       </div>
                     </div>
-                    <div className="w-[400px] flex flex-col gap-4">
-                      <div className="relative aspect-[16/9] overflow-hidden group">
-                        <Image 
-                          src="/footer.png" 
-                          alt="Featured" 
-                          fill 
-                          className="object-cover transition-transform duration-700 group-hover:scale-110" 
-                        />
-                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                          <span className="font-newsreader italic text-3xl text-white">Join The Club</span>
-                        </div>
-                      </div>
-                      <p className="font-manrope text-[11px] text-accent/40 leading-relaxed tracking-wider">
-                        Elevate your lifestyle with our curated selection of essentials. Experience the fusion of health and wealth.
-                      </p>
-                    </div>
                   </>
                 )}
                 {hoveredItem === "home" && (
-                  <div className="flex-1">
-                    <h4 className="font-newsreader italic text-4xl text-accent mb-4">Welcome to The Club</h4>
-                    <p className="font-manrope text-[13px] text-accent/50 max-w-2xl leading-relaxed">
-                      Explore the inaugural drop and our seasonal edits. Crafted for the intentional.
-                    </p>
-                    <div className="mt-8 flex gap-4">
-                      <LocalizedClientLink href="/store" className="px-8 py-3 bg-accent text-bg font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-black transition-colors">Shop Now</LocalizedClientLink>
-                      <LocalizedClientLink href="/about" className="px-8 py-3 border border-accent text-accent font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-accent hover:text-bg transition-colors">Our Ethos</LocalizedClientLink>
+                  <div className="flex gap-20 w-full">
+                    <div className="flex-1">
+                      <h4 className="font-newsreader italic text-4xl text-accent mb-4">Welcome to The Club</h4>
+                      <p className="font-manrope text-[13px] text-accent/50 max-w-xl leading-relaxed">
+                        Explore the inaugural drop and our seasonal edits. Crafted for the intentional. Join our community of like-minded individuals.
+                      </p>
+                      <div className="mt-8 flex gap-4">
+                        <LocalizedClientLink href="/store" className="px-8 py-3 bg-accent text-bg font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-black transition-colors">Shop Now</LocalizedClientLink>
+                        <LocalizedClientLink href="/about" className="px-8 py-3 border border-accent text-accent font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-accent hover:text-bg transition-colors">Our Ethos</LocalizedClientLink>
+                      </div>
+                    </div>
+                    
+                    <div className="grid grid-cols-2 gap-x-20 gap-y-10 min-w-[400px]">
+                      <div className="flex flex-col gap-4">
+                        <h5 className="font-newsreader italic text-2xl text-accent mb-2">The Account</h5>
+                        <div className="flex flex-col gap-3 font-manrope text-[11px] font-bold tracking-[0.2em] uppercase text-accent/40">
+                          <LocalizedClientLink href="/account" className="hover:text-accent transition-colors">My Account</LocalizedClientLink>
+                          <LocalizedClientLink href="/account/orders" className="hover:text-accent transition-colors">Recent Orders</LocalizedClientLink>
+                          <LocalizedClientLink href="/account/profile" className="hover:text-accent transition-colors">Profile</LocalizedClientLink>
+                        </div>
+                      </div>
+                      
+                      <div className="flex flex-col gap-4">
+                        <h5 className="font-newsreader italic text-2xl text-accent mb-2">Information</h5>
+                        <div className="flex flex-col gap-3 font-manrope text-[11px] font-bold tracking-[0.2em] uppercase text-accent/40">
+                          <LocalizedClientLink href="/faq" className="hover:text-accent transition-colors">FAQs</LocalizedClientLink>
+                          <LocalizedClientLink href="/terms" className="hover:text-accent transition-colors">Terms & Conditions</LocalizedClientLink>
+                          <LocalizedClientLink href="/privacy" className="hover:text-accent transition-colors">Privacy Policy</LocalizedClientLink>
+                        </div>
+                      </div>
                     </div>
                   </div>
                 )}
@@ -323,12 +329,28 @@ export default function NavContent({
                       <p className="font-manrope text-[13px] text-accent/50 max-w-xl leading-relaxed">
                         We believe in a life of balance. Our mission is to provide the tools for a healthier body and a wealthier mind.
                       </p>
+                      <div className="grid grid-cols-2 gap-8 text-[11px] font-bold tracking-[0.25em] uppercase font-manrope text-accent/40 mt-10">
+                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Our Vision</LocalizedClientLink>
+                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Sustainability</LocalizedClientLink>
+                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Manufacturing</LocalizedClientLink>
+                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Member Perks</LocalizedClientLink>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-8 text-[11px] font-bold tracking-[0.25em] uppercase font-manrope text-accent/40">
-                      <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Our Vision</LocalizedClientLink>
-                      <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Sustainability</LocalizedClientLink>
-                      <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Manufacturing</LocalizedClientLink>
-                      <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Member Perks</LocalizedClientLink>
+                    <div className="w-[400px] flex flex-col gap-4">
+                      <div className="relative aspect-[16/9] overflow-hidden group">
+                        <Image 
+                          src="/footer.png" 
+                          alt="Featured" 
+                          fill 
+                          className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <span className="font-newsreader italic text-2xl text-white">Join The Club</span>
+                        </div>
+                      </div>
+                      <p className="font-manrope text-[11px] text-accent/40 leading-relaxed tracking-wider">
+                        Elevate your lifestyle with our curated selection of essentials. Experience the fusion of health and wealth.
+                      </p>
                     </div>
                   </div>
                 )}

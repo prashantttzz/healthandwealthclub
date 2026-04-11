@@ -10,7 +10,7 @@ interface CartContextType {
   totalItems: number
   subtotal: number
   isAdding: boolean
-  addItem: (variantId: string, quantity: number, countryCode: string) => Promise<void>
+  addItem: (variantId: string, quantity: number, countryCode: string, optimisticData?: any) => Promise<void>
   updateQuantity: (lineId: string, quantity: number) => Promise<void>
   removeItem: (lineId: string) => Promise<void>
   setCart: (cart: HttpTypes.StoreCart | null) => void
@@ -24,6 +24,7 @@ export const CartProvider: React.FC<{
 }> = ({ children, initialCart }) => {
   const [cart, setCart] = useState<HttpTypes.StoreCart | null>(initialCart || null)
   const [optimisticQuantities, setOptimisticQuantities] = useState<Record<string, number>>({})
+  const [optimisticAdditions, setOptimisticAdditions] = useState<HttpTypes.StoreCartLineItem[]>([])
   const [isAdding, setIsAdding] = useState(false)
 
   // Sync state if initialCart prop changes (e.g. on navigation)
@@ -33,14 +34,20 @@ export const CartProvider: React.FC<{
     }
   }, [initialCart])
 
-  // Merge official items with optimistic quantities
+  // Merge official items with optimistic quantities and new additions
   const optimisticItems = useMemo(() => {
-    if (!cart?.items) return []
-    return cart.items.map(item => ({
+    const existingItems = cart?.items?.map(item => ({
       ...item,
       quantity: optimisticQuantities[item.id] !== undefined ? optimisticQuantities[item.id] : item.quantity
-    })).filter(item => item.quantity > 0)
-  }, [cart?.items, optimisticQuantities])
+    })).filter(item => item.quantity > 0) || []
+
+    // Filter out optimistic additions that have already been added to the official cart
+    const filteredAdditions = optimisticAdditions.filter(addition => 
+      !existingItems.some(item => item.variant_id === addition.variant_id)
+    )
+
+    return [...existingItems, ...filteredAdditions]
+  }, [cart?.items, optimisticQuantities, optimisticAdditions])
 
   const totalItems = useMemo(() => {
     return optimisticItems.reduce((acc, item) => acc + item.quantity, 0)
@@ -66,13 +73,42 @@ export const CartProvider: React.FC<{
     })
   }, [cart?.items])
 
-  const addItem = async (variantId: string, quantity: number, countryCode: string) => {
+  const addItem = async (variantId: string, quantity: number, countryCode: string, optimisticData?: any) => {
     setIsAdding(true)
+    
+    let tempId: string | null = null
+    if (optimisticData) {
+      tempId = `optimistic-${Date.now()}`
+      const newItem: any = {
+        id: tempId,
+        variant_id: variantId,
+        quantity,
+        unit_price: optimisticData.unit_price || 0,
+        thumbnail: optimisticData.thumbnail,
+        product_title: optimisticData.product_title,
+        variant: {
+          title: optimisticData.variant?.title,
+          product: {
+            images: optimisticData.variant?.product?.images
+          }
+        },
+        ...optimisticData
+      }
+      setOptimisticAdditions(prev => [...prev, newItem])
+    }
+
     try {
       await postAddToCart({ variantId, quantity, countryCode })
       // Revalidation will happen on server and update 'cart' via props in layout
     } finally {
       setIsAdding(false)
+      if (tempId) {
+        // We keep it for a moment to allow revalidation to happen
+        // Increased to 2 seconds as per user request to give backend more time
+        setTimeout(() => {
+          setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
+        }, 2000)
+      }
     }
   }
 
