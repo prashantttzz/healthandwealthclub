@@ -76,8 +76,16 @@ export const CartProvider: React.FC<{
   const addItem = async (variantId: string, quantity: number, countryCode: string, optimisticData?: any) => {
     setIsAdding(true)
     
+    // 1. Detect if item already exists in cart for smart deduplication
+    const existingItem = cart?.items?.find(item => item.variant_id === variantId)
     let tempId: string | null = null
-    if (optimisticData) {
+
+    if (existingItem) {
+      // Update quantity of existing item optimistically
+      const currentOptQty = optimisticQuantities[existingItem.id] !== undefined ? optimisticQuantities[existingItem.id] : existingItem.quantity
+      setOptimisticQuantities(prev => ({ ...prev, [existingItem.id]: currentOptQty + quantity }))
+    } else if (optimisticData) {
+      // Add as a new optimistic row
       tempId = `optimistic-${Date.now()}`
       const newItem: any = {
         id: tempId,
@@ -100,11 +108,21 @@ export const CartProvider: React.FC<{
     try {
       await postAddToCart({ variantId, quantity, countryCode })
       // Revalidation will happen on server and update 'cart' via props in layout
+    } catch (error) {
+      // 2. Instant Rollback on Error
+      if (existingItem) {
+        setOptimisticQuantities(prev => {
+          const newState = { ...prev }
+          delete newState[existingItem.id]
+          return newState
+        })
+      } else if (tempId) {
+        setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
+      }
     } finally {
       setIsAdding(false)
       if (tempId) {
         // We keep it for a moment to allow revalidation to happen
-        // Increased to 2 seconds as per user request to give backend more time
         setTimeout(() => {
           setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
         }, 2000)

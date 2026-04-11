@@ -18,15 +18,15 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
     <div className="flex flex-col w-full min-h-screen relative font-manrope bg-bg" data-testid="account-page">
 
 
-      <div className="w-full max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 py-12 lg:py-20 flex-1">
-        <div className="flex flex-col lg:flex-row gap-12 lg:gap-16 items-start">
+      <div className="w-full mx-auto flex-1 flex flex-col">
+        <div className="flex flex-col lg:flex-row gap-0 items-start">
           {/* Sidebar */}
-          <div className="w-full lg:w-[280px] shrink-0">
+          <div className="w-full lg:w-[320px] shrink-0 bg-accent lg:min-h-screen">
             {customer && <AccountNav customer={customer} />}
           </div>
           
           {/* Content Area */}
-          <div className="flex-1 w-full min-w-0">
+          <div className="flex-1 w-full min-w-0 px-6 md:px-12 lg:px-16 py-12 lg:py-20">
             {children}
           </div>
         </div>

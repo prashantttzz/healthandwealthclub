@@ -3,8 +3,6 @@
 import { HttpTypes } from "@medusajs/types"
 import React, { useActionState, useEffect, useRef, useState } from "react"
 import { updateCustomer } from "@lib/data/customer"
-import { HugeiconsIcon } from "@hugeicons/react"
-import { PencilEdit01Icon, Image01Icon } from "@hugeicons/core-free-icons"
 
 const PersonalInformationComponent = ({ customer }: { customer: HttpTypes.StoreCustomer }) => {
   const [successState, setSuccessState] = useState(false)
@@ -57,17 +55,6 @@ const PersonalInformationComponent = ({ customer }: { customer: HttpTypes.StoreC
         <p className="text-[13px] text-accent/50 tracking-wide font-medium">Update your profile details and membership settings.</p>
       </div>
       
-      {/* Avatar section */}
-      <div className="relative w-32 h-32 rounded-full bg-[#F2EDE5] border-2 border-black/5 flex items-center justify-center overflow-hidden shrink-0 group">
-        <HugeiconsIcon icon={Image01Icon} size={40} className="text-black/10" />
-        <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer">
-          <span className="text-[10px] font-bold text-white uppercase tracking-widest">Upload</span>
-        </div>
-        <button className="absolute bottom-0 right-0 bg-[#3E3524] text-white p-2 rounded-full border-2 border-white translate-x-1/4 translate-y-1/4 hover:scale-105 transition-transform z-10">
-          <HugeiconsIcon icon={PencilEdit01Icon} size={16} />
-        </button>
-      </div>
-
       <form action={formAction} className="flex flex-col gap-6" onReset={clearState}>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div className="flex flex-col gap-2">

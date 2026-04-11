@@ -4,6 +4,7 @@ import { clx } from "@medusajs/ui"
 import { useParams, usePathname } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { HttpTypes } from "@medusajs/types"
+import { motion } from "framer-motion"
 import { signout } from "@lib/data/customer"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { 
@@ -28,21 +29,42 @@ const AccountNav = ({
   }
 
   return (
-    <div className="w-full flex flex-col gap-2 font-manrope pr-0 lg:pr-12 pt-10">
-      <AccountNavLink href="/account/profile" route={route} label="Personal Information" icon={<HugeiconsIcon icon={UserCircleIcon} size={16} />} />
-      <AccountNavLink href="/account/orders" route={route} label="My Orders" icon={<HugeiconsIcon icon={ShoppingBag01Icon} size={16} />} />
-      <AccountNavLink href="/account/addresses" route={route} label="Manage Address" icon={<HugeiconsIcon icon={Location01Icon} size={16} />} />
-      <AccountNavLink href="/account/payment-methods" route={route} label="Payment Method" icon={<HugeiconsIcon icon={CreditCardIcon} size={16} />} />
-      <AccountNavLink href="/account/password" route={route} label="Password Manager" icon={<HugeiconsIcon icon={Settings01Icon} size={16} />} />
+    <div className="w-full mt-20  flex lg:flex-col font-manrope px-6 lg:px-10  lg:py-24 relative overflow-hidden bg-accent lg:bg-transparent sticky top-0 z-[100] lg:static">
+      {/* Cinematic Header - Desktop Only */}
+      <div className="hidden lg:flex flex-col gap-2 mb-16">
+        <div className="flex items-center gap-3">
+          <div className="w-8 h-[1px] bg-bg/20" />
+          <span className="text-[9px] uppercase font-bold tracking-[0.5em] text-bg/40">Member Portal</span>
+        </div>
+        <h2 className="font-newsreader italic text-4xl text-bg leading-none mt-2">Welcome, <br/>{customer?.first_name}</h2>
+      </div>
+
+      <div className="flex flex-row lg:flex-col gap-1 w-full flex-1 overflow-x-auto no-scrollbar snap-x snap-mandatory lg:snap-none">
+        <AccountNavLink href="/account/profile" route={route} label="Profile Details" icon={<HugeiconsIcon icon={UserCircleIcon} size={16} />} />
+        <AccountNavLink href="/account/orders" route={route} label="Dossier & Orders" icon={<HugeiconsIcon icon={ShoppingBag01Icon} size={16} />} />
+        <AccountNavLink href="/account/addresses" route={route} label="Address Book" icon={<HugeiconsIcon icon={Location01Icon} size={16} />} />
+        <AccountNavLink href="/account/payment-methods" route={route} label="Financial Cards" icon={<HugeiconsIcon icon={CreditCardIcon} size={16} />} />
+        <AccountNavLink href="/account/password" route={route} label="Identity Access" icon={<HugeiconsIcon icon={Settings01Icon} size={16} />} />
+      </div>
       
-      <button
-        type="button"
-        onClick={handleLogout}
-        className="w-full flex items-center gap-4 px-6 py-4 mt-6 border border-accent/10 bg-transparent hover:bg-accent hover:text-bg transition-all duration-300 text-[12px] font-bold text-accent uppercase tracking-[0.2em] group"
-      >
-        <HugeiconsIcon icon={Logout01Icon} size={16} className="text-accent/40 group-hover:text-bg transition-colors" />
-        Logout
-      </button>
+      {/* Brand Signature - Desktop Only */}
+      <div className="hidden lg:flex py-12 mt-auto">
+        <div className="h-[1px] bg-bg/5 mb-12 w-full" />
+        <div className="flex flex-col gap-4">
+          <button
+            type="button"
+            onClick={handleLogout}
+            className="group flex items-center gap-4 text-[10px] font-bold text-bg/50 uppercase tracking-[0.3em] hover:text-bg transition-colors"
+          >
+            <HugeiconsIcon icon={Logout01Icon} size={16} className="text-bg/20 group-hover:text-bg transition-colors" />
+            Sign Out of Account
+          </button>
+          
+          <div className="pt-12 text-bg text-[10px] font-newsreader italic tracking-widest opacity-15">
+            HEALTH & WEALTH CLUB EST. 2024
+          </div>
+        </div>
+      </div>
     </div>
   )
 }
@@ -63,7 +85,7 @@ const AccountNavLink = ({
   const { countryCode }: { countryCode: string } = useParams()
 
   const pathSuffix = route.split(countryCode)[1]
-  const isProfileActive = label === "Personal Information" && (pathSuffix === "/account" || pathSuffix === "/account/profile")
+  const isProfileActive = (label === "Personal Information" || label === "Profile Details") && (pathSuffix === "/account" || pathSuffix === "/account/profile")
   const isGenericActive = pathSuffix === href
   const active = isProfileActive || isGenericActive
 
@@ -71,20 +93,47 @@ const AccountNavLink = ({
     <LocalizedClientLink
       href={href}
       className={clx(
-        "w-full flex items-center gap-4 px-6 py-4 transition-all duration-300 text-[12px] font-bold uppercase tracking-[0.2em] group border",
+        "flex-none lg:w-full flex items-center gap-3 lg:gap-5 px-4 lg:px-6 py-4 lg:py-5 transition-all duration-500 text-[10px] lg:text-[11px] font-bold uppercase tracking-[0.25em] group relative overflow-hidden shrink-0 snap-start",
         {
-          "bg-accent text-bg border-accent shadow-lg shadow-accent/10": active,
-          "bg-transparent text-accent/60 border-transparent hover:border-accent/10 hover:bg-accent/5 hover:text-accent": !active,
+          "text-bg": active,
+          "text-bg/30 lg:text-bg/40 hover:text-bg lg:hover:translate-x-1": !active,
         }
       )}
     >
-      <div className={clx("transition-colors duration-300", {
-        "text-bg": active,
-        "text-accent/30 group-hover:text-accent": !active
+      {/* Active Architectural Indicator - Vertical (Desktop) */}
+      {active && (
+        <motion.div 
+          layoutId="sidebar-active"
+          className="hidden lg:block absolute left-0 top-3 bottom-3 w-[2px] bg-bg shadow-[0_0_15px_rgba(255,246,236,0.3)]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        />
+      )}
+
+      {/* Active Indicator - Horizontal (Mobile) */}
+      {active && (
+        <motion.div 
+          layoutId="sidebar-active-mob"
+          className="lg:hidden absolute bottom-0 left-4 right-4 h-[1px] bg-bg shadow-[0_0_10px_rgba(255,246,236,0.5)]"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+        />
+      )}
+
+      <div className={clx("transition-all duration-500", {
+        "text-bg scale-110": active,
+        "text-bg/10 lg:text-bg/20 group-hover:text-bg group-hover:scale-110": !active
       })}>
         {icon}
       </div>
-      {label}
+      <span className="relative z-10 whitespace-nowrap">{label}</span>
+      
+      {/* Hover Arrow Reveal - Desktop Only */}
+      <div className={clx("ml-auto hidden lg:flex transition-all duration-500", active ? "opacity-30" : "opacity-0 -translate-x-2 group-hover:opacity-100 group-hover:translate-x-0")}>
+        <svg width="12" height="12" viewBox="0 0 12 12" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M4.5 9L7.5 6L4.5 3" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
+        </svg>
+      </div>
     </LocalizedClientLink>
   )
 }
