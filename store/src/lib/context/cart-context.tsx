@@ -1,6 +1,6 @@
 "use client"
 
-import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react"
+import React, { createContext, useContext, useState, useEffect, useMemo } from "react"
 import { useRouter } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 import { addToCart as postAddToCart, updateLineItem as postUpdateLineItem, deleteLineItem as postDeleteLineItem } from "@lib/data/cart"
@@ -29,15 +29,15 @@ export const CartProvider: React.FC<{
   const [optimisticAdditions, setOptimisticAdditions] = useState<HttpTypes.StoreCartLineItem[]>([])
   const [isAdding, setIsAdding] = useState(false)
 
-  // ✅ Only sync when cart ID or item count changes — avoids overwriting optimistic state
+  // ✅ Only sync when cart ID or item count changes
   useEffect(() => {
     if (initialCart) {
       setCart(initialCart)
-      setOptimisticAdditions([]) // server data is fresh, clear pending additions
+      setOptimisticAdditions([])
     }
   }, [initialCart?.id, initialCart?.items?.length])
 
-  // ✅ Merge official cart items with optimistic quantities and new additions
+  // ✅ Merge real cart items with optimistic state
   const optimisticItems = useMemo(() => {
     const existingItems = cart?.items?.map(item => ({
       ...item,
@@ -46,7 +46,6 @@ export const CartProvider: React.FC<{
         : item.quantity
     })).filter(item => item.quantity > 0) || []
 
-    // Filter out optimistic additions already confirmed in server cart
     const filteredAdditions = optimisticAdditions.filter(addition =>
       !existingItems.some(item => item.variant_id === addition.variant_id)
     )
@@ -120,11 +119,15 @@ export const CartProvider: React.FC<{
     }
 
     try {
-      await postAddToCart({ variantId, quantity, countryCode })
-      // ✅ Refresh server state — new cart flows down as initialCart prop
-      router.refresh()
+      const updatedCart = await postAddToCart({ variantId, quantity, countryCode })
+
+      if (updatedCart) {
+        setCart(updatedCart) // ✅ instant state update, no page re-render
+      } else {
+        router.refresh() // fallback if server action doesn't return cart
+      }
     } catch (error) {
-      // ✅ Instant rollback on failure
+      // ✅ Rollback on failure
       if (existingItem) {
         setOptimisticQuantities(prev => {
           const newState = { ...prev }
@@ -135,21 +138,22 @@ export const CartProvider: React.FC<{
         setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
       }
     } finally {
-      // ✅ No artificial delays — optimistic UI already gave instant feedback
       setIsAdding(false)
     }
   }
 
   const updateQuantity = async (lineId: string, quantity: number) => {
-    // ✅ Optimistic update immediately
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: quantity }))
 
     if (quantity <= 0) {
       try {
-        await postDeleteLineItem(lineId)
-        router.refresh()
+        const updatedCart = await postDeleteLineItem(lineId)
+        if (updatedCart) {
+          setCart(updatedCart) // ✅
+        } else {
+          router.refresh()
+        }
       } catch {
-        // Rollback
         setOptimisticQuantities(prev => {
           const newState = { ...prev }
           delete newState[lineId]
@@ -160,10 +164,13 @@ export const CartProvider: React.FC<{
     }
 
     try {
-      await postUpdateLineItem({ lineId, quantity })
-      router.refresh()
+      const updatedCart = await postUpdateLineItem({ lineId, quantity })
+      if (updatedCart) {
+        setCart(updatedCart) // ✅
+      } else {
+        router.refresh()
+      }
     } catch {
-      // Rollback
       setOptimisticQuantities(prev => {
         const newState = { ...prev }
         delete newState[lineId]
@@ -173,13 +180,15 @@ export const CartProvider: React.FC<{
   }
 
   const removeItem = async (lineId: string) => {
-    // ✅ Optimistically hide item immediately
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: 0 }))
     try {
-      await postDeleteLineItem(lineId)
-      router.refresh()
+      const updatedCart = await postDeleteLineItem(lineId)
+      if (updatedCart) {
+        setCart(updatedCart) // ✅
+      } else {
+        router.refresh()
+      }
     } catch {
-      // Rollback
       setOptimisticQuantities(prev => {
         const newState = { ...prev }
         delete newState[lineId]

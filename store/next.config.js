@@ -13,14 +13,25 @@ const S3_PATHNAME = process.env.MEDUSA_CLOUD_S3_PATHNAME
  */
 const nextConfig = {
   reactStrictMode: true,
-  logging:false,
+  logging: false,
   eslint: {
     ignoreDuringBuilds: true,
   },
   typescript: {
     ignoreBuildErrors: false,
   },
+  experimental: {
+    optimizePackageImports: [
+      "@medusajs/ui",
+      "@hugeicons/react",
+      "framer-motion",
+      "lucide-react",
+    ],
+  },
   images: {
+    formats: ["image/avif", "image/webp"],
+    deviceSizes: [640, 750, 828, 1080, 1200, 1920],
+    minimumCacheTTL: 86400,
     remotePatterns: [
       {
         protocol: "http",
@@ -34,7 +45,7 @@ const nextConfig = {
         protocol: "https",
         hostname: "medusa-server-testing.s3.amazonaws.com",
       },
-        {
+      {
         protocol: "https",
         hostname: "gglrojmxprmijgxsyogk.supabase.co",
       },
@@ -53,7 +64,6 @@ const nextConfig = {
               hostname: S3_HOSTNAME,
               pathname: S3_PATHNAME,
             },
-            
           ]
         : []),
     ],

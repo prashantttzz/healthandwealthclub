@@ -2,9 +2,11 @@ import { retrieveCustomer } from "@lib/data/customer"
 import { Toaster } from "@medusajs/ui"
 import AccountLayout from "@modules/account/templates/account-layout"
 
+export const dynamic = "force-dynamic"
+
 export default async function AccountPageLayout(props: {
-  dashboard?: React.ReactNode
-  login?: React.ReactNode
+  dashboard: React.ReactNode
+  login: React.ReactNode
   params: Promise<{ countryCode: string }>
 }) {
   const { dashboard, login } = props

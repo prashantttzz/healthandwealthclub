@@ -8,25 +8,29 @@ import Preloader from "@modules/common/components/preloader"
 const manrope = Poppins({
   subsets: ["latin"],
   variable: "--font-manrope",
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 })
 
 const newsreader = Newsreader({
   subsets: ["latin"],
   variable: "--font-newsreader",
   style: ["normal", "italic"],
-  weight: ["200", "300", "400", "500", "600", "700", "800"],
+  display: "swap",
+  weight: ["300", "400", "500", "600", "700"],
 })
 
 const gilda = Gilda_Display({
   subsets: ["latin"],
   variable: "--font-gilda",
+  display: "swap",
   weight: ["400"],
 })
 
 const petit = Petit_Formal_Script({
   subsets: ["latin"],
   variable: "--font-petit",
+  display: "swap",
   weight: ["400"],
 })
 

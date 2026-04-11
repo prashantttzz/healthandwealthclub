@@ -39,6 +39,8 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 }
 
+export const revalidate = 1800
+
 export default async function ProductPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams

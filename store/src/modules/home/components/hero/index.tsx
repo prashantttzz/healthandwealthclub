@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, useCallback } from "react"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
+import Image from "next/image"
 
 
 const SLIDES = [
@@ -146,9 +147,13 @@ const Hero = () => {
                 <source src={slide.src} type="video/mp4" />
               </video>
             ) : (
-              <div
-                className="w-full h-full bg-cover bg-center opacity-75"
-                style={{ backgroundImage: `url('${slide.src}')` }}
+              <Image
+                src={slide.src}
+                alt={slide.label}
+                fill
+                priority
+                sizes="100vw"
+                className="object-cover object-center opacity-75"
               />
             )}
           </motion.div>

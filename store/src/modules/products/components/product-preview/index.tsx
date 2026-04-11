@@ -22,7 +22,8 @@ export default function ProductPreview({
             src={product.thumbnail || ""}
             alt={product.title}
             fill
-            sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+            sizes="(max-width: 768px) 50vw, 25vw"
+            loading="lazy"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
       

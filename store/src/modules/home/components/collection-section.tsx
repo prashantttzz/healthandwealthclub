@@ -122,8 +122,10 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
                   <Image
                     src={item.image}
                     alt={item.title}
-                    width={600}
-                    height={800}
+                    width={280}
+                    height={350}
+                    sizes="280px"
+                    loading="lazy"
                     className="w-full h-full object-cover"
                   />
                 </div>

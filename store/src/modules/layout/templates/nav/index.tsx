@@ -4,8 +4,10 @@ import { listCategories } from "@lib/data/categories"
 import { listCollections } from "@lib/data/collections"
 
 export default async function Nav() {
-  const categories = await listCategories()
-  const { collections } = await listCollections()
+  const [categories, { collections }] = await Promise.all([
+    listCategories(),
+    listCollections(),
+  ])
 
   return (
     <NavContent 

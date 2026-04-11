@@ -11,13 +11,17 @@ export const metadata: Metadata = {
   description: "View your addresses",
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function Addresses(props: {
   params: Promise<{ countryCode: string }>
 }) {
   const params = await props.params
   const { countryCode } = params
-  const customer = await retrieveCustomer()
-  const region = await getRegion(countryCode)
+  const [customer, region] = await Promise.all([
+    retrieveCustomer(),
+    getRegion(countryCode),
+  ])
 
   if (!customer || !region) {
     notFound()

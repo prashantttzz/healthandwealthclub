@@ -11,9 +11,13 @@ export const metadata: Metadata = {
   description: "View and edit your Medusa Store profile.",
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function Profile() {
-  const customer = await retrieveCustomer()
-  const regions = await listRegions()
+  const [customer, regions] = await Promise.all([
+    retrieveCustomer(),
+    listRegions(),
+  ])
 
   if (!customer || !regions) {
     notFound()

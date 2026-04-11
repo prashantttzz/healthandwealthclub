@@ -11,14 +11,14 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic"
 
 export default async function Checkout() {
-  const cart = await retrieveCart()
+  const [cart, customer] = await Promise.all([
+    retrieveCart(),
+    retrieveCustomer(),
+  ])
 
   if (!cart) {
     return redirect("/")
   }
-
-
-  const customer = await retrieveCustomer()
 
   return <CheckoutFlow cart={cart} customer={customer} />
 }

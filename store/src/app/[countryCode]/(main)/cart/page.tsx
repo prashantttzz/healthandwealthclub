@@ -9,15 +9,22 @@ export const metadata: Metadata = {
   description: "View your cart",
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function Cart(props: {
   params: Promise<{ countryCode: string }>
 }) {
-  const cart = await retrieveCart().catch((error) => {
-    console.error(error)
-    return notFound()
-  })
+  const [cart, customer] = await Promise.all([
+    retrieveCart().catch((error) => {
+      console.error(error)
+      return null
+    }),
+    retrieveCustomer(),
+  ])
 
-  const customer = await retrieveCustomer()
+  if (!cart) {
+    return notFound()
+  }
 
   return <CartTemplate cart={cart} customer={customer} />
 }

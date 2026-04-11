@@ -10,11 +10,15 @@ export const metadata: Metadata = {
   description: "Overview of your account activity.",
 }
 
+export const dynamic = "force-dynamic"
+
 export default async function OverviewTemplate(props: {
   params: Promise<{ countryCode: string }>
 }) {
-  const customer = await retrieveCustomer().catch(() => null)
-  const orders = (await listOrders().catch(() => null)) || null
+  const [customer, orders] = await Promise.all([
+    retrieveCustomer().catch(() => null),
+    listOrders().catch(() => null),
+  ])
 
   if (!customer) {
     notFound()
