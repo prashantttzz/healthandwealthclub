@@ -3,9 +3,9 @@
 import { sdk } from "@lib/config"
 import { sortProducts } from "@lib/util/sort-products"
 import { HttpTypes } from "@medusajs/types"
-import { SortOptions } from "@modules/store/components/refinement-list/sort-products"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
+import { SortOptions } from "@modules/store/components/refinement-list/sort-dropdown"
 
 export const listProducts = async ({
   pageParam = 1,
@@ -63,7 +63,7 @@ export const listProducts = async ({
           offset,
           region_id: region?.id,
           fields:
-            "*variants.calculated_price,+variants.inventory_quantity,*variants.images,+metadata,+tags,",
+            "*variants.calculated_price,+variants.inventory_quantity,+variants.manage_inventory,*variants.images,+metadata,+tags,",
           ...queryParams,
         },
         headers,

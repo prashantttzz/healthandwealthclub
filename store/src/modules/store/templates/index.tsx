@@ -5,9 +5,10 @@ import RefinementList from "@modules/store/components/refinement-list"
 import Breadcrumb from "@modules/common/components/breadcrumb"
 import PaginatedProducts from "./paginated-products"
 import MobileActions from "../components/mobile-actions"
-import { sortOptions } from "../components/refinement-list/sort-dropdown"
 
 import { listCategories } from "@lib/data/categories"
+import CustomOrderSection from "../../collections/components/custom-order-section"
+import { SortOptions } from "../components/refinement-list/sort-dropdown"
 
 const StoreTemplate = async ({
   sortBy,
@@ -19,7 +20,7 @@ const StoreTemplate = async ({
   color,
   countryCode,
 }: {
-  sortBy?: sortOptions
+  sortBy?: SortOptions
   page?: string
 
   search?: string
@@ -73,6 +74,7 @@ const StoreTemplate = async ({
             </Suspense>
           </div>
         </div>
+        <CustomOrderSection />
       </div>
 
       {/* Sticky Mobile Bottom Actions */}

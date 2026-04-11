@@ -174,7 +174,9 @@ export default function ClubFooter() {
                 {[
                   { label: "Our Ethos", href: "/about" },
                   { label: "Get in Touch", href: "/customer-service#contact" },
-                  { label: "Shipping", href: "/customer-service#shipping" }
+                  { label: "Shipping", href: "/customer-service#shipping" },
+                  { label: "Privacy", href: "/customer-service#privacy" },
+                  { label: "Terms", href: "/customer-service#terms" }
                 ].map((link) => (
                   <li key={link.label}>
                     <motion.div whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 300 }}>
@@ -221,12 +223,12 @@ export default function ClubFooter() {
                   ].map((social, i) => (
                     <motion.a 
                       key={i}
-                      whileHover={{ scale: 1.1, backgroundColor: "rgba(255, 255, 255, 0.1)" }}
+                      whileHover={{ scale: 1.1, color: "rgba(255, 255, 255, 1)" }}
                       whileTap={{ scale: 0.9 }}
                       href={social.href} 
-                      className="w-8 h-8 flex items-center justify-center border border-white/10 rounded-full transition-colors"
+                      className="flex items-center justify-center text-white/40 transition-colors"
                     >
-                      <HugeiconsIcon icon={social.icon} size={14} />
+                      <HugeiconsIcon icon={social.icon} size={20} />
                     </motion.a>
                   ))}
                 </div>
@@ -235,13 +237,9 @@ export default function ClubFooter() {
           </motion.div>
  
           {/* Bottom Bar: Stacked on mobile */}
-          <div className="mt-24 pt-8 border-t border-white/5 flex flex-col items-center sm:flex-row sm:justify-between gap-8">
-            <div className="flex flex-col sm:flex-row items-center gap-6 sm:gap-10 text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase text-center sm:text-left">
+          <div className="mt-24 pt-8 border-t border-white/5 flex flex-col items-center gap-8 text-center">
+            <div className="flex flex-col items-center gap-4 text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase">
               <span>© 2026 THE HEALTH & WEALTH CLUB</span>
-              <div className="flex gap-6">
-                <LocalizedClientLink href="/customer-service#privacy" className="hover:text-white transition-colors">Privacy</LocalizedClientLink>
-                <LocalizedClientLink href="/customer-service#terms" className="hover:text-white transition-colors">Terms</LocalizedClientLink>
-              </div>
             </div>
             
             <motion.div 

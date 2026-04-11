@@ -108,7 +108,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             {/* Desktop Editorial Grid */}
             <div className="hidden lg:flex flex-col gap-4">
               <div 
-                className="relative aspect-[4/5] w-full overflow-hidden bg-white/50 group rounded-3xl border border-black/5"
+                className="relative aspect-[4/5] w-full overflow-hidden bg-white/50 group border border-black/5"
               >
                 <Image
                   src={selectedVariant?.metadata?.image_url as string || product.images?.[0]?.url || ""}
@@ -120,7 +120,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {(product.images || []).slice(1, 4).map((image, i) => (
-                  <div key={image.id} className="relative aspect-square w-full overflow-hidden bg-white/50 rounded-2xl border border-black/5">
+                  <div key={image.id} className="relative aspect-square w-full overflow-hidden bg-white/50 border border-black/5">
                     <Image
                       src={image.url}
                       alt={`Product detail ${i + 1}`}
@@ -138,10 +138,10 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
               <span className="font-manrope text-xs md:text-[12x] tracking-[0.2em] uppercase font-regular text-accent/80 block">
                 {product.collection?.title || "Limited Edition Collection"}
               </span>
-              <h1 className="font-newsreader italic text-4xl lg:text-6xl leading-none text-accent tracking-tighter">
+              <h1 className="font-manrope text-4xl lg:text-6xl leading-none text-accent tracking-tighter uppercase font-bold">
                 {product.title}
               </h1>
-              <p className="font-newsreader italic text-[15px] md:text-[20px] text-accent/60">
+              <p className="font-manrope text-[13px] md:text-[15px] uppercase tracking-widest text-accent/60 font-bold">
                 {selectedVariant?.title || "Experience Selection"}
               </p>
             </div>
@@ -187,12 +187,12 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                             <button
                               key={v.id}
                               onClick={() => updateOption(option.id, v.value)}
-                              className={clx("w-10 h-10 rounded-xl border transition-all relative flex items-center justify-center", {
+                              className={clx("w-10 h-10 border transition-all relative flex items-center justify-center", {
                                 "border-accent scale-110": isSelected,
                                 "border-accent/10 hover:border-accent/30": !isSelected,
                               })}
                             >
-                              <div className="w-9 h-9  rounded-xl shadow-inner border border-black/5" style={{ backgroundColor: colorHex }} />
+                              <div className="w-9 h-9 shadow-inner border border-black/5" style={{ backgroundColor: colorHex }} />
                             </button>
                           )
                         }
@@ -260,7 +260,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           >
             <div className="bg-bg/80 backdrop-blur-xl border-t border-black/5 px-4 py-4 pb-8 flex items-center justify-between gap-4">
               <div className="flex flex-col gap-1 min-w-0">
-                <p className="font-newsreader italic text-[18px] text-accent truncate max-w-[140px]">
+                <p className="font-manrope font-bold uppercase tracking-widest text-[14px] text-accent truncate max-w-[140px]">
                   {product.title}
                 </p>
                 <div className="flex items-center gap-2">
@@ -278,7 +278,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 {/* QUICK SELECTION ACCESS */}
                 <button 
                   onClick={() => actionsRef.current?.scrollIntoView({ behavior: 'smooth' })}
-                  className="h-14 aspect-square bg-accent/5 flex items-center justify-center rounded-xl border border-black/5 active:scale-95 transition-all"
+                  className="h-14 aspect-square bg-accent/5 flex items-center justify-center border border-black/5 active:scale-95 transition-all"
                 >
                   <span className="font-manrope text-[10px] font-bold uppercase tracking-widest">Op</span>
                 </button>
@@ -287,7 +287,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                   onClick={handleAddToCart}
                   disabled={!isValidVariant || isAdding}
                   className={clx(
-                    "flex-1 h-14 px-6 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.2em] uppercase rounded-xl transition-all active:scale-95 flex items-center justify-center",
+                    "flex-1 h-14 px-6 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.2em] uppercase transition-all active:scale-95 flex items-center justify-center",
                     { "opacity-50": !isValidVariant || isAdding }
                   )}
                 >

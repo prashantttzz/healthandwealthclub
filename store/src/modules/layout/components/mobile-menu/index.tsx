@@ -136,7 +136,7 @@ export default function MobileMenu({
                 transition={{ delay: 1, duration: 0.8 }}
                 className="space-y-8"
               >
-                <div className="space-y-4">
+                <div className="space-y-4 mt-8">
                   <p className="font-manrope text-[10px] tracking-[0.4em] uppercase font-bold text-accent/30">
                     Connect With Us
                   </p>
@@ -155,12 +155,6 @@ export default function MobileMenu({
                       </a>
                     ))}
                   </div>
-                </div>
-
-                <div className="pt-8 border-t border-black/5">
-                  <p className="font-manrope text-[10px] tracking-[0.2em] uppercase text-accent/20">
-                    © 2026 THE HEALTH & WEALTH CLUB
-                  </p>
                 </div>
               </motion.div>
             </nav>

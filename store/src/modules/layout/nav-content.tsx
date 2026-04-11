@@ -3,9 +3,7 @@
 import { useEffect, useState, Suspense } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname, useRouter } from "next/navigation"
-import LocalizedClientLink from "@modules/common/localized-client-link"
 import Image from "next/image"
-import Link from "next/link"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { 
   ShoppingBag01Icon, 
@@ -14,8 +12,9 @@ import {
   User02Icon,
   Cancel01Icon
 } from "@hugeicons/core-free-icons"
-import MobileMenu from "../mobile-menu"
 import { clx } from "@medusajs/ui"
+import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import MobileMenu from "./components/mobile-menu"
 
 export default function NavContent({ cartButton }: { cartButton: React.ReactNode }) {
   const [isScrolled, setIsScrolled] = useState(false)
@@ -213,7 +212,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
         </nav>
       </motion.header>
 
-      <MobileMenu 
+      <MobileMenu
         isOpen={isMenuOpen} 
         onClose={() => setIsMenuOpen(false)} 
       />

@@ -17,11 +17,22 @@ import {
 import MobileMenu from "../mobile-menu"
 import { clx } from "@medusajs/ui"
 
-export default function NavContent({ cartButton }: { cartButton: React.ReactNode }) {
+import { HttpTypes } from "@medusajs/types"
+
+export default function NavContent({ 
+  cartButton,
+  categories,
+  collections
+}: { 
+  cartButton: React.ReactNode,
+  categories: HttpTypes.StoreProductCategory[],
+  collections: HttpTypes.StoreCollection[]
+}) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [searchValue, setSearchValue] = useState("")
+  const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   
   const pathname = usePathname()
   const router = useRouter()
@@ -57,55 +68,57 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
     }
   }
 
-  const showSolid = isScrolled || (!isHome && !isAbout)
+  const showSolid = isScrolled || (!isHome && !isAbout) || !!hoveredItem
 
   return (
-    <div className="fixed top-0 inset-x-0 z-[1000] pointer-events-none">
-      <motion.header 
-        key={showSolid ? "scrolled" : "top"}
-        initial={{ y: -64 }}
-        animate={{ y: 0 }}
-        transition={{ duration: 0.5, ease: [0.4, 0, 0.2, 1] }}
-        className={clx(
-          "relative h-16 mx-auto pointer-events-auto transition-all duration-500",
-          showSolid ? "bg-bg shadow-md" : "text-white"
-        )}
-      >
-        <nav className="max-w-[1440px] mx-auto flex items-center justify-between w-full h-full px-6 lg:px-10">
+    <motion.nav 
+      className="fixed top-0 inset-x-0 z-[1000] pointer-events-auto overflow-hidden"
+      onMouseLeave={() => setHoveredItem(null)}
+      animate={{ 
+        backgroundColor: showSolid ? "rgba(242, 237, 229, 1)" : "rgba(242, 237, 229, 0)",
+        color: showSolid ? "rgba(38, 55, 35, 1)" : "rgba(255, 255, 255, 1)",
+        boxShadow: showSolid ? "0 10px 15px -3px rgb(0 0 0 / 0.1)" : "0 0 0 0 rgb(0 0 0 / 0)",
+        borderBottomWidth: showSolid ? "1px" : "0px",
+      }}
+      initial={false}
+      transition={{ duration: 0.5 }}
+      style={{ borderColor: "rgba(0,0,0,0.05)" }}
+    >
+      <div className="relative">
+        <div className="max-w-[1440px] mx-auto flex items-center justify-between w-full h-16 px-6 lg:px-10 font-manrope">
           {/* Left: Hamburger & Search (Mobile/Desktop) */}
           <div className="flex-1 basis-0 flex items-center gap-x-2">
             <button 
               onClick={() => setIsMenuOpen(true)}
-              className={clx(
-                "lg:hidden p-2 -ml-2 transition-colors duration-300",
-                showSolid ? "text-accent" : "text-white"
-              )} 
+              className="lg:hidden p-2 -ml-2 transition-colors duration-300"
               aria-label="Open menu"
             >
               <HugeiconsIcon icon={Menu01Icon} size={24} />
             </button>
 
             {/* Desktop Logo (Left) */}
-            <LocalizedClientLink href="/" className="h-full hidden lg:flex items-center">
-              <Image 
-                src={showSolid ? "/main-logo.png" : "/main-logo-white.png"}
-                height={40} 
-                width={150} 
-                className="h-10 w-auto" 
-                style={{ height: 'auto' }}
-                alt="main-logo"
-                priority
-              />
+            <LocalizedClientLink href="/" className="h-full hidden lg:flex items-center relative w-[150px]">
+              <motion.div
+                animate={{ opacity: showSolid ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 flex items-center"
+              >
+                <Image src="/main-logo.png" height={40} width={150} className="h-10 w-auto" alt="main-logo" priority />
+              </motion.div>
+              <motion.div
+                animate={{ opacity: showSolid ? 0 : 1 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 flex items-center"
+              >
+                <Image src="/main-logo-white.png" height={40} width={150} className="h-10 w-auto" alt="main-logo" priority />
+              </motion.div>
             </LocalizedClientLink>
 
             {/* Mobile Search Trigger */}
             <div className="lg:hidden flex items-center relative">
               <button 
                 onClick={() => setShowSearch(!showSearch)}
-                className={clx(
-                  "p-2 transition-colors duration-300",
-                  showSolid ? "text-accent" : "text-white"
-                )}
+                className="p-2 transition-colors duration-300"
               >
                 <HugeiconsIcon icon={showSearch ? Cancel01Icon : Search01Icon} size={20} />
               </button>
@@ -114,33 +127,50 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
 
           {/* Center: Mobile Logo / Desktop Navigation */}
           <div className="flex items-center justify-center h-full">
-            <LocalizedClientLink href="/" className="lg:hidden flex items-center">
-              <Image 
-                src={showSolid ? "/main-logo.png" : "/main-logo-white.png"}
-                height={40} 
-                width={120} 
-                className="h-8 w-auto" 
-                style={{ height: 'auto' }}
-                alt="main-logo"
-                priority
-              />
+            <LocalizedClientLink href="/" className="lg:hidden flex items-center relative w-[120px] h-8">
+              <motion.div
+                animate={{ opacity: showSolid ? 1 : 0 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <Image src="/main-logo.png" height={40} width={120} className="h-8 w-auto" alt="main-logo" priority />
+              </motion.div>
+              <motion.div
+                animate={{ opacity: showSolid ? 0 : 1 }}
+                transition={{ duration: 0.5 }}
+                className="absolute inset-0 flex items-center justify-center"
+              >
+                <Image src="/main-logo-white.png" height={40} width={120} className="h-8 w-auto" alt="main-logo" priority />
+              </motion.div>
             </LocalizedClientLink>
             
-            <div className={clx(
-              "hidden lg:flex items-center text-[12px] gap-x-10 font-semibold tracking-[0.1em] uppercase transition-colors font-manrope duration-500",
-              showSolid ? "text-accent" : "text-white"
-            )}>
-              <LocalizedClientLink href="/" className="hover:opacity-60 transition-opacity">Home</LocalizedClientLink>
-              <LocalizedClientLink href="/store" className="hover:opacity-60 transition-opacity">Collection</LocalizedClientLink>
-              <LocalizedClientLink href="/about" className="hover:opacity-60 transition-opacity">About us</LocalizedClientLink>
+            <div className="hidden lg:flex items-center h-full text-[12px] gap-x-10 font-semibold tracking-[0.15em] uppercase transition-colors font-manrope duration-500">
+              <LocalizedClientLink 
+                href="/" 
+                className="hover:opacity-60 transition-opacity h-full flex items-center px-4"
+                onMouseEnter={() => setHoveredItem("home")}
+              >
+                Home
+              </LocalizedClientLink>
+              <LocalizedClientLink 
+                href="/store" 
+                className="hover:opacity-60 transition-opacity h-full flex items-center px-4"
+                onMouseEnter={() => setHoveredItem("collection")}
+              >
+                Collection
+              </LocalizedClientLink>
+              <LocalizedClientLink 
+                href="/about" 
+                className="hover:opacity-60 transition-opacity h-full flex items-center px-4"
+                onMouseEnter={() => setHoveredItem("about")}
+              >
+                About us
+              </LocalizedClientLink>
             </div>
           </div>
 
           {/* Right: Search (Desktop) / User / Cart */}
-          <div className={clx(
-            "flex-1 basis-0 flex items-center justify-end gap-x-2 md:gap-x-4",
-            showSolid ? "text-accent" : "text-white"
-          )}>
+          <div className="flex-1 basis-0 flex items-center justify-end gap-x-2 md:gap-x-4">
             {/* Search (Desktop Only) */}
             <div className="hidden lg:flex relative items-center">
               <AnimatePresence>
@@ -195,11 +225,6 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
               )}
             </AnimatePresence>
 
-            {/* Account */}
-            <LocalizedClientLink href="/account" className="p-2 hover:opacity-60 transition-opacity">
-              <HugeiconsIcon icon={User02Icon} size={20} />
-            </LocalizedClientLink>
-
             {/* Cart */}
             <Suspense
               fallback={
@@ -210,14 +235,113 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
             >
               {cartButton}
             </Suspense>
+
+            {/* Account */}
+            <LocalizedClientLink href="/account" className="p-2 hover:opacity-60 transition-opacity">
+              <HugeiconsIcon icon={User02Icon} size={20} />
+            </LocalizedClientLink>
           </div>
-        </nav>
-      </motion.header>
+        </div>
+
+        {/* MEGA MENU Content Area */}
+        <AnimatePresence>
+          {hoveredItem && (
+            <motion.div
+              initial={{ height: 0, opacity: 0 }}
+              animate={{ height: "auto", opacity: 1 }}
+              exit={{ height: 0, opacity: 0 }}
+              transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+              className="w-full pointer-events-auto overflow-hidden border-t border-black/[0.03]"
+            >
+              <div className="max-w-[1440px] mx-auto px-10 py-12 flex gap-20">
+                {hoveredItem === "collection" && (
+                  <>
+                    <div className="flex-1 grid grid-cols-2 gap-10">
+                      <div>
+                        <h4 className="font-newsreader italic text-3xl text-accent mb-6">Categories</h4>
+                        <div className="flex flex-col gap-4">
+                          {categories.slice(0, 6).map((cat) => (
+                            <LocalizedClientLink 
+                              key={cat.id} 
+                              href={`/categories/${cat.handle}`}
+                              className="font-manrope text-[11px] font-bold text-accent/40 hover:text-accent tracking-[0.2em] uppercase transition-colors"
+                            >
+                              {cat.name}
+                            </LocalizedClientLink>
+                          ))}
+                        </div>
+                      </div>
+                      <div>
+                        <h4 className="font-newsreader italic text-3xl text-accent mb-6">Collections</h4>
+                        <div className="flex flex-col gap-4">
+                          {collections.slice(0, 6).map((col) => (
+                            <LocalizedClientLink 
+                              key={col.id} 
+                              href={`/collections/${col.handle}`}
+                              className="font-manrope text-[11px] font-bold text-accent/40 hover:text-accent tracking-[0.2em] uppercase transition-colors"
+                            >
+                              {col.title}
+                            </LocalizedClientLink>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="w-[400px] flex flex-col gap-4">
+                      <div className="relative aspect-[16/9] overflow-hidden group">
+                        <Image 
+                          src="/footer.png" 
+                          alt="Featured" 
+                          fill 
+                          className="object-cover transition-transform duration-700 group-hover:scale-110" 
+                        />
+                        <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                          <span className="font-newsreader italic text-3xl text-white">Join The Club</span>
+                        </div>
+                      </div>
+                      <p className="font-manrope text-[11px] text-accent/40 leading-relaxed tracking-wider">
+                        Elevate your lifestyle with our curated selection of essentials. Experience the fusion of health and wealth.
+                      </p>
+                    </div>
+                  </>
+                )}
+                {hoveredItem === "home" && (
+                  <div className="flex-1">
+                    <h4 className="font-newsreader italic text-4xl text-accent mb-4">Welcome to The Club</h4>
+                    <p className="font-manrope text-[13px] text-accent/50 max-w-2xl leading-relaxed">
+                      Explore the inaugural drop and our seasonal edits. Crafted for the intentional.
+                    </p>
+                    <div className="mt-8 flex gap-4">
+                      <LocalizedClientLink href="/store" className="px-8 py-3 bg-accent text-bg font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-black transition-colors">Shop Now</LocalizedClientLink>
+                      <LocalizedClientLink href="/about" className="px-8 py-3 border border-accent text-accent font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-accent hover:text-bg transition-colors">Our Ethos</LocalizedClientLink>
+                    </div>
+                  </div>
+                )}
+                {hoveredItem === "about" && (
+                  <div className="flex gap-20">
+                    <div className="flex-1">
+                      <h4 className="font-newsreader italic text-4xl text-accent mb-4">Beyond the Label</h4>
+                      <p className="font-manrope text-[13px] text-accent/50 max-w-xl leading-relaxed">
+                        We believe in a life of balance. Our mission is to provide the tools for a healthier body and a wealthier mind.
+                      </p>
+                    </div>
+                    <div className="grid grid-cols-2 gap-8 text-[11px] font-bold tracking-[0.25em] uppercase font-manrope text-accent/40">
+                      <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Our Vision</LocalizedClientLink>
+                      <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Sustainability</LocalizedClientLink>
+                      <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Manufacturing</LocalizedClientLink>
+                      <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Member Perks</LocalizedClientLink>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+          )}
+        </AnimatePresence>
+      </div>
 
       <MobileMenu 
         isOpen={isMenuOpen} 
         onClose={() => setIsMenuOpen(false)} 
       />
-    </div>
+    </motion.nav>
   )
 }

@@ -165,6 +165,10 @@ export const addCustomerAddress = async (
   const isDefaultBilling = (currentState.isDefaultBilling as boolean) || false
   const isDefaultShipping = (currentState.isDefaultShipping as boolean) || false
 
+  const countryCodeCustom = formData.get("country_code_custom") as string
+  const rawPhone = formData.get("phone") as string
+  const phone = countryCodeCustom ? `${countryCodeCustom} ${rawPhone}`.trim() : rawPhone
+
   const address = {
     first_name: formData.get("first_name") as string,
     last_name: formData.get("last_name") as string,
@@ -174,10 +178,13 @@ export const addCustomerAddress = async (
     city: formData.get("city") as string,
     postal_code: formData.get("postal_code") as string,
     province: formData.get("province") as string,
-    country_code: formData.get("country_code") as string,
-    phone: formData.get("phone") as string,
+    country_code: formData.get("country_code") as string || "ae", // Default to AE for UAE
+    phone,
     is_default_billing: isDefaultBilling,
     is_default_shipping: isDefaultShipping,
+    metadata: {
+      recipient_name: formData.get("recipient_name") as string,
+    }
   }
 
   const headers = {
@@ -185,7 +192,7 @@ export const addCustomerAddress = async (
   }
 
   return sdk.store.customer
-    .createAddress(address, {}, headers)
+    .createAddress(address as any, {}, headers)
     .then(async ({ customer }) => {
       const customerCacheTag = await getCacheTag("customers")
       revalidateTag(customerCacheTag)

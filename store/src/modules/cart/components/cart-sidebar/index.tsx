@@ -1,21 +1,17 @@
 "use client"
 
 import { useUI } from "@lib/context/ui-context"
-import { HttpTypes } from "@medusajs/types"
+import { useCart } from "@lib/context/cart-context"
 import { motion, AnimatePresence } from "framer-motion"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon, ShoppingBag01Icon } from "@hugeicons/core-free-icons"
 import { clx } from "@medusajs/ui"
-import Image from "next/image"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "@modules/products/components/thumbnail"
 import LineItemOptions from "@modules/common/components/line-item-options"
-import LineItemPrice from "@modules/common/components/line-item-price"
-import DeleteButton from "@modules/common/components/delete-button"
 import QuantitySelector from "@modules/cart/components/item/quantity-selector"
 import { convertToLocale } from "@lib/util/money"
-import { updateLineItem } from "@lib/data/cart"
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import Spinner from "@modules/common/icons/spinner"
 
 const sidebarVariants = {
@@ -35,87 +31,18 @@ const sidebarVariants = {
   },
 } as const
 
-const CartSidebar = ({
-  cart,
-}: {
-  cart: HttpTypes.StoreCart | null
-}) => {
+const CartSidebar = () => {
   const { isCartSidebarOpen, closeCartSidebar } = useUI()
-  const [updatingItemId, setUpdatingItemId] = useState<string | null>(null)
-  const [optimisticQuantities, setOptimisticQuantities] = useState<Record<string, number>>({})
+  const { optimisticItems: items, subtotal, updateQuantity, removeItem, isAdding, cart } = useCart()
   const [isNavigating, setIsNavigating] = useState(false)
 
-  const items = (cart?.items || []).map(item => ({
-    ...item,
-    quantity: optimisticQuantities[item.id] !== undefined ? optimisticQuantities[item.id] : item.quantity
-  })).filter(item => item.quantity > 0)
-
-  const totalItems = items.reduce((acc, item) => acc + item.quantity, 0)
-  const subtotal = cart?.subtotal ?? 0
-
   const handleQuantityChange = async (lineId: string, quantity: number) => {
-    // Set optimistic state immediately
-    setOptimisticQuantities(prev => ({ ...prev, [lineId]: quantity }))
-    
     if (quantity <= 0) {
-      setUpdatingItemId(lineId)
-      try {
-        const { deleteLineItem } = await import("@lib/data/cart")
-        await deleteLineItem(lineId)
-        // Cleanup optimistic state after successful deletion
-        setOptimisticQuantities(prev => {
-          const newState = { ...prev }
-          delete newState[lineId]
-          return newState
-        })
-      } catch (err) {
-        // Rollback on error
-        setOptimisticQuantities(prev => {
-          const newState = { ...prev }
-          delete newState[lineId]
-          return newState
-        })
-      } finally {
-        setUpdatingItemId(null)
-      }
-      return
-    }
-
-    setUpdatingItemId(lineId)
-    try {
-      await updateLineItem({
-        lineId,
-        quantity,
-      })
-      // Once the cart prop updates, the merge logic will eventually sync back to reality.
-      // We can also clear the optimistic state for this item here if we know the prop is about to update.
-    } catch (err) {
-      // Rollback on error
-      setOptimisticQuantities(prev => {
-        const newState = { ...prev }
-        delete newState[lineId]
-        return newState
-      })
-    } finally {
-      setUpdatingItemId(null)
+      await removeItem(lineId)
+    } else {
+      await updateQuantity(lineId, quantity)
     }
   }
-
-  // Sync optimistic state: if the cart prop matches our optimistic value, we can remove it from optimistic set
-  useEffect(() => {
-    if (!cart?.items) return
-    setOptimisticQuantities(prev => {
-      const newState = { ...prev }
-      let changed = false
-      cart?.items?.forEach(item => {
-        if (newState[item.id] === item.quantity) {
-          delete newState[item.id]
-          changed = true
-        }
-      })
-      return changed ? newState : prev
-    })
-  }, [cart?.items])
 
 
   return (
@@ -137,11 +64,11 @@ const CartSidebar = ({
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-y-0 right-0 z-[1002] w-[85%] sm:w-[450px] bg-accent shadow-2xl pointer-events-auto flex flex-col"
+            className="fixed inset-y-0 right-0 z-[1002] w-[85%] sm:w-[450px] bg-accent shadow-2xl pointer-events-auto flex flex-col will-change-transform"
           >
             {/* Header */}
-            <div className="flex items-center justify-between px-8 h-24 border-b border-bg/10">
-              <h2 className="font-newsreader italic text-4xl tracking-tight uppercase text-bg">CART</h2>
+            <div className="flex items-center justify-between px-8 h-20 border-b border-bg/10">
+              <h2 className="font-newsreader italic text-3xl tracking-tight  text-bg">CART</h2>
               <button
                 onClick={closeCartSidebar}
                 className="p-2 -mr-2 text-bg/40 hover:text-bg hover:rotate-90 transition-all duration-300"
@@ -160,7 +87,7 @@ const CartSidebar = ({
                     .map((item) => (
                       <div
                         key={item.id}
-                        className="p-8 border-b border-bg/5 flex gap-x-6"
+                        className="p-5 border-b border-bg/5 flex gap-x-6"
                       >
                         <LocalizedClientLink
                           href={`/products/${item.product_handle}`}
@@ -174,9 +101,9 @@ const CartSidebar = ({
                           />
                         </LocalizedClientLink>
 
-                        <div className="flex flex-col flex-1">
+                        <div className="flex flex-col flex-1 min-w-0">
                           <div className="flex flex-col gap-0.5">
-                            <h3 className="font-manrope text-[13px] font-medium leading-snug max-w-[180px] text-bg">
+                            <h3 className="font-manrope text-[15px] font-regular leading-snug text-bg break-words">
                               <LocalizedClientLink
                                 href={`/products/${item.product_handle}`}
                                 className="hover:opacity-70 transition-opacity"
@@ -184,7 +111,7 @@ const CartSidebar = ({
                                 {item.title}
                               </LocalizedClientLink>
                             </h3>
-                            <div className="font-manrope text-[10px] text-bg/40 uppercase tracking-wider">
+                            <div className="font-manrope text-[10px]  uppercase tracking-wider">
                               <LineItemOptions variant={item.variant} />
                             </div>
                           </div>
@@ -194,7 +121,6 @@ const CartSidebar = ({
                               <QuantitySelector
                                 quantity={item.quantity}
                                 onChange={(val) => handleQuantityChange(item.id, val)}
-                                loading={updatingItemId === item.id}
                               />
                             </div>
                           </div>
@@ -226,8 +152,8 @@ const CartSidebar = ({
             </div>
 
             {/* Footer */}
-            {cart && items.length > 0 && (
-              <div className="p-8 border-t border-bg/10 bg-bg/5">
+            {items.length > 0 && (
+              <div className="p-8 pt-3 border-t border-bg/10 bg-bg/5">
                 <div className="flex items-center justify-between mb-8 pt-2">
                   <span className="font-manrope text-[13px] uppercase tracking-[0.2em] text-bg/40 font-medium">
                     SUBTOTAL
@@ -235,13 +161,13 @@ const CartSidebar = ({
                   <span className="font-manrope text-[15px] font-bold text-bg">
                     {convertToLocale({
                       amount: subtotal,
-                      currency_code: cart.currency_code,
+                      currency_code: cart?.currency_code || "INR",
                     })}
                   </span>
                 </div>
                 
-                <div className="space-y-6">
-                  <p className="font-manrope text-[12px] text-bg/40 text-center leading-relaxed px-4">
+                <div className="space-y-2">
+                  <p className="font-manrope text-[11px] text-bg/40 text-center leading-relaxed px-4">
                     Shipping, taxes, and discount codes calculated at checkout.
                   </p>
                   

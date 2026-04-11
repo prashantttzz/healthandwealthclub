@@ -8,11 +8,19 @@ export default function Preloader() {
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
-    // Sync with your original 1s timeout
-    const timer = setTimeout(() => {
+    // Check if user has already seen the preloader in this session
+    const hasSeen = sessionStorage.getItem("hasSeenPreloader")
+    if (hasSeen) {
       setIsLoading(false)
       document.body.style.overflow = "visible"
-    }, 1500) // 1s wait + 0.5s exit animation buffer
+      return
+    }
+
+    const timer = setTimeout(() => {
+      setIsLoading(false)
+      sessionStorage.setItem("hasSeenPreloader", "true")
+      document.body.style.overflow = "visible"
+    }, 2000) // Increased to 2s to allow video buffer
 
     document.body.style.overflow = "hidden"
 
@@ -38,7 +46,7 @@ export default function Preloader() {
             initial={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             transition={{ duration: 0.8, ease: "easeInOut" }}
-            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#172521] overflow-hidden"
+            className="fixed inset-0 z-[9999] flex items-center justify-center bg-[#162917] overflow-hidden"
           >
             {/* Shimmer & Logo Container */}
             <motion.div
@@ -60,15 +68,15 @@ export default function Preloader() {
                 WebkitMaskImage: "linear-gradient(-75deg, rgba(0,0,0,1) 40%, rgba(0,0,0,0.3) 50%, rgba(0,0,0,1) 60%)",
                 WebkitMaskSize: "300%",
               }}
-              className="relative w-[140%] max-w-[500px] md:w-[70%] md:max-center flex justify-center items-center"
+              className="relative w-[80%] max-w-[500px] md:w-[70%] md:max-center flex justify-center items-center"
             >
               <Image
-                src="/logo.webp"
+                src="/loader.webp"
                 alt="The Health & Wealth Club"
                 width={500}
                 height={500}
                 priority
-                className="w-full h-auto object-contain transform scale-[1.3] md:scale-100"
+                className="w-full h-auto object-contain transform scale-[0.8] md:scale-100"
               />
             </motion.div>
 

@@ -5,7 +5,7 @@ import { useCallback, useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
 
-export type sortOptions = string
+export type SortOptions = "created_at" | "price_asc" | "price_desc"
 
 const sortOptions = [
   {

@@ -29,14 +29,14 @@ const QuantitySelector = ({ quantity, onChange, maxQuantity = 10, loading }: Qua
         <button
           onClick={handleDecrement}
           disabled={loading}
-          className="w-6 h-6 flex items-center justify-center text-accent/40 hover:text-accent disabled:opacity-20 transition-colors"
+          className="w-6 h-6 flex items-center justify-center text-bg  disabled:opacity-20 transition-colors"
         >
           <Minus className="w-2.5 h-2.5" strokeWidth={3} />
         </button>
         
-        <div className="w-6 text-center font-manrope text-[11px] font-bold text-accent">
+        <div className="w-6 text-center font-manrope text-[11px] font-bold text-bg">
           {loading ? (
-             <div className="flex justify-center"><Spinner className="w-3 h-3" /></div>
+             <div className="flex justify-center"><Spinner className="w-3 h-3 animate-spin" /></div>
           ) : (
             quantity
           )}
@@ -45,7 +45,7 @@ const QuantitySelector = ({ quantity, onChange, maxQuantity = 10, loading }: Qua
         <button
           onClick={handleIncrement}
           disabled={quantity >= maxQuantity || loading}
-          className="w-6 h-6 flex items-center justify-center text-accent/40 hover:text-accent disabled:opacity-20 transition-colors"
+          className="w-6 h-6 flex items-center justify-center text-bg  disabled:opacity-20 transition-colors"
         >
           <Plus className="w-2.5 h-2.5" strokeWidth={3} />
         </button>

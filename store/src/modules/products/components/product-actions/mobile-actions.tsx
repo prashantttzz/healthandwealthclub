@@ -15,24 +15,26 @@ type MobileActionsProps = {
   product: HttpTypes.StoreProduct
   variant?: HttpTypes.StoreProductVariant
   options: Record<string, string | undefined>
-  updateOptions: (title: string, value: string) => void
+  updateOption: (title: string, value: string) => void
   inStock?: boolean
   handleAddToCart: () => void
   isAdding?: boolean
   show: boolean
   optionsDisabled: boolean
+  isOptionAvailable: (optionId: string, value: string) => boolean
 }
 
 const MobileActions: React.FC<MobileActionsProps> = ({
   product,
   variant,
   options,
-  updateOptions,
+  updateOption,
   inStock,
   handleAddToCart,
   isAdding,
   show,
   optionsDisabled,
+  isOptionAvailable,
 }) => {
   const { state, open, close } = useToggleState()
 
@@ -180,9 +182,12 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                               <OptionSelect
                                 option={option}
                                 current={options[option.id]}
-                                updateOption={updateOptions}
+                                updateOption={updateOption}
                                 title={option.title ?? ""}
                                 disabled={optionsDisabled}
+                                availableValues={
+                                  (option.values || []).map(v => v.value).filter(val => isOptionAvailable(option.id, val))
+                                }
                               />
                             </div>
                           )

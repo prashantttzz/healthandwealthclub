@@ -43,7 +43,6 @@ const SLIDES = [
   },
 ]
 
-const INTERVAL_MS = 8000
 
 const Hero = () => {
   const [activeIndex, setActiveIndex] = useState(0)
@@ -95,21 +94,23 @@ const Hero = () => {
     startTimeRef.current = Date.now()
   }, [])
 
+  const currentInterval = SLIDES[activeIndex].type === "video" ? 8000 : 3000
+
   useEffect(() => {
     if (intervalRef.current) clearInterval(intervalRef.current)
     if (progressRef.current) clearInterval(progressRef.current)
 
-    intervalRef.current = setInterval(nextSlide, INTERVAL_MS)
+    intervalRef.current = setInterval(nextSlide, currentInterval)
     progressRef.current = setInterval(() => {
       const elapsed = Date.now() - startTimeRef.current
-      setProgress(Math.min((elapsed / INTERVAL_MS) * 100, 100))
+      setProgress(Math.min((elapsed / currentInterval) * 100, 100))
     }, 16)
 
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current)
       if (progressRef.current) clearInterval(progressRef.current)
     }
-  }, [nextSlide, activeIndex])
+  }, [nextSlide, activeIndex, currentInterval])
 
   const slide = SLIDES[activeIndex]
 
