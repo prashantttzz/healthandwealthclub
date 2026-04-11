@@ -54,7 +54,11 @@ export const CartProvider: React.FC<{
   }, [optimisticItems])
 
   const subtotal = useMemo(() => {
-    return optimisticItems.reduce((acc, item) => acc + (item.unit_price || 0) * item.quantity, 0)
+    return optimisticItems.reduce((acc, item) => {
+      const price = Number(item.unit_price) || 0
+      const quantity = Number(item.quantity) || 0
+      return acc + (price * quantity)
+    }, 0)
   }, [optimisticItems])
 
   // Sync optimistic state: cleanup when server data matches
@@ -75,6 +79,7 @@ export const CartProvider: React.FC<{
 
   const addItem = async (variantId: string, quantity: number, countryCode: string, optimisticData?: any) => {
     setIsAdding(true)
+    const startTime = Date.now()
     
     // 1. Detect if item already exists in cart for smart deduplication
     const existingItem = cart?.items?.find(item => item.variant_id === variantId)
@@ -120,6 +125,13 @@ export const CartProvider: React.FC<{
         setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
       }
     } finally {
+      // Force a minimum delay of 1500ms for the loader
+      const elapsed = Date.now() - startTime
+      const remaining = 1500 - elapsed
+      if (remaining > 0) {
+        await new Promise(resolve => setTimeout(resolve, remaining))
+      }
+      
       setIsAdding(false)
       if (tempId) {
         // We keep it for a moment to allow revalidation to happen
@@ -129,6 +141,7 @@ export const CartProvider: React.FC<{
       }
     }
   }
+
 
   const updateQuantity = async (lineId: string, quantity: number) => {
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: quantity }))

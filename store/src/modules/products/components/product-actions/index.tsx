@@ -12,6 +12,7 @@ import ProductPrice from "../product-price"
 import MobileActions from "./mobile-actions"
 import { useUI } from "@lib/context/ui-context"
 import { useCart } from "@lib/context/cart-context"
+import { getProductPrice } from "@lib/util/get-product-price"
 
 type ProductActionsProps = {
   product: HttpTypes.StoreProduct
@@ -108,8 +109,27 @@ export default function ProductActions({
     const timer = setTimeout(() => setIsAdded(false), 2000)
 
     try {
-      await addItem(selectedVariant.id, 1, countryCode)
+      const { variantPrice, cheapestPrice } = getProductPrice({
+        product,
+        variantId: selectedVariant.id,
+      })
+      const priceObject = variantPrice || cheapestPrice
+      const unitPrice = priceObject?.calculated_price_number || 0
+
+      await addItem(selectedVariant.id, 1, countryCode, {
+        title: product.title,
+        thumbnail: product.thumbnail,
+        unit_price: unitPrice,
+        product_handle: product.handle,
+        variant: {
+          title: selectedVariant.title,
+          product: {
+            images: product.images
+          }
+        }
+      })
     } catch (e) {
+
       setIsAdded(false)
       clearTimeout(timer)
     } finally {
