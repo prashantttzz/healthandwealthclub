@@ -7,6 +7,8 @@ export const metadata: Metadata = {
   description: "Sign in to your Medusa Store account.",
 }
 
-export default function Login() {
+export default function Login(props: {
+  params: Promise<{ countryCode: string }>
+}) {
   return <LoginTemplate />
 }

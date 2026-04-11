@@ -14,7 +14,7 @@ type PaginatedProductsParams = {
   q?: string
 }
 
-import SortDropdown, { sortOptions } from "@modules/store/components/refinement-list/sort-dropdown"
+import SortDropdown, { SortOptions } from "@modules/store/components/refinement-list/sort-dropdown"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 
 export default async function PaginatedProducts({
@@ -28,7 +28,7 @@ export default async function PaginatedProducts({
   size,
   color,
 }: {
-  sortBy?: sortOptions
+  sortBy?: SortOptions
   page: number
   collectionId?: string
   categoryId?: string

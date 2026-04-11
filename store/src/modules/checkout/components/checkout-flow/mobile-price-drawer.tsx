@@ -41,7 +41,7 @@ const MobilePriceDrawer = ({ isOpen, onClose, selectedShippingPrice }: { isOpen:
               <span className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-bg/30">Total Payable</span>
               <span className="font-newsreader italic text-3xl text-bg leading-none">
                 {convertToLocale({ 
-                  amount: (subtotal || 0) - (cart.discount_total || 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total || 0), 
+                  amount: (subtotal || 0) - (cart.discount_total ?? 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total ?? 0), 
                   currency_code: cart.currency_code 
                 })}
               </span>

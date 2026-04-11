@@ -3,7 +3,6 @@
 import { useState, useRef, useEffect } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown, Filter } from "lucide-react"
-import PriceRange from "../refinement-list/price-range"
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
 const HeaderDropdown = ({ title, children }: { title: string, children: React.ReactNode }) => {
@@ -83,12 +82,6 @@ const MobileFilterBar = () => {
                </li>
             ))}
           </ul>
-        </HeaderDropdown>
-
-        <HeaderDropdown title="Price">
-          <div className="w-[250px]">
-            <PriceRange />
-          </div>
         </HeaderDropdown>
 
         <HeaderDropdown title="Size">

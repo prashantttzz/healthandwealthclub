@@ -6,12 +6,12 @@ import { motion, AnimatePresence } from "framer-motion"
 import { ChevronDown } from "lucide-react"
 
 
-import { sortOptions } from "./sort-dropdown"
+import { SortOptions } from "./sort-dropdown"
 
 import { HttpTypes } from "@medusajs/types"
 
 type RefinementListProps = {
-  sortBy: sortOptions
+  sortBy: SortOptions
   search?: boolean
   categories?: HttpTypes.StoreProductCategory[]
   activeCategory?: string

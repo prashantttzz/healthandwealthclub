@@ -1,7 +1,6 @@
-export default function CheckoutLayout({
-  children,
-}: {
+export default function CheckoutLayout(props: {
   children: React.ReactNode
+  params: Promise<{ countryCode: string }>
 }) {
-  return <>{children}</>
+  return <>{props.children}</>
 }

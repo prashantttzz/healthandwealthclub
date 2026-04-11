@@ -60,10 +60,10 @@ const ProductReviews = ({ productId }: { productId: string }) => {
       const data = await sdk.client.fetch<{ reviews: Review[] }>(
         "/store/reviews",
         {
-          method: "GET"
-        },
-        {
-          product_id: productId,
+          method: "GET",
+          query: {
+            product_id: productId,
+          },
         }
       )
       setReviews(data.reviews || [])

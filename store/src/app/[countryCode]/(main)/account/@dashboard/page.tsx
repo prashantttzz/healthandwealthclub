@@ -10,7 +10,9 @@ export const metadata: Metadata = {
   description: "Overview of your account activity.",
 }
 
-export default async function OverviewTemplate() {
+export default async function OverviewTemplate(props: {
+  params: Promise<{ countryCode: string }>
+}) {
   const customer = await retrieveCustomer().catch(() => null)
   const orders = (await listOrders().catch(() => null)) || null
 

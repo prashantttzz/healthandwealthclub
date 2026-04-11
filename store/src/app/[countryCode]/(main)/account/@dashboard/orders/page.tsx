@@ -11,7 +11,9 @@ export const metadata: Metadata = {
   description: "Overview of your previous orders.",
 }
 
-export default async function Orders() {
+export default async function Orders(props: {
+  params: Promise<{ countryCode: string }>
+}) {
   const orders = await listOrders()
 
   if (!orders) {

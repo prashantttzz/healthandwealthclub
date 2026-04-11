@@ -7,6 +7,7 @@ import CartSidebar from "@modules/cart/components/cart-sidebar"
 
 export default async function PageLayout(props: {
   children: React.ReactNode
+  params: Promise<{ countryCode: string }>
 }) {
   const customer = await retrieveCustomer()
   const cart = await retrieveCart()

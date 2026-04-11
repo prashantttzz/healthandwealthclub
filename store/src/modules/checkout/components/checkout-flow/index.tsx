@@ -102,7 +102,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
   }
 
   if (showSuccess && cart) {
-    const totalPayable = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total || 0) + selectedShippingPrice
+    const totalPayable = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total ?? 0) + selectedShippingPrice
     
     return (
       <div className="fixed inset-0 bg-black/30 z-[200] flex items-center justify-center p-6">
@@ -123,7 +123,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
 
   if (!cart) return null
 
-  const payableAmount = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total || 0) + selectedShippingPrice
+  const payableAmount = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total ?? 0) + selectedShippingPrice
 
   return (
     <div className="min-h-screen bg-bg">

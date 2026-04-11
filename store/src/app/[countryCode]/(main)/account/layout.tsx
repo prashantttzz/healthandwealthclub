@@ -2,13 +2,12 @@ import { retrieveCustomer } from "@lib/data/customer"
 import { Toaster } from "@medusajs/ui"
 import AccountLayout from "@modules/account/templates/account-layout"
 
-export default async function AccountPageLayout({
-  dashboard,
-  login,
-}: {
+export default async function AccountPageLayout(props: {
   dashboard?: React.ReactNode
   login?: React.ReactNode
+  params: Promise<{ countryCode: string }>
 }) {
+  const { dashboard, login } = props
   const customer = await retrieveCustomer().catch(() => null)
 
   return (

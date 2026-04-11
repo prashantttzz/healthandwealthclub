@@ -73,7 +73,7 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
         <span className="font-newsreader italic text-2xl text-bg">Total Payable</span>
         <span className="font-manrope text-xl text-bg font-semibold">
           {convertToLocale({ 
-            amount: (subtotal || 0) - (cart.discount_total || 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total || 0), 
+            amount: (subtotal || 0) - (cart.discount_total ?? 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total ?? 0), 
             currency_code: cart.currency_code 
           })}
         </span>

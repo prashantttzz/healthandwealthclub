@@ -6,6 +6,8 @@ export const metadata: Metadata = {
   description: "Learn more about the vision, ethos, and team behind The Health & Wealth Club.",
 }
 
-export default function AboutUsPage() {
+export default function AboutUsPage(props: {
+  params: Promise<{ countryCode: string }>
+}) {
   return <AboutUsTemplate />
 }
