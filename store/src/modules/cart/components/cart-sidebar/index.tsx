@@ -11,23 +11,17 @@ import Thumbnail from "@modules/products/components/thumbnail"
 import LineItemOptions from "@modules/common/components/line-item-options"
 import QuantitySelector from "@modules/cart/components/item/quantity-selector"
 import { convertToLocale } from "@lib/util/money"
-import { useState } from "react"
+import { useState, useEffect } from "react"
 import Spinner from "@modules/common/icons/spinner"
 
 const sidebarVariants = {
   closed: {
     x: "100%",
-    transition: {
-      duration: 0.6,
-      ease: [0.16, 1, 0.3, 1],
-    },
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
   },
   open: {
     x: 0,
-    transition: {
-      duration: 0.6,
-      ease: [0.16, 1, 0.3, 1],
-    },
+    transition: { duration: 0.6, ease: [0.16, 1, 0.3, 1] },
   },
 } as const
 
@@ -35,15 +29,34 @@ const CartSidebar = () => {
   const { isCartSidebarOpen, closeCartSidebar } = useUI()
   const { optimisticItems: items, subtotal, updateQuantity, removeItem, isAdding, cart } = useCart()
   const [isNavigating, setIsNavigating] = useState(false)
+  const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({})
+
+  // ✅ Reset navigation state when sidebar closes
+  useEffect(() => {
+    if (!isCartSidebarOpen) setIsNavigating(false)
+  }, [isCartSidebarOpen])
 
   const handleQuantityChange = async (lineId: string, quantity: number) => {
-    if (quantity <= 0) {
-      await removeItem(lineId)
-    } else {
-      await updateQuantity(lineId, quantity)
+    setLoadingItems(prev => ({ ...prev, [lineId]: true }))
+    try {
+      if (quantity <= 0) {
+        await removeItem(lineId)
+      } else {
+        await updateQuantity(lineId, quantity)
+      }
+    } finally {
+      setLoadingItems(prev => ({ ...prev, [lineId]: false }))
     }
   }
 
+  const sortedItems = [...items].sort((a, b) => {
+    // ✅ Optimistic additions float to top
+    const aIsOptimistic = a.id.startsWith("optimistic-")
+    const bIsOptimistic = b.id.startsWith("optimistic-")
+    if (aIsOptimistic) return -1
+    if (bIsOptimistic) return 1
+    return (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
+  })
 
   return (
     <AnimatePresence>
@@ -64,11 +77,11 @@ const CartSidebar = () => {
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-y-0 right-0 z-[1002] w-[85%] sm:w-[450px] bg-accent shadow-2xl pointer-events-auto flex flex-col will-change-transform"
+            className="fixed inset-y-0 right-0 z-[1002] w-[85%] sm:w-[450px] bg-accent shadow-2xl pointer-events-auto flex flex-col"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-8 h-20 border-b border-bg/10">
-              <h2 className="font-newsreader italic text-3xl tracking-tight  text-bg">CART</h2>
+              <h2 className="font-newsreader italic text-3xl tracking-tight text-bg">CART</h2>
               <button
                 onClick={closeCartSidebar}
                 className="p-2 -mr-2 text-bg/40 hover:text-bg hover:rotate-90 transition-all duration-300"
@@ -77,56 +90,71 @@ const CartSidebar = () => {
               </button>
             </div>
 
+            {/* Items */}
             <div className="flex-1 overflow-y-auto no-scrollbar">
-              {items.length ? (
+              {sortedItems.length ? (
                 <div className="flex flex-col">
-                  {items
-                    .sort((a, b) => {
-                      return (a.created_at ?? "") > (b.created_at ?? "") ? -1 : 1
-                    })
-                    .map((item) => (
-                      <div
-                        key={item.id}
-                        className="p-5 border-b border-bg/5 flex gap-x-6"
+                  {sortedItems.map((item) => (
+                    <div
+                      key={item.id}
+                      className={clx(
+                        "p-5 border-b border-bg/5 flex gap-x-6 transition-opacity duration-300",
+                        { "opacity-50": loadingItems[item.id] }
+                      )}
+                    >
+                      {/* ✅ Fixed product handle path */}
+                      <LocalizedClientLink
+                        href={`/products/${item.variant?.product?.handle}`}
+                        className="w-20 h-24 shrink-0 group relative bg-bg/5 overflow-hidden rounded-sm"
                       >
-                        <LocalizedClientLink
-                          href={`/products/${item.product_handle}`}
-                          className="w-20 h-24 shrink-0 group relative bg-bg/5 overflow-hidden rounded-sm"
-                        >
-                          <Thumbnail
-                            thumbnail={item.thumbnail}
-                            images={item.variant?.product?.images}
-                            size="full"
-                            className="object-contain group-hover:scale-105 transition-transform duration-700"
-                          />
-                        </LocalizedClientLink>
+                        <Thumbnail
+                          thumbnail={item.thumbnail}
+                          images={item.variant?.product?.images}
+                          size="full"
+                          className="object-contain group-hover:scale-105 transition-transform duration-700"
+                        />
+                      </LocalizedClientLink>
 
-                        <div className="flex flex-col flex-1 min-w-0">
-                          <div className="flex flex-col gap-0.5">
-                            <h3 className="font-manrope text-[15px] font-regular leading-snug text-bg break-words">
-                              <LocalizedClientLink
-                                href={`/products/${item.product_handle}`}
-                                className="hover:opacity-70 transition-opacity"
-                              >
-                                {item.title}
-                              </LocalizedClientLink>
-                            </h3>
-                            <div className="font-manrope text-[10px]  uppercase tracking-wider">
-                              <LineItemOptions variant={item.variant} />
-                            </div>
-                          </div>
-
-                          <div className="mt-3 flex items-center justify-between">
-                            <div className="border border-bg/10">
-                              <QuantitySelector
-                                quantity={item.quantity}
-                                onChange={(val) => handleQuantityChange(item.id, val)}
-                              />
-                            </div>
+                      <div className="flex flex-col flex-1 min-w-0">
+                        <div className="flex flex-col gap-0.5">
+                          {/* ✅ Fixed title field */}
+                          <h3 className="font-manrope text-[15px] font-regular leading-snug text-bg break-words">
+                            <LocalizedClientLink
+                              href={`/products/${item.variant?.product?.handle}`}
+                              className="hover:opacity-70 transition-opacity"
+                            >
+                              {item.product_title}
+                            </LocalizedClientLink>
+                          </h3>
+                          <div className="font-manrope text-[10px] uppercase tracking-wider">
+                            <LineItemOptions variant={item.variant} />
                           </div>
                         </div>
+
+                        <div className="mt-3 flex items-center justify-between">
+                          <div className="border border-bg/10 relative">
+                            {/* ✅ Per-item loading overlay */}
+                            {loadingItems[item.id] && (
+                              <div className="absolute inset-0 flex items-center justify-center bg-accent/50 z-10">
+                                <Spinner />
+                              </div>
+                            )}
+                            <QuantitySelector
+                              quantity={item.quantity}
+                              onChange={(val) => handleQuantityChange(item.id, val)}
+                            />
+                          </div>
+
+                          <span className="font-manrope text-[13px] font-semibold text-bg">
+                            {convertToLocale({
+                              amount: item.unit_price * item.quantity,
+                              currency_code: cart?.currency_code || "AED",
+                            })}
+                          </span>
+                        </div>
                       </div>
-                    ))}
+                    </div>
+                  ))}
                 </div>
               ) : (
                 <div className="flex flex-col items-center justify-center h-full p-12 text-center gap-8">
@@ -139,11 +167,8 @@ const CartSidebar = () => {
                       Your bag is waiting for its first treasure. Explore our curated experiences.
                     </p>
                   </div>
-                  <LocalizedClientLink
-                    href="/store"
-                    className="w-full max-w-[260px]"
-                  >
-                    <button className="w-full py-4 border border-bg/10 text-bg font-manrope text-[10px] uppercase font-bold tracking-[0.3em] hover:bg-bg hover:text-accent transition-all duration-300 rounded-none">
+                  <LocalizedClientLink href="/store" className="w-full max-w-[260px]">
+                    <button className="w-full py-4 border border-bg/10 text-bg font-manrope text-[10px] uppercase font-bold tracking-[0.3em] hover:bg-bg hover:text-accent transition-all duration-300">
                       START EXPLORING
                     </button>
                   </LocalizedClientLink>
@@ -152,7 +177,7 @@ const CartSidebar = () => {
             </div>
 
             {/* Footer */}
-            {items.length > 0 && (
+            {sortedItems.length > 0 && (
               <div className="p-8 pt-3 border-t border-bg/10 bg-bg/5">
                 <div className="flex items-center justify-between mb-8 pt-2">
                   <span className="font-manrope text-[13px] uppercase tracking-[0.2em] text-bg/40 font-medium">
@@ -161,25 +186,29 @@ const CartSidebar = () => {
                   <span className="font-manrope text-[15px] font-bold text-bg">
                     {convertToLocale({
                       amount: subtotal,
-                      currency_code: cart?.currency_code || "INR",
+                      currency_code: cart?.currency_code || "AED",
                     })}
                   </span>
                 </div>
-                
+
                 <div className="space-y-2">
                   <p className="font-manrope text-[11px] text-bg/40 text-center leading-relaxed px-4">
                     Shipping, taxes, and discount codes calculated at checkout.
                   </p>
-                  
+
                   <LocalizedClientLink
-                    href="/checkout"
-                    className="block w-full"
+                    href={(isAdding || isNavigating) ? "#" : "/checkout"}
+                    onClick={(e: any) => (isAdding || isNavigating) && e.preventDefault()}
+                    className={clx("block w-full text-center", {
+                      "pointer-events-none opacity-50": isAdding || isNavigating,
+                    })}
                   >
-                    <button 
-                      onClick={() => setIsNavigating(true)}
+                    <button
+                      onClick={() => (!isAdding && !isNavigating) && setIsNavigating(true)}
+                      disabled={isAdding || isNavigating}
                       className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] hover:bg-bg/90 transition-all duration-300 uppercase flex items-center justify-center gap-2"
                     >
-                      {isNavigating ? <Spinner /> : "CHECK OUT"}
+                      {isNavigating || isAdding ? <Spinner /> : "CHECK OUT"}
                     </button>
                   </LocalizedClientLink>
                 </div>

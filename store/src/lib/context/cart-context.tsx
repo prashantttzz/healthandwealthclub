@@ -1,6 +1,7 @@
 "use client"
 
 import React, { createContext, useContext, useState, useCallback, useEffect, useMemo } from "react"
+import { useRouter } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 import { addToCart as postAddToCart, updateLineItem as postUpdateLineItem, deleteLineItem as postDeleteLineItem } from "@lib/data/cart"
 
@@ -18,31 +19,35 @@ interface CartContextType {
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
 
-export const CartProvider: React.FC<{ 
-  children: React.ReactNode,
-  initialCart?: HttpTypes.StoreCart | null 
+export const CartProvider: React.FC<{
+  children: React.ReactNode
+  initialCart?: HttpTypes.StoreCart | null
 }> = ({ children, initialCart }) => {
+  const router = useRouter()
   const [cart, setCart] = useState<HttpTypes.StoreCart | null>(initialCart || null)
   const [optimisticQuantities, setOptimisticQuantities] = useState<Record<string, number>>({})
   const [optimisticAdditions, setOptimisticAdditions] = useState<HttpTypes.StoreCartLineItem[]>([])
   const [isAdding, setIsAdding] = useState(false)
 
-  // Sync state if initialCart prop changes (e.g. on navigation)
+  // ✅ Only sync when cart ID or item count changes — avoids overwriting optimistic state
   useEffect(() => {
     if (initialCart) {
       setCart(initialCart)
+      setOptimisticAdditions([]) // server data is fresh, clear pending additions
     }
-  }, [initialCart])
+  }, [initialCart?.id, initialCart?.items?.length])
 
-  // Merge official items with optimistic quantities and new additions
+  // ✅ Merge official cart items with optimistic quantities and new additions
   const optimisticItems = useMemo(() => {
     const existingItems = cart?.items?.map(item => ({
       ...item,
-      quantity: optimisticQuantities[item.id] !== undefined ? optimisticQuantities[item.id] : item.quantity
+      quantity: optimisticQuantities[item.id] !== undefined
+        ? optimisticQuantities[item.id]
+        : item.quantity
     })).filter(item => item.quantity > 0) || []
 
-    // Filter out optimistic additions that have already been added to the official cart
-    const filteredAdditions = optimisticAdditions.filter(addition => 
+    // Filter out optimistic additions already confirmed in server cart
+    const filteredAdditions = optimisticAdditions.filter(addition =>
       !existingItems.some(item => item.variant_id === addition.variant_id)
     )
 
@@ -57,17 +62,17 @@ export const CartProvider: React.FC<{
     return optimisticItems.reduce((acc, item) => {
       const price = Number(item.unit_price) || 0
       const quantity = Number(item.quantity) || 0
-      return acc + (price * quantity)
+      return acc + price * quantity
     }, 0)
   }, [optimisticItems])
 
-  // Sync optimistic state: cleanup when server data matches
+  // ✅ Clean up optimistic quantities once server confirms them
   useEffect(() => {
     if (!cart?.items) return
     setOptimisticQuantities(prev => {
       const newState = { ...prev }
       let changed = false
-      cart?.items?.forEach(item => {
+      cart.items?.forEach(item => {
         if (newState[item.id] === item.quantity) {
           delete newState[item.id]
           changed = true
@@ -77,20 +82,24 @@ export const CartProvider: React.FC<{
     })
   }, [cart?.items])
 
-  const addItem = async (variantId: string, quantity: number, countryCode: string, optimisticData?: any) => {
+  const addItem = async (
+    variantId: string,
+    quantity: number,
+    countryCode: string,
+    optimisticData?: any
+  ) => {
     setIsAdding(true)
-    const startTime = Date.now()
-    
-    // 1. Detect if item already exists in cart for smart deduplication
     const existingItem = cart?.items?.find(item => item.variant_id === variantId)
     let tempId: string | null = null
 
+    // ✅ Optimistic update before API call
     if (existingItem) {
-      // Update quantity of existing item optimistically
-      const currentOptQty = optimisticQuantities[existingItem.id] !== undefined ? optimisticQuantities[existingItem.id] : existingItem.quantity
-      setOptimisticQuantities(prev => ({ ...prev, [existingItem.id]: currentOptQty + quantity }))
+      const currentQty = optimisticQuantities[existingItem.id] ?? existingItem.quantity
+      setOptimisticQuantities(prev => ({
+        ...prev,
+        [existingItem.id]: currentQty + quantity
+      }))
     } else if (optimisticData) {
-      // Add as a new optimistic row
       tempId = `optimistic-${Date.now()}`
       const newItem: any = {
         id: tempId,
@@ -112,9 +121,10 @@ export const CartProvider: React.FC<{
 
     try {
       await postAddToCart({ variantId, quantity, countryCode })
-      // Revalidation will happen on server and update 'cart' via props in layout
+      // ✅ Refresh server state — new cart flows down as initialCart prop
+      router.refresh()
     } catch (error) {
-      // 2. Instant Rollback on Error
+      // ✅ Instant rollback on failure
       if (existingItem) {
         setOptimisticQuantities(prev => {
           const newState = { ...prev }
@@ -125,31 +135,21 @@ export const CartProvider: React.FC<{
         setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
       }
     } finally {
-      // Force a minimum delay of 1500ms for the loader
-      const elapsed = Date.now() - startTime
-      const remaining = 1500 - elapsed
-      if (remaining > 0) {
-        await new Promise(resolve => setTimeout(resolve, remaining))
-      }
-      
+      // ✅ No artificial delays — optimistic UI already gave instant feedback
       setIsAdding(false)
-      if (tempId) {
-        // We keep it for a moment to allow revalidation to happen
-        setTimeout(() => {
-          setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
-        }, 2000)
-      }
     }
   }
 
-
   const updateQuantity = async (lineId: string, quantity: number) => {
+    // ✅ Optimistic update immediately
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: quantity }))
-    
+
     if (quantity <= 0) {
       try {
         await postDeleteLineItem(lineId)
-      } catch (err) {
+        router.refresh()
+      } catch {
+        // Rollback
         setOptimisticQuantities(prev => {
           const newState = { ...prev }
           delete newState[lineId]
@@ -161,7 +161,9 @@ export const CartProvider: React.FC<{
 
     try {
       await postUpdateLineItem({ lineId, quantity })
-    } catch (err) {
+      router.refresh()
+    } catch {
+      // Rollback
       setOptimisticQuantities(prev => {
         const newState = { ...prev }
         delete newState[lineId]
@@ -171,10 +173,13 @@ export const CartProvider: React.FC<{
   }
 
   const removeItem = async (lineId: string) => {
+    // ✅ Optimistically hide item immediately
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: 0 }))
     try {
       await postDeleteLineItem(lineId)
-    } catch (err) {
+      router.refresh()
+    } catch {
+      // Rollback
       setOptimisticQuantities(prev => {
         const newState = { ...prev }
         delete newState[lineId]
