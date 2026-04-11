@@ -5,6 +5,7 @@ import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import LuxurySection from "@modules/home/components/luxury-section"
 import CollectionSection from "@modules/home/components/collection-section"
+import { listCollections } from "@lib/data/collections"
 import ProductSection from "@modules/home/components/product-section"
 import FeaturesSection from "@modules/home/components/features-section"
 import { InauguralDrop } from "@modules/home/components/inaugural-drop"
@@ -33,6 +34,8 @@ export default async function Home(props: {
   })
 
   const products = response.products
+  const { collections } = await listCollections({ limit: "4" })
+
   return (
     <SmoothScroll>
       <Preloader />
@@ -43,7 +46,7 @@ export default async function Home(props: {
         <InauguralDrop products={products} />
         <LuxurySection />
         <ProductSection products={products} />
-        <CollectionSection />
+        <CollectionSection collections={collections} />
         <FeaturesSection />
       </div>
     </SmoothScroll>

@@ -12,7 +12,7 @@ const ProductInfo = ({ product }: ProductInfoProps) => {
       <div className="flex flex-col gap-y-2">
         {product.collection && (
           <LocalizedClientLink
-            href={`/collections/${product.collection.handle}`}
+            href={`/store?collection=${product.collection.handle}`}
             className="font-manrope text-[10px] tracking-[0.5em] uppercase font-bold text-accent/40 hover:text-accent transition-colors duration-300"
           >
             {product.collection.title}

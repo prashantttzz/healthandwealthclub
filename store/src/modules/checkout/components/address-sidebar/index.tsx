@@ -87,8 +87,13 @@ const EditorialSelect = ({
 }
 
 const COUNTRIES = [
-  { value: "in", label: "India" },
   { value: "ae", label: "United Arab Emirates" },
+  { value: "sa", label: "Saudi Arabia" },
+  { value: "qa", label: "Qatar" },
+  { value: "kw", label: "Kuwait" },
+  { value: "bh", label: "Bahrain" },
+  { value: "om", label: "Oman" },
+  { value: "in", label: "India" },
   { value: "us", label: "United States" },
   { value: "gb", label: "United Kingdom" },
   { value: "ca", label: "Canada" },
@@ -96,8 +101,13 @@ const COUNTRIES = [
 ]
 
 const DIALING_CODES = [
-  { value: "+91", label: "🇮🇳 +91" },
   { value: "+971", label: "🇦🇪 +971" },
+  { value: "+966", label: "🇸🇦 +966" },
+  { value: "+974", label: "🇶🇦 +974" },
+  { value: "+965", label: "🇰🇼 +965" },
+  { value: "+973", label: "🇧🇭 +973" },
+  { value: "+968", label: "🇴🇲 +968" },
+  { value: "+91", label: "🇮🇳 +91" },
   { value: "+1", label: "🇺🇸 +1" },
   { value: "+44", label: "🇬🇧 +44" },
   { value: "+61", label: "🇦🇺 +61" },
@@ -110,6 +120,7 @@ interface AddressSidebarProps {
   onSelect?: (a: HttpTypes.StoreCustomerAddress) => void
   onDelete?: (id: string) => void
   addressToEdit?: HttpTypes.StoreCustomerAddress | null
+  countries?: HttpTypes.StoreRegion["countries"]
 }
 
 const AddressSidebar: React.FC<AddressSidebarProps> = ({ 
@@ -118,20 +129,21 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
   addresses, 
   onSelect, 
   onDelete,
-  addressToEdit 
+  addressToEdit,
+  countries = []
 }) => {
   const [view, setView] = useState<"list" | "form">("list")
   const [formData, setFormData] = useState({ 
     first_name: "", 
     last_name: "", 
-    dialing_code: "+91",
+    dialing_code: "+971",
     phone_number: "", 
     address_1: "", 
     address_2: "", 
     city: "", 
     province: "", 
     postal_code: "", 
-    country_code: "in", 
+    country_code: "ae", 
     address_name: "Home" 
   })
   const [isSaving, setIsSaving] = useState(false)
@@ -153,7 +165,7 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
         city: addressToEdit.city || "",
         province: addressToEdit.province || "",
         postal_code: addressToEdit.postal_code || "",
-        country_code: addressToEdit.country_code || "in",
+        country_code: addressToEdit.country_code || "ae",
         address_name: "Home" 
       })
       setView("form")
@@ -161,14 +173,14 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
       setFormData({
         first_name: "", 
         last_name: "", 
-        dialing_code: "+91",
+        dialing_code: "+971",
         phone_number: "", 
         address_1: "", 
         address_2: "", 
         city: "", 
         province: "", 
         postal_code: "", 
-        country_code: "in", 
+        country_code: "ae", 
         address_name: "Home"
       })
       if (addresses.length > 0 && onSelect) {
@@ -242,7 +254,7 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
                         <div className="flex items-center gap-3 mb-2">{Ico.home("w-4 h-4 text-accent/30")}<span className="font-manrope text-[15px] font-bold text-accent">{addr.first_name}&apos;s Home</span>{addr.is_default_shipping && <span className="font-manrope text-[9px] bg-accent/5 text-accent/50 px-2 py-0.5 uppercase tracking-widest font-bold">Default</span>}</div>
                         <button onClick={(e) => { e.stopPropagation(); onDelete?.(addr.id) }} className="p-1.5 text-accent/15 hover:text-red-500 transition-colors">{Ico.dots("w-4 h-4")}</button>
                       </div>
-                      <p className="font-manrope text-[13px] text-accent/40 leading-relaxed pl-8">{addr.address_1}{addr.city ? `, ${addr.city}` : ""} {addr.postal_code}{addr.phone ? ` , +91 ${addr.phone}` : ""}</p>
+                      <p className="font-manrope text-[13px] text-accent/40 leading-relaxed pl-8">{addr.address_1}{addr.city ? `, ${addr.city}` : ""} {addr.postal_code}{addr.phone ? ` , ${addr.phone}` : ""}</p>
                     </button>
                   ))}
                 </div>
@@ -285,10 +297,10 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
               <EditorialSelect 
                 label="Country" 
                 value={formData.country_code} 
-                options={COUNTRIES} 
+                options={countries.length > 0 ? countries.map(c => ({ value: c.iso_2 || "", label: c.display_name || c.name || "" })) : COUNTRIES} 
                 onChange={(v) => {
                   const dialMap: Record<string, string> = {
-                    in: "+91", ae: "+971", us: "+1", gb: "+44", ca: "+1", au: "+61"
+                    ae: "+971", sa: "+966", qa: "+974", kw: "+965", bh: "+973", om: "+968", in: "+91", us: "+1", gb: "+44", ca: "+1", au: "+61"
                   }
                   setFormData(p => ({ 
                     ...p, 

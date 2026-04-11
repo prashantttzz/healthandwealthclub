@@ -1,41 +1,63 @@
 "use client";
-import React, { useRef, useState } from "react";
+import React, { useRef, useState, useMemo } from "react";
 import { useMotionValueEvent, useScroll, motion, AnimatePresence, useSpring } from "framer-motion";
 import Image from "next/image";
+import { HttpTypes } from "@medusajs/types";
+import Thumbnail from "@modules/products/components/thumbnail";
 import Link from "next/link";
+import LocalizedClientLink from "@modules/common/components/localized-client-link";
 
-const CATEGORIES = [
-  { 
-    title: "Backless\nTops", 
-    sub: "The Evening Series",
-    description: "Minimalist silhouettes designed for the modern evening. Crafted from premium silk blends that drape effortlessly against the skin.",
-    id: "backless-tops",
-    image: "/about.png" 
-  },
-  { 
-    title: "DeepSplits\nSkirts", 
-    sub: "Architectural Form",
-    description: "Movement defined by precision. A bold statement piece for the contemporary wardrobe, featuring hand-finished detailing.",
-    id: "deep-split-skirts",
-    image: "/about-hero.png" 
-  },
-  { 
-    title: "Bucket\nHats", 
-    sub: "Summer Essentials",
-    description: "The essential sun-drenched accessory. Reimagined in structured canvas and seasonal tones for the coastal minimalist.",
-    id: "bucket-hats",
-    image: "/p-1.png" 
-  },
-  { 
-    title: "Wrap\nDresses", 
-    sub: "Dusk to Dawn",
-    description: "Effortless versatility. Featuring an adjustable fit that celebrates the feminine form with timeless elegance.",
-    id: "wrap-dresses",
-    image: "/p-2.png" 
-  },
-];
+interface CategoryStickyScrollProps {
+  collections: HttpTypes.StoreCollection[];
+}
 
-export default function CategoryStickyScroll() {
+export default function CategoryStickyScroll({ collections = [] }: CategoryStickyScrollProps) {
+  // Map backend collections to UI categories or use mock data if empty
+  const CATEGORIES = useMemo(() => {
+    if (collections.length > 0) {
+      return collections.map((col) => ({
+        title: col.title,
+        sub: (col.metadata?.sub as string) || "Seasonal Edit",
+        description: (col.metadata?.description as string) || "A curated selection of our finest pieces, designed with an emphasis on silhouette and longevity.",
+        id: col.handle,
+        image: (col.metadata?.image as string) || "/about.png", // Fallback image
+        realId: col.id
+      }))
+    }
+    
+    // Fallback Mock Data
+    return [
+      { 
+        title: "Backless\nTops", 
+        sub: "The Evening Series",
+        description: "Minimalist silhouettes designed for the modern evening. Crafted from premium silk blends that drape effortlessly against the skin.",
+        id: "backless-tops",
+        image: "/about.png" 
+      },
+      { 
+        title: "DeepSplits\nSkirts", 
+        sub: "Architectural Form",
+        description: "Movement defined by precision. A bold statement piece for the contemporary wardrobe, featuring hand-finished detailing.",
+        id: "deep-split-skirts",
+        image: "/about-hero.png" 
+      },
+      { 
+        title: "Bucket\nHats", 
+        sub: "Summer Essentials",
+        description: "The essential sun-drenched accessory. Reimagined in structured canvas and seasonal tones for the coastal minimalist.",
+        id: "bucket-hats",
+        image: "/p-1.png" 
+      },
+      { 
+        title: "Wrap\nDresses", 
+        sub: "Dusk to Dawn",
+        description: "Effortless versatility. Featuring an adjustable fit that celebrates the feminine form with timeless elegance.",
+        id: "wrap-dresses",
+        image: "/p-2.png" 
+      },
+    ]
+  }, [collections])
+
   const [activeCard, setActiveCard] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -122,7 +144,7 @@ export default function CategoryStickyScroll() {
                   <p className="text-sm lg:text-lg font-manrope text-bg/70 max-w-sm mb-10 leading-relaxed">
                     {item.description}
                   </p>
-                  <Link href={`/collections/${item.id}`} className="group inline-flex items-center gap-4">
+                  <LocalizedClientLink href={`/store?collection=${item.id}`} className="group inline-flex items-center gap-4">
                     <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-bg">View Collection</span>
                     <div className="relative h-px w-10 bg-bg/20 overflow-hidden">
                       <motion.div 
@@ -133,7 +155,7 @@ export default function CategoryStickyScroll() {
                         transition={{ duration: 0.4 }}
                       />
                     </div>
-                  </Link>
+                  </LocalizedClientLink>
                 </motion.div>
               </div>
             ))}

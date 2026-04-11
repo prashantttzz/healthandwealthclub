@@ -277,7 +277,7 @@ export default function NavContent({
                           {collections.slice(0, 6).map((col) => (
                             <LocalizedClientLink 
                               key={col.id} 
-                              href={`/collections/${col.handle}`}
+                              href={`/store?collection=${col.handle}`}
                               className="font-manrope text-[11px] font-bold text-accent/40 hover:text-accent tracking-[0.2em] uppercase transition-colors"
                             >
                               {col.title}

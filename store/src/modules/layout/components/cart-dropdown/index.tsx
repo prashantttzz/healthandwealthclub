@@ -15,11 +15,11 @@ const CartDropdown = () => {
         className="group relative flex items-center"
         onClick={openCartSidebar}
       >
-        <div className="p-2.5 rounded-full opacity-80 bg-current/5   group-hover:opacity-100 transition-all duration-500">
+        <div className="p-2.5">
           <HugeiconsIcon 
             icon={ShoppingBag01Icon} 
             size={20} 
-            className=" transition-colors duration-500"
+            className=""
           />
         </div>
         

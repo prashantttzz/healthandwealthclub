@@ -118,7 +118,7 @@ const CustomerServiceTemplate = () => {
               <Accordion type="single" collapsible>
                 <Accordion.Item title="What are your shipping destinations?" value="shipping">
                   <p className="text-[14px] text-accent/60 leading-relaxed font-medium">
-                    The Club offers complimentary global shipping to over 200 countries. Our logistics network is optimized for speed and safety, ensuring your items arrive in pristine condition within 3-7 business days depending on your location.
+                    The Club offers premium shipping with tailored logistics. GCC countries enjoy delivery within 3-5 business days, while Worldwide orders typically arrive within 5-7 business days. Our logistics network is optimized for speed and safety, ensuring your items arrive in pristine condition.
                   </p>
                 </Accordion.Item>
                 <Accordion.Item title="How do I manage my membership?" value="membership">
@@ -128,7 +128,7 @@ const CustomerServiceTemplate = () => {
                 </Accordion.Item>
                 <Accordion.Item title="What is your return policy?" value="returns">
                   <p className="text-[14px] text-accent/60 leading-relaxed font-medium">
-                    We provide a 14-day window for returns and exchanges on all non-personalized items. Items must be returned in their original packaging with all tags attached. Please use our online portal to initiate a return request.
+                    All sales at The Health & Wealth Club are final. We maintain a strict no-refund and no-exchange policy to ensure the exclusivity and pristine condition of our collections. Please ensure all details are correct before finalizing your order.
                   </p>
                 </Accordion.Item>
                 <Accordion.Item title="Can I change my order after it's placed?" value="orders">
@@ -153,7 +153,7 @@ const CustomerServiceTemplate = () => {
               <div className="space-y-8 text-[14px] text-accent/60 leading-relaxed font-medium">
                  <div className="space-y-3 text-left">
                     <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Bespoke Logistics</h4>
-                    <p>Every Club order is handled with extreme care. We partner with DHL Express and FedEx Priority to ensure that your curated pieces are delivered with the speed and security they deserve.</p>
+                    <p>Every Club order is handled with extreme care. We partner with DHL Express and FedEx Priority to ensure that your curated pieces are delivered with the speed and security they deserve. GCC delivery: 3-5 days. Worldwide delivery: 5-7 days.</p>
                  </div>
                  <div className="space-y-3 text-left">
                     <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Tracking Your Order</h4>
@@ -169,16 +169,16 @@ const CustomerServiceTemplate = () => {
               <h3 className="font-newsreader italic text-4xl text-accent mb-8 tracking-tighter">Returns & Exchanges</h3>
               <div className="space-y-8 text-[14px] text-accent/60 leading-relaxed font-medium">
                  <div className="space-y-3 text-left">
-                    <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">The Return Window</h4>
-                    <p>We believe in the quality of our collection. However, if a piece does not meet your expectations, we offer a 14-day return window from the date of delivery.</p>
+                    <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Final Sale Policy</h4>
+                    <p>We believe in the exceptional quality of our collection. To maintain our artisanal standards, all purchases are considered final. We do not offer refunds or exchanges.</p>
                  </div>
                  <div className="space-y-3 text-left">
-                    <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Initiating a Return</h4>
-                    <p>To start a return, please visit the 'Orders' section in your account. Select the items you wish to return and print your complimentary shipping label.</p>
+                    <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Support Inquiry</h4>
+                    <p>If you believe there is a manufacturing defect with your piece, please contact our concierge team within 24 hours of delivery with photographic evidence for review.</p>
                  </div>
                  <div className="space-y-3 text-left">
-                    <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Conditions</h4>
-                    <p>Items must be in original, unworn condition with all tags and protective packaging intact. Bespoke or personalized items are final sale.</p>
+                    <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Exclusions</h4>
+                    <p>Items purchased during special collection drops or personalized pieces are strictly final sale and cannot be reviewed for return under any circumstances.</p>
                  </div>
               </div>
            </div>

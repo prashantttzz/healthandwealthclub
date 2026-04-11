@@ -23,10 +23,21 @@ const CountrySelect = forwardRef<
       return []
     }
 
-    return region.countries?.map((country) => ({
+    const gccCodes = ["ae", "sa", "qa", "kw", "bh", "om"]
+    
+    const options = region.countries?.map((country) => ({
       value: country.iso_2,
       label: country.display_name,
-    }))
+    })) || []
+
+    // Sort options to put GCC first
+    return [...options].sort((a, b) => {
+      const aGcc = gccCodes.includes(a.value || "")
+      const bGcc = gccCodes.includes(b.value || "")
+      if (aGcc && !bGcc) return -1
+      if (!aGcc && bGcc) return 1
+      return 0
+    })
   }, [region])
 
   return (

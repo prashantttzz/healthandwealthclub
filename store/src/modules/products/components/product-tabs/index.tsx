@@ -106,16 +106,16 @@ const ShippingInfoTab = () => {
         <div className="space-y-1">
           <span className="font-manrope text-[11px] tracking-widest uppercase font-semibold text-accent/80  leading-none">Global Logistics</span>
           <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
-            Complimentary shipping on all Experience orders. Delivered within 3-5 business days via our premium courier network.
+            Complimentary shipping on all Experience orders. GCC delivery: 3-5 business days. Worldwide delivery: 5-7 business days.
           </p>
         </div>
       </div>
       <div className="flex items-start gap-x-6">
         <div className="pt-1"><Refresh /></div>
         <div className="space-y-1">
-          <span className="font-manrope text-[11px] tracking-widest uppercase font-semibold text-accent/80  leading-none">Exchanges</span>
+          <span className="font-manrope text-[11px] tracking-widest uppercase font-semibold text-accent/80  leading-none">No Refunds & Exchanges</span>
           <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
-            If the fit does not meet your personal standards, we provide a seamless 14-day exchange window.
+            To maintain the exclusivity and pristine condition of our pieces, we do not offer refunds or exchanges. All sales are final.
           </p>
         </div>
       </div>

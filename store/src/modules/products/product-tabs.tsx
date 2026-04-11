@@ -6,8 +6,8 @@ import Refresh from "@modules/common/icons/refresh"
 import Package from "@modules/common/icons/package"
 import Medusa from "@modules/common/icons/medusa"
 
-import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
+import Accordion from "./components/product-tabs/accordion"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -106,7 +106,7 @@ const ShippingInfoTab = () => {
         <div className="space-y-1">
           <span className="font-manrope text-[11px] tracking-widest uppercase font-bold text-accent/80 italic leading-none">Global Logistics</span>
           <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
-            Complimentary shipping on all Experience orders. Delivered within 3-5 business days via our premium courier network.
+            Complimentary shipping on all Experience orders. GCC delivery: 3-5 business days. Worldwide delivery: 5-7 business days.
           </p>
         </div>
       </div>

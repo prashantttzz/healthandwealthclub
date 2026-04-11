@@ -124,6 +124,7 @@ const AddressBook: React.FC<AddressBookProps> = ({ customer, region }) => {
         onClose={() => setSidebarOpen(false)}
         addresses={addresses}
         addressToEdit={addressToEdit}
+        countries={region?.countries}
       />
     </div>
   )

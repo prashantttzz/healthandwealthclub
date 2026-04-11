@@ -9,6 +9,7 @@ import MobileActions from "../components/mobile-actions"
 import { listCategories } from "@lib/data/categories"
 import CustomOrderSection from "../../collections/components/custom-order-section"
 import { SortOptions } from "../components/refinement-list/sort-dropdown"
+import { getCollectionByHandle } from "@lib/data/collections"
 
 const StoreTemplate = async ({
   sortBy,
@@ -18,20 +19,28 @@ const StoreTemplate = async ({
   category,
   size,
   color,
+  collection,
   countryCode,
 }: {
   sortBy?: SortOptions
   page?: string
-
   search?: string
   category?: string
   size?: string
   color?: string
+  collection?: string
   countryCode: string
 }) => {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
   const categories = await listCategories()
+  let collectionId: string | undefined
+  let collectionTitle: string | undefined
+  if (collection) {
+    const col = await getCollectionByHandle(collection)
+    collectionId = col?.id
+    collectionTitle = col?.title
+  }
 
   return (
     <div className="flex flex-col bg-bg min-h-screen">
@@ -41,7 +50,8 @@ const StoreTemplate = async ({
           <Breadcrumb 
             items={[
               { label: "Home", href: "/" },
-              { label: "Collection" }
+              { label: "Collection", href: "/store" },
+              ...(collectionTitle ? [{ label: collectionTitle }] : [])
             ]} 
             className="py-5"
           />
@@ -67,6 +77,7 @@ const StoreTemplate = async ({
 
                 search={search}
                 categoryId={category}
+                collectionId={collectionId}
                 size={size}
                 color={color}
                 countryCode={countryCode}

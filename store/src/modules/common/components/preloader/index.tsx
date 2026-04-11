@@ -5,24 +5,27 @@ import { motion, AnimatePresence } from "framer-motion"
 import Image from "next/image"
 
 export default function Preloader() {
-  const [isLoading, setIsLoading] = useState(true)
+  const [isVisible, setIsVisible] = useState(false)
+  const [hasChecked, setHasChecked] = useState(false)
 
   useEffect(() => {
-    // Check if user has already seen the preloader in this session
     const hasSeen = sessionStorage.getItem("hasSeenPreloader")
+    
     if (hasSeen) {
-      setIsLoading(false)
-      document.body.style.overflow = "visible"
+      setHasChecked(true)
       return
     }
 
+    // First time in session
+    setIsVisible(true)
+    setHasChecked(true)
+    document.body.style.overflow = "hidden"
+
     const timer = setTimeout(() => {
-      setIsLoading(false)
+      setIsVisible(false)
       sessionStorage.setItem("hasSeenPreloader", "true")
       document.body.style.overflow = "visible"
-    }, 2000) // Increased to 2s to allow video buffer
-
-    document.body.style.overflow = "hidden"
+    }, 2000)
 
     return () => {
       clearTimeout(timer)
@@ -32,7 +35,7 @@ export default function Preloader() {
 
   return (
     <AnimatePresence mode="wait">
-      {isLoading && (
+      {isVisible && (
         <>
           {/* Luxury Frame - Replicated from your CSS */}
           <motion.div

@@ -15,11 +15,14 @@ type OrderCardProps = {
 }
 
 const OrderCard = ({ order }: OrderCardProps) => {
-  // Mock logic to determine current step based on Medusa status
   const getStepLevel = () => {
-    if (order.fulfillment_status === "shipped") return 3
-    if (order.fulfillment_status === "fulfilled") return 2
-    if (order.payment_status === "captured") return 1
+    const isShipped = ["shipped", "partially_shipped"].includes(order.fulfillment_status)
+    const isFulfilled = order.fulfillment_status === "fulfilled" || isShipped
+    const isValidated = ["captured", "authorized"].includes(order.payment_status)
+
+    if (isShipped) return 3
+    if (isFulfilled) return 2
+    if (isValidated) return 1
     return 0 // Default order placed
   }
 

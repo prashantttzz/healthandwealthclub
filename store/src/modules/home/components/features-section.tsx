@@ -17,7 +17,7 @@ const FEATURES = [
   {
     icon: <Truck className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
     title: "Delivery & Shipping",
-    description: "Your order will be dispatched within 1–2 business days and tracked directly to your door."
+    description: "GCC delivery within 3-5 business days. Worldwide delivery within 5-7 business days."
   },
   {
     icon: <Leaf className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
