@@ -74,7 +74,6 @@ const StoreTemplate = async ({
               <PaginatedProducts
                 sortBy={sort}
                 page={pageNumber}
-
                 search={search}
                 categoryId={category}
                 collectionId={collectionId}

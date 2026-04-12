@@ -1,6 +1,7 @@
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
+import { getProductPrice } from "@lib/util/get-product-price"
 
 export default function ProductPreview({
   product,
@@ -9,6 +10,9 @@ export default function ProductPreview({
   product: HttpTypes.StoreProduct
   isFeatured?: boolean
 }) {
+  const { cheapestPrice } = getProductPrice({
+    product,
+  })
   return (
     <LocalizedClientLink
       href={`/products/${product.handle}`}
@@ -43,7 +47,7 @@ export default function ProductPreview({
             </div>
             <div className="flex flex-col items-end">
               <div className="font-manrope text-[11px] md:text-sm font-bold text-accent">
-                {(product as any).variants?.[0]?.calculated_price?.calculated_amount || "$85"} EUR
+                {cheapestPrice?.calculated_price || "N/A"}
               </div>
             </div>
           </div>

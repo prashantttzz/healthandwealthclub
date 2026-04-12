@@ -51,7 +51,7 @@ export const listProducts = async ({
 
   const next = {
     ...(await getCacheOptions("products")),
-    revalidate: 3600,
+    revalidate: 0,
   }
 
   return sdk.client
@@ -64,12 +64,12 @@ export const listProducts = async ({
           offset,
           region_id: region?.id,
           fields:
-            "*variants.calculated_price,+variants.inventory_quantity,+variants.manage_inventory,*variants.images,+metadata,+tags,",
+            "*variants.calculated_price,+variants.inventory_quantity,+variants.manage_inventory,*variants.images,+metadata,+tags",
           ...queryParams,
         },
         headers,
         next,
-        cache: "force-cache",
+        cache: "no-store",
       }
     )
     .then(({ products, count }) => {

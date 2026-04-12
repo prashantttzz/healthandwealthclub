@@ -15,6 +15,7 @@ const SLIDES = [
     headingItalic: [true, false],
     cta: "Shop the Collection",
   },
+  /*
   {
     id: 1,
     type: "image" as const,
@@ -42,6 +43,7 @@ const SLIDES = [
     headingItalic: [false, true],
     cta: "Join The Club",
   },
+  */
 ]
 
 
@@ -83,6 +85,7 @@ const Hero = () => {
   }, [activeIndex])
 
   // --- Auto Advance Logic ---
+  /*
   const goToSlide = useCallback((index: number) => {
     setActiveIndex(index)
     setProgress(0)
@@ -94,9 +97,11 @@ const Hero = () => {
     setProgress(0)
     startTimeRef.current = Date.now()
   }, [])
+  */
 
   const currentInterval = SLIDES[activeIndex].type === "video" ? 8000 : 3000
 
+  /*
   useEffect(() => {
     if (intervalRef.current) clearInterval(intervalRef.current)
     if (progressRef.current) clearInterval(progressRef.current)
@@ -112,6 +117,7 @@ const Hero = () => {
       if (progressRef.current) clearInterval(progressRef.current)
     }
   }, [nextSlide, activeIndex, currentInterval])
+  */
 
   const slide = SLIDES[activeIndex]
 
@@ -201,6 +207,7 @@ const Hero = () => {
         style={{ opacity: controlsOpacity }}
         className="absolute bottom-20 left-0 right-0 z-20 flex flex-col items-center gap-8"
       >
+        {/* 
         <div className="flex items-center gap-4">
           {SLIDES.map((s, i) => (
             <button
@@ -212,6 +219,7 @@ const Hero = () => {
             </button>
           ))}
         </div>
+        */}
         {/* <div className="flex flex-col items-center gap-3">
           <motion.div 
             animate={{ y: [0, 10, 0] }}

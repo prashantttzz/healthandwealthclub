@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect } from "react"
-import { getAvailablePromotions } from "@lib/data/cart"
+import { getEligiblePromotions } from "@lib/data/promotion"
 import { Tag, X } from "lucide-react"
 
 const Ico = {
@@ -16,7 +16,10 @@ const CouponSidebar = ({ isOpen, onClose, onApply }: { isOpen: boolean, onClose:
 
   useEffect(() => {
     if (isOpen && promotions.length === 0) {
-      getAvailablePromotions().then(setPromotions)
+      setLoading(true)
+      getEligiblePromotions()
+        .then(setPromotions)
+        .finally(() => setLoading(false))
     }
   }, [isOpen])
 
@@ -41,10 +44,27 @@ const CouponSidebar = ({ isOpen, onClose, onApply }: { isOpen: boolean, onClose:
                 {promotions.map((promo: any) => (
                   <div key={promo.id} className="p-5 border border-accent/10 bg-black/[0.02]">
                     <div className="flex items-start justify-between gap-4">
-                      <div className="flex items-center gap-2 text-accent">{Ico.tag("w-4 h-4")}<span className="font-manrope text-[14px] font-bold tracking-widest">{promo.code}</span></div>
-                      <button onClick={async () => { setLoading(true); await onApply(promo.code); setLoading(false); onClose(); }} className="text-[11px] font-manrope font-bold uppercase tracking-[0.1em] text-accent underline underline-offset-4 hover:text-accent/60 transition-colors">Apply</button>
+                      <div className="flex items-center gap-2 text-accent">
+                        {Ico.tag("w-4 h-4")}
+                        <span className="font-manrope text-[14px] font-bold tracking-widest">{promo.code}</span>
+                      </div>
+                      <button 
+                        onClick={async () => { 
+                          setLoading(true); 
+                          await onApply(promo.code); 
+                          setLoading(false); 
+                          onClose(); 
+                        }} 
+                        className="text-[11px] font-manrope font-bold uppercase tracking-[0.1em] text-accent underline underline-offset-4 hover:text-accent/60 transition-colors"
+                      >
+                        Apply
+                      </button>
                     </div>
-                    <p className="font-manrope text-[12px] text-accent/50 mt-3 leading-relaxed">{promo.description || promo.name}</p>
+                    {(promo.application_method?.description || promo.name) && (
+                      <p className="font-manrope text-[12px] text-accent/50 mt-3 leading-relaxed">
+                        {promo.application_method?.description || promo.name}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

@@ -539,26 +539,4 @@ export async function listCartOptions() {
   })
 }
 
-export async function getAvailablePromotions() {
-  // If Medusa API key is provided, we can fetch from Admin API
-  // Otherwise, we return fallback data so the storefront functions properly
-  const apiKey = process.env.MEDUSA_API_KEY
-  if (apiKey) {
-    try {
-      const response = await fetch(`${process.env.MEDUSA_BACKEND_URL}/admin/promotions`, {
-        headers: { "Authorization": `Bearer ${apiKey}` },
-        cache: "no-store"
-      })
-      if (response.ok) {
-        const data = await response.json()
-        return data.promotions || []
-      }
-    } catch (e) {
-      console.warn("Failed to fetch admin promotions:", e)
-    }
-  }
 
-  // Fallback dynamic coupons, representing what the API might return
-  // Returning empty array so only backend-configured coupons are visible
-  return []
-}

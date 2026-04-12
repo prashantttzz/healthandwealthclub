@@ -46,7 +46,7 @@ export default async function Home(props: {
       <Preloader />
       <Hero />
       <ParallaxContentWrapper>
-        <InauguralDrop products={products} />
+        <InauguralDrop products={products.slice(0, 4)} />
         <LuxurySection />
         <ProductSection products={products} />
         <CollectionSection collections={collections} />
