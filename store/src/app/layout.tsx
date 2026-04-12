@@ -50,7 +50,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
     >
 
       <head>
-        {/* ✅ Loader styles injected before anything renders */}
         <style dangerouslySetInnerHTML={{
           __html: `
             #hard-loader {
@@ -68,37 +67,44 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               align-items: center;
               justify-content: center;
               overflow: hidden;
+              opacity: 0;
+              animation: fadeIn 1.2s ease-out 0.3s forwards;
             }
             #hard-loader img {
               width: 80%;
               max-width: 500px;
-              opacity: 0;
-              animation: fadeIn 1.2s ease-out 0.3s forwards;
+              display: block;
             }
             .shimmer {
               position: absolute;
-              top: 0;
-              left: -150%;
-              width: 100%;
-              height: 100%;
+              inset: 0;
               background: linear-gradient(
-                90deg,
-                transparent,
-                rgba(255, 255, 255, 0.15),
-                transparent
+                110deg,
+                transparent 30%,
+                rgba(255, 255, 255, 0.45) 50%,
+                transparent 70%
               );
-              transform: skewX(-20deg);
-              animation: shimmer 2.5s infinite;
+              background-size: 200% 100%;
+              background-position: 200% 0;
+              animation: shimmer 3s infinite linear;
               pointer-events: none;
+              /* Standard Alpha Mask for transparent PNG */
+              -webkit-mask-image: url('/preloader.png');
+              -webkit-mask-size: contain;
+              -webkit-mask-repeat: no-repeat;
+              -webkit-mask-position: center;
+              mask-image: url('/preloader.png');
+              mask-size: contain;
+              mask-repeat: no-repeat;
+              mask-position: center;
             }
             @keyframes fadeIn {
               from { opacity: 0; transform: scale(0.95); }
               to { opacity: 1; transform: scale(1); }
             }
             @keyframes shimmer {
-              0% { left: -150%; }
-              50% { left: 150%; }
-              100% { left: 150%; }
+              0% { background-position: 200% 0; }
+              100% { background-position: -200% 0; }
             }
             @media (min-width: 768px) {
               #hard-loader img {
@@ -117,7 +123,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           `
         }} />
 
-        {/* ✅ Runs synchronously before body — zero flicker */}
         <script dangerouslySetInnerHTML={{
           __html: `
             (function() {
@@ -133,7 +138,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               content.className = 'loader-content';
 
               var img = document.createElement('img');
-              img.src = '/loader.webp';
+              img.src = '/preloader.png';
               img.alt = 'The Health & Wealth Club';
 
               var shimmer = document.createElement('div');

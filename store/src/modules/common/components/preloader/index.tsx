@@ -7,7 +7,7 @@ export default function Preloader() {
     const hasSeen = sessionStorage.getItem("hasSeenPreloader")
     if (hasSeen) return
 
-    const MIN_DISPLAY = 4000
+    const MIN_DISPLAY = 2500
 
 
     const hide = () => {
