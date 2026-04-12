@@ -3,26 +3,49 @@ import { getPercentageDiff } from "./get-percentage-diff"
 import { convertToLocale } from "./money"
 
 export const getPricesForVariant = (variant: any) => {
-  if (!variant?.calculated_price?.calculated_amount) {
-    return null
+  const calculatedPrice = variant?.calculated_price
+
+  if (!calculatedPrice?.calculated_amount) {
+    // Fallback to the first available price if calculated_price is missing (e.g., for seed products in a new region)
+    const fallbackPrice = variant?.prices?.[0]
+    
+    if (!fallbackPrice) {
+      return null
+    }
+
+    return {
+      calculated_price_number: fallbackPrice.amount,
+      calculated_price: convertToLocale({
+        amount: fallbackPrice.amount,
+        currency_code: fallbackPrice.currency_code,
+      }),
+      original_price_number: fallbackPrice.amount,
+      original_price: convertToLocale({
+        amount: fallbackPrice.amount,
+        currency_code: fallbackPrice.currency_code,
+      }),
+      currency_code: fallbackPrice.currency_code,
+      price_type: "default",
+      percentage_diff: "0",
+    }
   }
 
   return {
-    calculated_price_number: variant.calculated_price.calculated_amount,
+    calculated_price_number: calculatedPrice.calculated_amount,
     calculated_price: convertToLocale({
-      amount: variant.calculated_price.calculated_amount,
-      currency_code: variant.calculated_price.currency_code,
+      amount: calculatedPrice.calculated_amount,
+      currency_code: calculatedPrice.currency_code,
     }),
-    original_price_number: variant.calculated_price.original_amount,
+    original_price_number: calculatedPrice.original_amount,
     original_price: convertToLocale({
-      amount: variant.calculated_price.original_amount,
-      currency_code: variant.calculated_price.currency_code,
+      amount: calculatedPrice.original_amount,
+      currency_code: calculatedPrice.currency_code,
     }),
-    currency_code: variant.calculated_price.currency_code,
-    price_type: variant.calculated_price.calculated_price.price_list_type,
+    currency_code: calculatedPrice.currency_code,
+    price_type: calculatedPrice.calculated_price?.price_list_type || "default",
     percentage_diff: getPercentageDiff(
-      variant.calculated_price.original_amount,
-      variant.calculated_price.calculated_amount
+      calculatedPrice.original_amount,
+      calculatedPrice.calculated_amount
     ),
   }
 }
