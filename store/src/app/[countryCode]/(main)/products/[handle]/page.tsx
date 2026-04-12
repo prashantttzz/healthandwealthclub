@@ -4,7 +4,6 @@ import { notFound } from "next/navigation"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
-import { HttpTypes } from "@medusajs/types"
 
 import RelatedProducts from "@modules/products/components/related-products"
 import { Suspense } from "react"

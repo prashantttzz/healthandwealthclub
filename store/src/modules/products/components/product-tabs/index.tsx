@@ -4,10 +4,10 @@ import Back from "@modules/common/icons/back"
 import FastDelivery from "@modules/common/icons/fast-delivery"
 import Refresh from "@modules/common/icons/refresh"
 import Package from "@modules/common/icons/package"
-import Medusa from "@modules/common/icons/medusa"
 
 import Accordion from "./accordion"
 import { HttpTypes } from "@medusajs/types"
+import { Bolt } from "lucide-react"
 
 type ProductTabsProps = {
   product: HttpTypes.StoreProduct
@@ -23,7 +23,7 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
     {
       label: "The Experience",
       component: <EthosTab />,
-      icon: <Medusa size={16} />,
+      icon: <Bolt size={16} />,
     },
     {
       label: "Shipping & Returns",

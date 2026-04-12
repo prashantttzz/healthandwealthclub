@@ -9,8 +9,8 @@ import { isEqual } from "lodash"
 import { clx } from "@medusajs/ui"
 import { useCart } from "@lib/context/cart-context"
 import { useUI } from "@lib/context/ui-context"
-import { useIntersection } from "@lib/hooks/use-in-view"
 import { getProductPrice } from "@lib/util/get-product-price"
+import { getColorHex } from "@lib/util/get-color-hex"
 import CraftsmanshipSection from "../components/craftsmanship-section"
 import ProductTabs from "../components/product-tabs"
 import ProductReviews from "../components/product-reviews"
@@ -24,10 +24,12 @@ type ProductTemplateProps = {
 }
 
 const optionsAsKeymap = (variantOptions: HttpTypes.StoreProductVariant["options"]) => {
-  return variantOptions?.reduce((acc: Record<string, string>, varopt: any) => {
-    acc[varopt.option_id] = varopt.value
-    return acc
-  }, {})
+  return (
+    variantOptions?.reduce((acc: Record<string, string>, varopt: any) => {
+      acc[varopt.option_id] = varopt.value
+      return acc
+    }, {} as Record<string, string>) || {}
+  )
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
@@ -44,7 +46,6 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const { openCartSidebar } = useUI()
   const [isAdding, setIsAdding] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
-
   useEffect(() => {
     if (product.variants && product.variants.length > 0) {
       const variantFromUrl = product.variants.find(v => v.id === searchParams.get("v_id"))
@@ -58,6 +59,36 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     if (!product.variants) return
     return product.variants.find((v) => isEqual(optionsAsKeymap(v.options), options))
   }, [product.variants, options])
+
+  // Function to check if a specific option value combination is available (has stock)
+  const isOptionAvailable = (optionId: string, value: string) => {
+    if (!product.variants) return false
+    
+    // Try to find ANY variant that has this value and is in stock
+    const isAvailable = product.variants.some(v => {
+      // Must match the current other selected options
+      const variantOptions = optionsAsKeymap(v.options)
+      
+      // Filter out variants that don't match OTHER currently selected options
+      const matchesOtherOptions = Object.entries(options).every(([key, val]) => {
+        if (key === optionId) return true // Ignore the option we are testing
+        return variantOptions[key] === val
+      })
+
+      if (!matchesOtherOptions) return false
+
+      // Check if this variant has this specific value
+      if (variantOptions[optionId] !== value) return false
+
+      // Check stock
+      const manageInventory = v.manage_inventory ?? false
+      const inventoryQuantity = v.inventory_quantity ?? 0
+
+      return !manageInventory || inventoryQuantity > 0
+    })
+
+    return isAvailable
+  }
 
   const isValidVariant = !!selectedVariant
 
@@ -197,38 +228,51 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     <div className="flex flex-wrap gap-3">
                       {(option.values || []).map((v) => {
                         const isSelected = v.value === current
+                        const isAvailable = isOptionAvailable(option.id, v.value)
+
                         if (isColor) {
-                          const colorMap: Record<string, string> = {
-                            olive: "#3E4437",
-                            black: "#1a1a1a",
-                            cream: "#E8E4D9",
-                            white: "#FFFFFF",
-                            tan: "#C4A484",
-                          }
-                          const colorHex = colorMap[v.value.toLowerCase()] || "#cccccc"
+                          const colorHexFromMetadata = (v.metadata?.visual as string) || (v.metadata?.hex as string) || (v.metadata?.color as string)
+                          const colorHex = colorHexFromMetadata || getColorHex(v.value)
                           return (
                             <button
                               key={v.id}
+                              disabled={!isAvailable}
                               onClick={() => updateOption(option.id, v.value)}
                               className={clx("w-10 h-10 border transition-all relative flex items-center justify-center", {
                                 "border-accent scale-110": isSelected,
-                                "border-accent/10 hover:border-accent/30": !isSelected,
+                                "border-accent/10 hover:border-accent/30": !isSelected && isAvailable,
+                                "opacity-40 cursor-not-allowed grayscale-[0.6] border-black/5": !isAvailable,
                               })}
+                              title={v.value + (!isAvailable ? " (Out of Stock)" : "")}
                             >
                               <div className="w-9 h-9 shadow-inner border border-black/5" style={{ backgroundColor: colorHex }} />
+                              {!isAvailable && (
+                                <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                  <div className="w-[120%] h-[2px] bg-red-500/80 rotate-45 absolute" />
+                                  <div className="w-[120%] h-[2px] bg-red-500/80 -rotate-45 absolute" />
+                                </div>
+                              )}
                             </button>
                           )
                         }
                         return (
                           <button
                             key={v.id}
+                            disabled={!isAvailable}
                             onClick={() => updateOption(option.id, v.value)}
-                            className={clx("relative  px-5  py-3 text-[13px] font-manrope tracking-widest uppercase transition-all", {
+                            className={clx("relative px-5 py-3 text-[13px] font-manrope tracking-widest uppercase transition-all", {
                               "text-accent font-bold border-b-2 border-black bg-accent/10 ": isSelected,
-                              "text-accent/30 hover:text-accent/60 border-b border-black/30": !isSelected,
+                              "text-accent/30 hover:text-accent/60 border-b border-black/30": !isSelected && isAvailable,
+                              "opacity-50 cursor-not-allowed": !isAvailable,
                             })}
                           >
-                            {v.value}
+                            <span className={clx({ "opacity-40": !isAvailable })}>{v.value}</span>
+                            {!isAvailable && (
+                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                <div className="w-[120%] h-[2px] bg-red-500/80 rotate-45 absolute" />
+                                <div className="w-[120%] h-[2px] bg-red-500/80 -rotate-45 absolute" />
+                              </div>
+                            )}
                           </button>
                         )
                       })}

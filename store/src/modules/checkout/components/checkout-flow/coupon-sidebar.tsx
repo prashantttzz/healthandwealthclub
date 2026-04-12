@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react"
 import { getEligiblePromotions } from "@lib/data/promotion"
+import { useCart } from "@lib/context/cart-context"
 import { Tag, X } from "lucide-react"
 
 const Ico = {
@@ -10,18 +11,23 @@ const Ico = {
 }
 
 const CouponSidebar = ({ isOpen, onClose, onApply }: { isOpen: boolean, onClose: () => void, onApply: (code: string) => void }) => {
+  const { cart } = useCart()
   const [promotions, setPromotions] = useState<any[]>([])
   const [loading, setLoading] = useState(false)
+  const [hasFetched, setHasFetched] = useState(false)
   const [customCode, setCustomCode] = useState("")
 
   useEffect(() => {
-    if (isOpen && promotions.length === 0) {
+    if (isOpen && !hasFetched) {
       setLoading(true)
-      getEligiblePromotions()
-        .then(setPromotions)
+      getEligiblePromotions(cart?.id)
+        .then(res => {
+           setPromotions(res)
+           setHasFetched(true)
+        })
         .finally(() => setLoading(false))
     }
-  }, [isOpen])
+  }, [isOpen, hasFetched, cart?.id])
 
   return (
     <>
