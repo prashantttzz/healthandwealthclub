@@ -135,7 +135,7 @@ export default function ClubFooter() {
                 </p>
                 
                 <div className="flex gap-4 pt-4">
-                  {[
+                  {/* {[
                     { icon: Instagram, href: "https://www.instagram.com/thehealthywealthclub?igsh=MTFjd2h0MjBvMGF1cw==" },
                     { icon: WhatsappFreeIcons, href: "#" },
                     { icon: Mail, href: "mailto:contact@healthandwealth.club" }
@@ -149,7 +149,7 @@ export default function ClubFooter() {
                     >
                       <HugeiconsIcon icon={social.icon} size={20} />
                     </motion.a>
-                  ))}
+                  ))} */}
                 </div>
               </div>
             </motion.div>
