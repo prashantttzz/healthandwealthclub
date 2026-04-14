@@ -148,6 +148,10 @@ const Hero = () => {
                 loop
                 muted
                 playsInline
+                webkit-playsinline="true"
+                controls={false}
+                disablePictureInPicture
+                disableRemotePlayback
                 className="w-full h-full object-cover opacity-80"
               >
                 <source src={slide.src} type="video/mp4" />

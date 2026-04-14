@@ -21,12 +21,14 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
       <div className="w-full mx-auto flex-1 flex flex-col">
         <div className="flex flex-col lg:flex-row gap-0 items-start">
           {/* Sidebar */}
-          <div className="w-full lg:w-[320px] shrink-0 bg-accent lg:min-h-screen">
-            {customer && <AccountNav customer={customer} />}
-          </div>
+          {customer && (
+            <div className="w-full lg:w-[320px] shrink-0 bg-accent lg:min-h-screen">
+              <AccountNav customer={customer} />
+            </div>
+          )}
           
           {/* Content Area */}
-          <div className="flex-1 w-full min-w-0 px-6 md:px-12 lg:px-16 py-12 lg:py-20">
+          <div className={`flex-1 w-full min-w-0 px-6 md:px-12 lg:px-16 py-12 lg:py-20 ${!customer ? "flex justify-center items-center h-full" : ""}`}>
             {children}
           </div>
         </div>

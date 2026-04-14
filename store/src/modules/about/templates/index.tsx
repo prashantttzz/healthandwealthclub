@@ -42,7 +42,7 @@ const AboutUsTemplate = () => {
                   Working with us means aligning with a brand that values authenticity, cultural nuance, and uncompromising quality, a partnership that elevates both style and mindset.
                 </p>
                 <p className="text-sm lg:text-lg text-[#111111]/70 leading-relaxed font-regular max-w-xl">
-                  We also offer custom-made pieces upon request, whether in large or small quantities, ensuring every detail reflects the ambition of our members.
+                  We also offer custom made pieces upon request, whether in large or small quantities, ensuring every detail reflects the ambition of our members.
                 </p>
               </div>
             </motion.div>

@@ -12,17 +12,17 @@ const FEATURES = [
   {
     icon: <ShieldCheck className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
     title: "Warranty Included",
-    description: "Every piece comes with a hassle-free 6-month warranty. Quality you can trust, guaranteed."
+    description: "Every piece comes with a hassle-free 6 month warranty. Quality you can trust, guaranteed."
   },
   {
     icon: <Truck className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
     title: "Delivery & Shipping",
-    description: "GCC delivery within 3-5 business days. Worldwide delivery within 5-7 business days."
+    description: "GCC delivery within 3 to 5 business days. Worldwide delivery within 5 to 7 business days."
   },
   {
     icon: <Leaf className="w-7 h-7 text-accent/60" strokeWidth={1.2} />,
-    title: "Eco-Friendly Fabrics",
-    description: "Crafted from certified eco-friendly materials, built to last and kind to the environment."
+    title: "Eco Friendly Fabrics",
+    description: "Crafted from certified eco friendly materials, built to last and kind to the environment."
   }
 ]
 

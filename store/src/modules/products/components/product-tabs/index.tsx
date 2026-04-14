@@ -144,7 +144,7 @@ const SizeGuideTab = ({ type = "tshirt" }: { type?: "tshirt" | "jacket" | "hoodi
     <div className="py-2 space-y-6">
       <div className="space-y-4">
         <h4 className="font-manrope text-[10px] tracking-[0.2em] uppercase font-semibold text-accent space-x-2">
-          <span>{type === "hoodie" ? "Hoodie" : (type === "jacket" ? "Jacket" : (type === "pants" ? "Pants" : "T-Shirt"))}</span>
+          <span>{type === "hoodie" ? "Hoodie" : (type === "jacket" ? "Jacket" : (type === "pants" ? "Pants" : "T Shirt"))}</span>
           <span>Measurements (Inches)</span>
         </h4>
         <div className="overflow-x-auto">
@@ -216,7 +216,7 @@ const ShippingInfoTab = () => {
         <div className="space-y-1">
           <span className="font-manrope text-[11px] tracking-widest uppercase font-semibold text-accent/80  leading-none">Global Logistics</span>
           <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
-            Complimentary shipping on all Experience orders. GCC delivery: 3-5 business days. Worldwide delivery: 5-7 business days.
+            Complimentary shipping on all Experience orders. GCC delivery: 3 to 5 business days. Worldwide delivery: 5 to 7 business days.
           </p>
         </div>
       </div>

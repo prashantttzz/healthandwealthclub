@@ -44,10 +44,11 @@ const itemVariants = {
 }
 
 const MENU_LINKS = [
-  { name: "Home", href: "/" },
-  { name: "Collections", href: "/store" },
-  { name: "about us", href: "/about" },
-  { name: "the Club", href: "/club" },
+  { name: "HOME", href: "/" },
+  { name: "COLLECTIONS", href: "/store" },
+  { name: "ABOUT US", href: "/#about-us" },
+  { name: "WORK WITH US", href: "/#collaborate" },
+  { name: "THE CLUB", href: "/club" },
 ]
 
 export default function MobileMenu({ 
@@ -82,7 +83,14 @@ export default function MobileMenu({
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-16 border-b border-black/5">
-            <Image className="" src={"/main-logo.png"} alt="logo" height={150} width={150}/>
+              <a 
+                href="https://www.instagram.com/thehealthywealthclub?igsh=MTFjd2h0MjBvMGF1cw==" 
+                target="_blank" 
+                rel="noopener noreferrer"
+                className="flex-shrink-0"
+              >
+                <Image className="" src={"/main-logo.png"} alt="logo" height={150} width={150}/>
+              </a>
               <button 
                 onClick={onClose}
                 className="p-2 -mr-2 text-accent hover:rotate-90 transition-transform duration-300"

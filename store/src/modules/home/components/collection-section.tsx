@@ -15,7 +15,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
     { 
       title: "OUR\nSTORY", 
       sub: "The Mission",
-      description: "Born from an engineer's obsession with precision and quality, The Health & Wealth Club was created to redefine luxury—without the luxury price tag. We believe feeling wealthy isn't about status, it's about substance: premium fabrics, timeless design, and the quiet confidence of knowing you belong to something greater. This isn't just clothing. It's a lifestyle.",
+      description: "Born from an engineer's obsession with precision and quality, The Health & Wealth Club was created to redefine luxury without the luxury price tag. We believe feeling wealthy isn't about status, it's about substance: premium fabrics, timeless design, and the quiet confidence of knowing you belong to something greater. This isn't just clothing. It's a lifestyle.",
       id: "about-us",
       buttonText:"Join the club",
       link:"https://www.instagram.com/thehealthywealthclub?igsh=MTFjd2h0MjBvMGF1cw==",
@@ -42,7 +42,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
     { 
       title: "WORKING\nWITH US", 
       sub: "The Movement",
-      description: "It means joining a movement that redefines luxury. At The Health & Wealth Club, we blend engineering precision with fashion artistry to deliver clothing that feels exclusive yet accessible. Working with us means aligning with a brand that values authenticity, cultural nuance, and uncompromising quality, a partnership that elevates both style and mindset. We also offer custom-made pieces upon request, whether in large or small quantities.",
+      description: "It means joining a movement that redefines luxury. At The Health & Wealth Club, we blend engineering precision with fashion artistry to deliver clothing that feels exclusive yet accessible. Working with us means aligning with a brand that values authenticity, cultural nuance, and uncompromising quality, a partnership that elevates both style and mindset. We also offer custom made pieces upon request, whether in large or small quantities.",
       buttonText:"connect",
       link:"/about",
       id: "collaborate",

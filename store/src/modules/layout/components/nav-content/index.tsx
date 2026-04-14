@@ -159,7 +159,7 @@ export default function NavContent({
                 Collection
               </LocalizedClientLink>
               <LocalizedClientLink 
-                href="/about" 
+                href="/#about-us" 
                 className="hover:opacity-60 transition-opacity h-full flex items-center px-4"
                 onMouseEnter={() => setHoveredItem("about")}
               >
@@ -292,11 +292,11 @@ export default function NavContent({
                     <div className="flex-1">
                       <h4 className="font-newsreader italic text-4xl text-accent mb-4">Welcome to The Club</h4>
                       <p className="font-manrope text-[13px] text-accent/50 max-w-xl leading-relaxed">
-                        Explore the inaugural drop and our seasonal edits. Crafted for the intentional. Join our community of like-minded individuals.
+                        Explore the inaugural drop and our seasonal edits. Crafted for the intentional. Join our community of like minded individuals.
                       </p>
                       <div className="mt-8 flex gap-4">
                         <LocalizedClientLink href="/store" className="px-8 py-3 bg-accent text-bg font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-black transition-colors">Shop Now</LocalizedClientLink>
-                        <LocalizedClientLink href="/about" className="px-8 py-3 border border-accent text-accent font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-accent hover:text-bg transition-colors">Our Ethos</LocalizedClientLink>
+                        <LocalizedClientLink href="/#about-us" className="px-8 py-3 border border-accent text-accent font-manrope text-[10px] uppercase font-bold tracking-widest hover:bg-accent hover:text-bg transition-colors">Our Story</LocalizedClientLink>
                       </div>
                     </div>
                     
@@ -329,10 +329,10 @@ export default function NavContent({
                         We believe in a life of balance. Our mission is to provide the tools for a healthier body and a wealthier mind.
                       </p>
                       <div className="grid grid-cols-2 gap-8 text-[11px] font-bold tracking-[0.25em] uppercase font-manrope text-accent/40 mt-10">
-                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Our Vision</LocalizedClientLink>
-                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Sustainability</LocalizedClientLink>
-                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Manufacturing</LocalizedClientLink>
-                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Member Perks</LocalizedClientLink>
+                        <LocalizedClientLink href="/#about-us" className="hover:text-accent transition-colors underline underline-offset-8">Our Vision</LocalizedClientLink>
+                        <LocalizedClientLink href="/#about-us" className="hover:text-accent transition-colors underline underline-offset-8">Sustainability</LocalizedClientLink>
+                        <LocalizedClientLink href="/#collaborate" className="hover:text-accent transition-colors underline underline-offset-8">Manufacturing</LocalizedClientLink>
+                        <LocalizedClientLink href="/#collaborate" className="hover:text-accent transition-colors underline underline-offset-8">Working with us</LocalizedClientLink>
                       </div>
                     </div>
                     <div className="w-[400px] flex flex-col gap-4">

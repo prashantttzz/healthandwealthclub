@@ -119,7 +119,6 @@ export default function ClubFooter() {
               </div>
             </motion.div>
 
-            {/* Column 2: Shop */}
             <motion.div
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
               className="flex flex-col items-start space-y-5 text-left"
@@ -127,7 +126,7 @@ export default function ClubFooter() {
               <h4 className="font-newsreader italic text-lg text-white/90">Shop</h4>
               <ul className="flex flex-col gap-3">
                 {[
-                  { label: "Collection", href: "/shop" },
+                  { label: "Collection", href: "/store" },
                   { label: "New Arrivals", href: "/new-arrivals" },
                   { label: "Best Sellers", href: "/best-sellers" },
                 ].map((link) => (
@@ -151,8 +150,8 @@ export default function ClubFooter() {
               <h4 className="font-newsreader italic text-lg text-white/90">Club Support</h4>
               <ul className="flex flex-col gap-3">
                 {[
-                  { label: "Our Ethos", href: "/about" },
-                  { label: "Get in Touch", href: "/customer-service#contact" },
+                  { label: "About Us", href: "/#about-us" },
+                  { label: "Work with us", href: "/#collaborate" },
                   { label: "Shipping", href: "/customer-service#shipping" },
                   { label: "Privacy", href: "/customer-service#privacy" },
                   { label: "Terms", href: "/customer-service#terms" },
