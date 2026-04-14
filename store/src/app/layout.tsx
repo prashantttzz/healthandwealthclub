@@ -91,7 +91,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               pointer-events: none;
               z-index: 100000;
               opacity: 0;
-              animation: fadeIn 1s ease-out forwards;
+              animation: fadeIn 0.5s ease-out forwards;
             }
           `
         }} />

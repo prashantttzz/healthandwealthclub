@@ -6,6 +6,7 @@ import Image from "next/image";
 import { ArrowRight } from "lucide-react";
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
 import { HttpTypes } from "@medusajs/types";
+import LocalizedPrice from "@modules/common/components/localized-price";
 
 const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
   const image = product.thumbnail || product.images?.[0]?.url || "";
@@ -18,9 +19,6 @@ const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
       return calc ? [calc.calculated_amount as number] : []
     })
     .sort((a, b) => a - b)[0]
-
-  const currency =
-    (product.variants?.[0] as any)?.calculated_price?.currency_code?.toUpperCase() ?? "AED"
 
   return (
     <motion.div
@@ -85,7 +83,7 @@ const ProductCard = ({ product }: { product: HttpTypes.StoreProduct }) => {
             {/* Price */}
             {price !== undefined && (
               <span className="font-manrope text-[14px] font-semibold text-accent">
-                {currency} {price.toFixed(2)}
+                <LocalizedPrice amount={price}/>
               </span>
             )}
          

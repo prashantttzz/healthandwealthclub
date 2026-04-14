@@ -6,10 +6,13 @@ import { HugeiconsIcon } from "@hugeicons/react";
 import { Instagram, Mail, WhatsappFreeIcons, ArrowUpRight01Icon } from "@hugeicons/core-free-icons";
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
 import Image from "next/image";
+import { useRegion } from "@lib/context/region-context";
+import ReactCountryFlag from "react-country-flag";
 
 export default function ClubFooter() {
   const containerRef = useRef<HTMLDivElement>(null);
   const [isMobile, setIsMobile] = useState(false);
+  const { region, countryCode } = useRegion();
 
   useEffect(() => {
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
@@ -201,16 +204,23 @@ export default function ClubFooter() {
             <div className="flex flex-col items-center gap-4 text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase">
               <span>© 2026 THE HEALTH & WEALTH CLUB</span>
             </div>
-            <motion.div
-              whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
-              className="flex items-center gap-4 px-6 py-3 border border-white/10 rounded-full cursor-pointer transition-all"
+            <div
+              className="flex items-center gap-4 px-6 py-3 border border-white/10 rounded-full transition-all"
             >
-              <span className="text-base grayscale hover:grayscale-0 transition-all">🇦🇪</span>
+              <ReactCountryFlag
+                svg
+                style={{
+                  width: "20px",
+                  height: "20px",
+                }}
+                countryCode={region?.countries?.find(c => c.iso_2 === countryCode)?.iso_2 || countryCode}
+              />
               <div className="flex flex-col items-start leading-none gap-1">
-                <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase italic">UAE — AED</span>
+                <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase italic">
+                  {region?.countries?.find(c => c.iso_2 === countryCode)?.display_name || "Region"} — {region?.currency_code?.toUpperCase()}
+                </span>
               </div>
-              <HugeiconsIcon icon={ArrowUpRight01Icon} size={12} className="text-white/20 rotate-45" />
-            </motion.div>
+            </div>
           </div>
         </div>
       </footer>

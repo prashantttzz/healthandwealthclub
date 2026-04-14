@@ -5,8 +5,10 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowUpRight01Icon } from "@hugeicons/core-free-icons"
 import Image from "next/image"
 import { motion } from "framer-motion"
+import LocalizedPrice from "@modules/common/components/localized-price"
 
 export default function CustomOrderSection() {
+  
   return (
     <section className="relative w-full bg-accent overflow-hidden mt-24 py-10 flex flex-col items-center">
       {/* Background Decorative Element */}
@@ -105,7 +107,7 @@ export default function CustomOrderSection() {
 
               <div className="flex flex-col gap-1">
                 <span className="font-newsreader italic text-lg text-white/80">
-                  Customization starts from AED 8,500
+                  Customization starts from <LocalizedPrice amount={100}/>
                 </span>
                 <span className="font-manrope text-[9px] font-bold tracking-[0.2em] uppercase text-white/30">
                   *Delivery within 21 business days

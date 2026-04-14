@@ -9,9 +9,12 @@ import {
   WhatsappFreeIcons, 
   Cancel01Icon 
 } from "@hugeicons/core-free-icons"
+import { useEffect } from "react"
 import { usePathname } from "next/navigation"
-import { clx } from "@medusajs/ui"
+import { Text, clx } from "@medusajs/ui"
 import Image from "next/image"
+import ReactCountryFlag from "react-country-flag"
+import { useRegion } from "@lib/context/region-context"
 
 const menuVariants = {
   closed: {
@@ -59,6 +62,18 @@ export default function MobileMenu({
   onClose: () => void 
 }) {
   const pathname = usePathname()
+  const { region, countryCode } = useRegion()
+
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = "hidden"
+    } else {
+      document.body.style.overflow = "auto"
+    }
+    return () => {
+      document.body.style.overflow = "auto"
+    }
+  }, [isOpen])
 
   return (
     <AnimatePresence>
@@ -79,7 +94,7 @@ export default function MobileMenu({
             initial="closed"
             animate="open"
             exit="closed"
-            className="fixed inset-y-0 left-0 z-[1000] w-[80vw] bg-bg shadow-2xl pointer-events-auto flex flex-col"
+            className="fixed inset-y-0 left-0 z-[1000] w-[80vw] bg-bg shadow-2xl pointer-events-auto flex flex-col h-[100dvh]"
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-16 border-b border-black/5">
@@ -148,20 +163,41 @@ export default function MobileMenu({
                   <p className="font-manrope text-[10px] tracking-[0.4em] uppercase font-bold text-accent/30">
                     Connect With Us
                   </p>
-                  <div className="flex gap-6">
-                    {[
-                      { icon: Instagram, href: "#" },
-                      { icon: WhatsappFreeIcons, href: "#" },
-                      { icon: Mail, href: "mailto:contact@healthandwealth.club" }
-                    ].map((social, i) => (
-                      <a 
-                        key={i}
-                        href={social.href}
-                        className="text-accent hover:opacity-60 transition-opacity duration-300"
-                      >
-                        <HugeiconsIcon icon={social.icon} size={20} />
-                      </a>
-                    ))}
+                  <div className="flex justify-between items-center">
+                    <div className="flex gap-6">
+                      {[
+                        { icon: Instagram, href: "#" },
+                        { icon: WhatsappFreeIcons, href: "#" },
+                        { icon: Mail, href: "mailto:contact@healthandwealth.club" }
+                      ].map((social, i) => (
+                        <a 
+                          key={i}
+                          href={social.href}
+                          className="text-accent hover:opacity-60 transition-opacity duration-300"
+                        >
+                          <HugeiconsIcon icon={social.icon} size={20} />
+                        </a>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="pt-8 border-t border-black/5">
+                  <p className="font-manrope text-[10px] tracking-[0.4em] uppercase font-bold text-accent/30 mb-4">
+                    Shipping to
+                  </p>
+                  <div className="flex items-center gap-x-2">
+                    <ReactCountryFlag
+                      svg
+                      style={{
+                        width: "18px",
+                        height: "18px",
+                      }}
+                      countryCode={countryCode}
+                    />
+                    <Text className="text-accent font-medium uppercase text-sm">
+                      {region?.countries?.find(c => c.iso_2 === countryCode)?.display_name} — {region?.currency_code?.toUpperCase()}
+                    </Text>
                   </div>
                 </div>
               </motion.div>
