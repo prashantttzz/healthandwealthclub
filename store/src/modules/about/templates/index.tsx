@@ -8,7 +8,7 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 
 const AboutUsTemplate = () => {
   return (
-    <div className="bg-[#FDFBF7] min-h-screen text-[#111111] overflow-hidden font-manrope selection:bg-[#1A2F23] selection:text-[#FDFBF7]">
+    <div className="bg-bg min-h-screen text-accent overflow-hidden font-manrope selection:bg-[#1A2F23] selection:text-[#FDFBF7]">
       {/* 1. HERO / MOVEMENT SECTION */}
       <section className="min-h-screen flex flex-col justify-center px-6 lg:px-40 py-24 md:py-40 relative">
         <motion.div
@@ -89,7 +89,7 @@ const AboutUsTemplate = () => {
       </section>
 
       {/* 2. THE CONCIERGE SECTION (CRISP & MINIMAL) */}
-      <section className="py-32 lg:py-60 px-6 lg:px-40 border-t border-black/5 bg-[#FDFBF7] relative">
+      <section className="py-32 lg:py-60 px-6 lg:px-40 border-t border-black/5 bg-bg relative">
         <div className="max-w-[1440px] mx-auto">
           <motion.div 
             initial={{ opacity: 0, y: 30 }}
