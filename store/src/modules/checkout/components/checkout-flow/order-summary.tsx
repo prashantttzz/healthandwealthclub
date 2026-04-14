@@ -3,20 +3,23 @@
 import React from "react"
 import { HttpTypes } from "@medusajs/types"
 import { useCart } from "@lib/context/cart-context"
-import { convertToLocale } from "@lib/util/money"
+import LocalizedPrice from "@modules/common/components/localized-price"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { ArrowRight } from "lucide-react"
+import { formatPrice } from "@lib/currency"
 
 const Ico = {
   arrowRight: (c = "") => <ArrowRight className={c} strokeWidth={2} />,
 }
 
-const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipping, selectedShippingPrice }: {
+const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipping, selectedShippingPrice, selectedShippingOptionId, shippingOptions }: {
   currentStep: number; 
   onContinue: () => void; 
   selectedAddress: HttpTypes.StoreCustomerAddress | null;
   isLoadingShipping: boolean;
   selectedShippingPrice?: number;
+  selectedShippingOptionId?: string | null;
+  shippingOptions?: HttpTypes.StoreCartShippingOption[];
 }) => {
   const { cart, optimisticItems: items, subtotal } = useCart()
   const firstItem = items[0]
@@ -41,14 +44,14 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
       <div className="flex flex-col gap-3 font-manrope text-[13px] uppercase font-regular">
         <div className="flex justify-between">
           <span className="text-bg">Total MRP</span>
-          <span className="text-bg font-semibold">{convertToLocale({ amount: subtotal || 0, currency_code: cart.currency_code })}</span>
+          <span className="text-bg font-semibold"><LocalizedPrice amount={subtotal || 0} /></span>
         </div>
         
         {/* Discount Section */}
         {(cart.discount_total ?? 0) > 0 && (
           <div className="flex justify-between font-bold">
             <span className="text-green-700">Discount</span>
-            <span className="text-green-700">- {convertToLocale({ amount: cart.discount_total || 0, currency_code: cart.currency_code })}</span>
+            <span className="text-green-700">- <LocalizedPrice amount={cart.discount_total || 0} /></span>
           </div>
         )}
 
@@ -57,7 +60,7 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
           <span className={(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 ? "text-bg italic" : "text-bg font-semibold"}>
             {(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 
               ? (currentStep === 0 ? "Calculated at next step" : "Free")
-              : convertToLocale({ amount: selectedShippingPrice ?? cart.shipping_total ?? 0, currency_code: cart.currency_code })}
+              : <LocalizedPrice amount={selectedShippingPrice ?? cart.shipping_total ?? 0}/>}
           </span>
         </div>
 
@@ -65,20 +68,21 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
         {(cart.tax_total ?? 0) > 0 && (
           <div className="flex justify-between">
             <span className="text-bg">Taxes</span>
-            <span className="text-bg font-semibold">{convertToLocale({ amount: cart.tax_total || 0, currency_code: cart.currency_code })}</span>
+            <span className="text-bg font-semibold"><LocalizedPrice amount={cart.tax_total || 0} /></span>
           </div>
         )}
       </div>
       <div className="border-t border-dashed border-bg/10 pt-6 flex justify-between items-center">
         <span className="font-newsreader italic text-2xl text-bg">Total Payable</span>
         <span className="font-manrope text-xl text-bg font-semibold">
-          {convertToLocale({ 
-            amount: (subtotal || 0) - (cart.discount_total ?? 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total ?? 0), 
-            currency_code: cart.currency_code 
-          })}
+          <LocalizedPrice amount={(subtotal || 0) - (cart.discount_total ?? 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total ?? 0)} />
         </span>
       </div>
-      <button onClick={onContinue} disabled={(currentStep === 1 && !selectedAddress) || isLoadingShipping}
+      <button onClick={onContinue} 
+        disabled={
+          (currentStep === 1 && (!selectedAddress || (shippingOptions?.length || 0) === 0 || !selectedShippingOptionId)) || 
+          isLoadingShipping
+        }
         className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-bg/90 transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-30 disabled:cursor-not-allowed">
         {isLoadingShipping ? "Processing..." : label} {Ico.arrowRight("w-4 h-4 group-hover:translate-x-1 transition-transform")}
       </button>

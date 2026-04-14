@@ -41,7 +41,6 @@ export default function NavContent({
   const countryCode = pathname.split('/')[1] || "us"
 
   const isHome = pathname.split('/').filter(Boolean).length <= 1
-  const isAbout = pathname.includes("/about")
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,7 +67,7 @@ export default function NavContent({
     }
   }
 
-  const showSolid = isScrolled || (!isHome && !isAbout) || !!hoveredItem
+  const showSolid = isScrolled || !isHome || !!hoveredItem
 
   return (
     <motion.nav 

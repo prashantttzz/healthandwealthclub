@@ -75,36 +75,9 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               max-width: 500px;
               display: block;
             }
-            .shimmer {
-              position: absolute;
-              inset: 0;
-              background: linear-gradient(
-                110deg,
-                transparent 30%,
-                rgba(255, 255, 255, 0.45) 50%,
-                transparent 70%
-              );
-              background-size: 200% 100%;
-              background-position: 200% 0;
-              animation: shimmer 3s infinite linear;
-              pointer-events: none;
-              /* Standard Alpha Mask for transparent PNG */
-              -webkit-mask-image: url('/preloader.png');
-              -webkit-mask-size: contain;
-              -webkit-mask-repeat: no-repeat;
-              -webkit-mask-position: center;
-              mask-image: url('/preloader.png');
-              mask-size: contain;
-              mask-repeat: no-repeat;
-              mask-position: center;
-            }
             @keyframes fadeIn {
               from { opacity: 0; transform: scale(0.95); }
               to { opacity: 1; transform: scale(1); }
-            }
-            @keyframes shimmer {
-              0% { background-position: 200% 0; }
-              100% { background-position: -200% 0; }
             }
             @media (min-width: 768px) {
               #hard-loader img {
@@ -138,14 +111,10 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               content.className = 'loader-content';
 
               var img = document.createElement('img');
-              img.src = '/preloader.png';
+              img.src = '/preloader.jpeg';
               img.alt = 'The Health & Wealth Club';
 
-              var shimmer = document.createElement('div');
-              shimmer.className = 'shimmer';
-
               content.appendChild(img);
-              content.appendChild(shimmer);
               loader.appendChild(content);
               
               document.documentElement.appendChild(frame);

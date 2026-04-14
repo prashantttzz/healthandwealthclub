@@ -24,7 +24,7 @@ import { getLocale } from "@lib/data/locale-actions"
 export async function retrieveCart(cartId?: string, fields?: string) {
   const id = cartId || (await getCartId())
   fields ??=
-    "*items, *region, *items.product, *items.variant, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name"
+    "*items, *region, *items.product, *items.variant, +items.variant.inventory_quantity, +items.variant.manage_inventory, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name"
 
   if (!id) {
     return null
@@ -418,6 +418,10 @@ export async function selectSavedAddress(address: HttpTypes.StoreCustomerAddress
       throw new Error("No existing cart found when selecting address")
     }
 
+    if (!address.country_code) {
+      throw new Error("Address must have a country code to fetch shipping options")
+    }
+
     const data = {
       shipping_address: {
         first_name: address.first_name ?? undefined,
@@ -446,11 +450,12 @@ export async function selectSavedAddress(address: HttpTypes.StoreCustomerAddress
     }
 
     await updateCart(data)
+    revalidateTag("carts")
+    return { success: true }
   } catch (e: any) {
-    return e.message
+    console.error("Error in selectSavedAddress:", e.message)
+    return { success: false, error: e.message }
   }
-
-  revalidateTag("carts")
 }
 
 /**
@@ -522,6 +527,11 @@ export async function updateRegion(countryCode: string, currentPath: string) {
 
 export async function listCartOptions() {
   const cartId = await getCartId()
+  if (!cartId) {
+    console.warn("No cart ID found when listing options")
+    return { shipping_options: [] }
+  }
+
   const headers = {
     ...(await getAuthHeaders()),
   }
@@ -529,14 +539,19 @@ export async function listCartOptions() {
     ...(await getCacheOptions("shippingOptions")),
   }
 
-  return await sdk.client.fetch<{
-    shipping_options: HttpTypes.StoreCartShippingOption[]
-  }>("/store/shipping-options", {
-    query: { cart_id: cartId },
-    next,
-    headers,
-    cache: "no-store",
-  })
+  try {
+    return await sdk.client.fetch<{
+      shipping_options: HttpTypes.StoreCartShippingOption[]
+    }>("/store/shipping-options", {
+      query: { cart_id: cartId },
+      next,
+      headers,
+      cache: "no-store",
+    })
+  } catch (error) {
+    console.error("Error fetching shipping options:", error)
+    return { shipping_options: [] }
+  }
 }
 
 

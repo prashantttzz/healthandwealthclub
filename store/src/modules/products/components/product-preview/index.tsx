@@ -1,7 +1,9 @@
+import { getColorHex } from "@lib/util/get-color-hex"
+import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import LocalizedPrice from "@modules/common/components/localized-price"
 import Image from "next/image"
-import { getProductPrice } from "@lib/util/get-product-price"
 
 export default function ProductPreview({
   product,
@@ -35,19 +37,57 @@ export default function ProductPreview({
         </div>
 
         {/* Product Details */}
-        <div className="flex flex-col gap-1.5">
+        <div className="flex flex-col gap-1.5 px-1">
           <div className="flex items-start justify-between gap-4">
-            <div className="space-y-1">
-              <h3 className="font-manrope text-sm font-regular text-accent ">
+            <div className="space-y-2 flex-1">
+              <h3 className="font-manrope text-[14px] font-regular text-accent tracking-tight leading-tight">
                 {product.title}
               </h3>
-              <div className="font-manrope text-[11px] text-accent/90 font-medium">
-                {product.variants?.length || 1} {product.variants?.length === 1 ? 'Color' : 'Colors'}
+                 <div className="font-manrope text-[13px] font-bold text-accent">
+                {cheapestPrice ? (
+                  <LocalizedPrice amount={cheapestPrice.calculated_price_number} />
+                ) : (
+                  "N/A"
+                )}
               </div>
+             
             </div>
-            <div className="flex flex-col items-end">
-              <div className="font-manrope text-[11px] md:text-sm font-bold text-accent">
-                {cheapestPrice?.calculated_price || "N/A"}
+            <div className="flex flex-col items-end shrink-0">
+           
+                       {product.options?.find(o => o.title?.toLowerCase() === "color")?.values && (
+                  <div className="flex items-center gap-2">
+                    <div className="flex gap-2">
+                      {product.options
+                        .find(o => o.title?.toLowerCase() === "color")!
+                        .values!.map((v, i) => (
+                           <div 
+                             key={i} 
+                             className="w-4 h-4 rounded-sm border border-black/10" 
+                             style={{ 
+                               backgroundColor: getColorHex(v.value || "")
+                             }}
+                             title={v.value}
+                           />
+                        ))}
+                    </div>
+                  </div>
+                )}
+                 <div className="flex gap-2">
+                {/* Size Indicators */}
+                {product.options?.find(o => o.title?.toLowerCase() === "size")?.values && (
+                  <div className="flex gap-1.5 flex-wrap">
+                    {product.options
+                      .find(o => o.title?.toLowerCase() === "size")!
+                      .values!.map((v, i) => (
+                        <span key={i} className="text-[9px] font-bold text-accent/30 uppercase tracking-tighter">
+                          {v.value}
+                        </span>
+                      ))}
+                  </div>
+                )}
+                
+                {/* Color Indicators */}
+       
               </div>
             </div>
           </div>

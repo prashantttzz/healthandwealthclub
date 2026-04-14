@@ -2,7 +2,7 @@
 
 import { useIntersection } from "@lib/hooks/use-in-view"
 import { HttpTypes } from "@medusajs/types"
-import { Button, clx } from "@medusajs/ui"
+import { Button, clx, toast } from "@medusajs/ui"
 import Divider from "@modules/common/components/divider"
 import OptionSelect from "@modules/products/components/product-actions/option-select"
 import { isEqual } from "lodash"
@@ -39,7 +39,7 @@ export default function ProductActions({
   const [options, setOptions] = useState<Record<string, string>>({})
   const [isAdding, setIsAdding] = useState(false)
   const [isAdded, setIsAdded] = useState(false)
-  const { addItem } = useCart()
+  const { addItem, optimisticItems } = useCart()
   const { openCartSidebar } = useUI()
 
   const countryCode = useParams().countryCode as string
@@ -95,12 +95,28 @@ export default function ProductActions({
     return false
   }, [selectedVariant])
 
+  const isAtMaximumQuantity = useMemo(() => {
+    if (!selectedVariant || selectedVariant.manage_inventory === false) return false
+
+    const cartItem = optimisticItems.find(
+      (item) => item.variant_id === selectedVariant.id
+    )
+    const currentQty = cartItem?.quantity || 0
+
+    return currentQty >= (selectedVariant.inventory_quantity || 0)
+  }, [selectedVariant, optimisticItems])
+
   const updateOption = (id: string, value: string) => {
     setOptions((prev) => ({ ...prev, [id]: value }))
   }
 
   const handleAddToCart = async () => {
     if (!selectedVariant?.id || isOutOfStock) return
+
+    if (isAtMaximumQuantity) {
+      toast.error("You've reached the maximum available quantity for this item.")
+      return
+    }
 
     setIsAdding(true)
     setIsAdded(true)
@@ -171,7 +187,7 @@ export default function ProductActions({
           
           <Button
             onClick={handleAddToCart}
-            disabled={!selectedVariant || !!disabled || isAdding || isOutOfStock}
+            disabled={!selectedVariant || !!disabled || isAdding || isOutOfStock || isAtMaximumQuantity}
             variant="primary"
             className="w-full h-14 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase transition-all duration-300 hover:bg-bg/90"
             data-testid="add-product-button"
@@ -180,6 +196,8 @@ export default function ProductActions({
               ? "Select Option"
               : isOutOfStock
               ? "Out of Stock"
+              : isAtMaximumQuantity
+              ? "Maximum Quantity Reached"
               : isAdded 
               ? "Added \u2713"
               : "Add to Experience"}
@@ -193,6 +211,7 @@ export default function ProductActions({
         options={options}
         updateOption={updateOption}
         inStock={!isOutOfStock}
+        isAtMaximumQuantity={isAtMaximumQuantity}
         handleAddToCart={handleAddToCart}
         isAdding={isAdding}
         show={!inView}

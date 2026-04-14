@@ -5,12 +5,13 @@ import { useCart } from "@lib/context/cart-context"
 import { motion, AnimatePresence } from "framer-motion"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { Cancel01Icon, ShoppingBag01Icon } from "@hugeicons/core-free-icons"
-import { clx } from "@medusajs/ui"
+import { clx, toast } from "@medusajs/ui"
+import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Thumbnail from "@modules/products/components/thumbnail"
 import LineItemOptions from "@modules/common/components/line-item-options"
 import QuantitySelector from "@modules/cart/components/item/quantity-selector"
-import { convertToLocale } from "@lib/util/money"
+import LocalizedPrice from "@modules/common/components/localized-price"
 import { useState, useEffect } from "react"
 import Spinner from "@modules/common/icons/spinner"
 
@@ -36,16 +37,24 @@ const CartSidebar = () => {
     if (!isCartSidebarOpen) setIsNavigating(false)
   }, [isCartSidebarOpen])
 
-  const handleQuantityChange = async (lineId: string, quantity: number) => {
-    setLoadingItems(prev => ({ ...prev, [lineId]: true }))
+  const handleQuantityChange = async (item: HttpTypes.StoreCartLineItem, quantity: number) => {
+    const inventory = item.variant?.inventory_quantity || 0
+    const manageInventory = item.variant?.manage_inventory !== false
+
+    if (quantity > item.quantity && manageInventory && quantity > inventory) {
+      toast.error("Maximum quantity reached for this item.")
+      return
+    }
+
+    setLoadingItems(prev => ({ ...prev, [item.id]: true }))
     try {
       if (quantity <= 0) {
-        await removeItem(lineId)
+        await removeItem(item.id)
       } else {
-        await updateQuantity(lineId, quantity)
+        await updateQuantity(item.id, quantity)
       }
     } finally {
-      setLoadingItems(prev => ({ ...prev, [lineId]: false }))
+      setLoadingItems(prev => ({ ...prev, [item.id]: false }))
     }
   }
 
@@ -141,15 +150,14 @@ const CartSidebar = () => {
                             )}
                             <QuantitySelector
                               quantity={item.quantity}
-                              onChange={(val) => handleQuantityChange(item.id, val)}
+                              onChange={(val) => handleQuantityChange(item, val)}
+                              maxQuantity={item.variant?.manage_inventory === false ? 100 : (item.variant?.inventory_quantity || 0)}
+                              loading={loadingItems[item.id]}
                             />
                           </div>
 
                           <span className="font-manrope text-[13px] font-semibold text-bg">
-                            {convertToLocale({
-                              amount: item.unit_price * item.quantity,
-                              currency_code: cart?.currency_code || "AED",
-                            })}
+                            <LocalizedPrice amount={item.unit_price * item.quantity} />
                           </span>
                         </div>
                       </div>
@@ -184,10 +192,7 @@ const CartSidebar = () => {
                     SUBTOTAL
                   </span>
                   <span className="font-manrope text-[15px] font-bold text-bg">
-                    {convertToLocale({
-                      amount: subtotal,
-                      currency_code: cart?.currency_code || "AED",
-                    })}
+                    <LocalizedPrice amount={subtotal} />
                   </span>
                 </div>
 

@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { addCustomerAddress, updateCustomerAddress } from "@lib/data/customer"
-import { Check, X, Plus, ChevronRight, ChevronLeft, Home, MoreHorizontal, ChevronDown } from "lucide-react"
+import { Check, X, Plus, ChevronRight, ChevronLeft, Home, MoreHorizontal, ChevronDown, Edit2 } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
 import { clx } from "@medusajs/ui"
 
@@ -101,16 +101,17 @@ const COUNTRIES = [
 ]
 
 const DIALING_CODES = [
-  { value: "+971", label: "🇦🇪 +971" },
-  { value: "+966", label: "🇸🇦 +966" },
-  { value: "+974", label: "🇶🇦 +974" },
-  { value: "+965", label: "🇰🇼 +965" },
-  { value: "+973", label: "🇧🇭 +973" },
-  { value: "+968", label: "🇴🇲 +968" },
-  { value: "+91", label: "🇮🇳 +91" },
-  { value: "+1", label: "🇺🇸 +1" },
-  { value: "+44", label: "🇬🇧 +44" },
-  { value: "+61", label: "🇦🇺 +61" },
+  { value: "+971", label: "🇦🇪 +971", country: "ae" },
+  { value: "+966", label: "🇸🇦 +966", country: "sa" },
+  { value: "+974", label: "🇶🇦 +974", country: "qa" },
+  { value: "+965", label: "🇰🇼 +965", country: "kw" },
+  { value: "+973", label: "🇧🇭 +973", country: "bh" },
+  { value: "+968", label: "🇴🇲 +968", country: "om" },
+  { value: "+91", label: "🇮🇳 +91", country: "in" },
+  { value: "+1", label: "🇺🇸 +1", country: "us" },
+  { value: "+1", label: "🇨🇦 +1", country: "ca" },
+  { value: "+44", label: "🇬🇧 +44", country: "gb" },
+  { value: "+61", label: "🇦🇺 +61", country: "au" },
 ]
 
 interface AddressSidebarProps {
@@ -133,6 +134,7 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
   countries = []
 }) => {
   const [view, setView] = useState<"list" | "form">("list")
+  const [internalAddressToEdit, setInternalAddressToEdit] = useState<HttpTypes.StoreCustomerAddress | null>(null)
   const [formData, setFormData] = useState({ 
     first_name: "", 
     last_name: "", 
@@ -144,52 +146,79 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
     province: "", 
     postal_code: "", 
     country_code: "ae", 
-    address_name: "Home" 
+    address_name: "Home"
   })
   const [isSaving, setIsSaving] = useState(false)
 
-  // Sync formData when addressToEdit changes or view changes
+  // Sync formData when addressToEdit changes or sidebar opens
   useEffect(() => {
-    if (addressToEdit) {
-      const phoneParts = (addressToEdit.phone || "").split(" ")
-      const dialingCode = phoneParts.length > 1 ? phoneParts[0] : "+91"
-      const number = phoneParts.length > 1 ? phoneParts.slice(1).join(" ") : addressToEdit.phone || ""
+    if (isOpen) {
+      if (addressToEdit) {
+        const phoneParts = (addressToEdit.phone || "").split(" ")
+        const dialingCode = phoneParts.length > 1 ? phoneParts[0] : "+971"
+        const number = phoneParts.length > 1 ? phoneParts.slice(1).join(" ") : addressToEdit.phone || ""
 
-      setFormData({
-        first_name: addressToEdit.first_name || "",
-        last_name: addressToEdit.last_name || "",
-        dialing_code: dialingCode,
-        phone_number: number,
-        address_1: addressToEdit.address_1 || "",
-        address_2: addressToEdit.address_2 || "",
-        city: addressToEdit.city || "",
-        province: addressToEdit.province || "",
-        postal_code: addressToEdit.postal_code || "",
-        country_code: addressToEdit.country_code || "ae",
-        address_name: "Home" 
-      })
-      setView("form")
-    } else {
-      setFormData({
-        first_name: "", 
-        last_name: "", 
-        dialing_code: "+971",
-        phone_number: "", 
-        address_1: "", 
-        address_2: "", 
-        city: "", 
-        province: "", 
-        postal_code: "", 
-        country_code: "ae", 
-        address_name: "Home"
-      })
-      if (addresses.length > 0 && onSelect) {
-         setView("list")
-      } else {
-         setView("form")
+        setFormData({
+          first_name: addressToEdit.first_name || "",
+          last_name: addressToEdit.last_name || "",
+          dialing_code: dialingCode,
+          phone_number: number,
+          address_1: addressToEdit.address_1 || "",
+          address_2: addressToEdit.address_2 || "",
+          city: addressToEdit.city || "",
+          province: addressToEdit.province || "",
+          postal_code: addressToEdit.postal_code || "",
+          country_code: addressToEdit.country_code || "ae",
+          address_name: "Home"
+        })
+        setView("form")
+      } else if (!internalAddressToEdit) {
+        setFormData({
+          first_name: "", 
+          last_name: "", 
+          dialing_code: "+971",
+          phone_number: "", 
+          address_1: "", 
+          address_2: "", 
+          city: "", 
+          province: "", 
+          postal_code: "", 
+          country_code: "ae", 
+          address_name: "Home"
+        })
+        if (addresses.length > 0 && onSelect) {
+           setView("list")
+        } else {
+           setView("form")
+        }
       }
+    } else {
+      // Clear internal state when closing to avoid autofill bugs on next open
+      setInternalAddressToEdit(null)
     }
   }, [addressToEdit, isOpen, addresses.length, onSelect])
+
+  const handleEdit = (addr: HttpTypes.StoreCustomerAddress) => {
+    const phoneParts = (addr.phone || "").split(" ")
+    const dialingCode = phoneParts.length > 1 ? phoneParts[0] : "+971"
+    const number = phoneParts.length > 1 ? phoneParts.slice(1).join(" ") : addr.phone || ""
+
+    setFormData({
+      first_name: addr.first_name || "",
+      last_name: addr.last_name || "",
+      dialing_code: dialingCode,
+      phone_number: number,
+      address_1: addr.address_1 || "",
+      address_2: addr.address_2 || "",
+      city: addr.city || "",
+      province: addr.province || "",
+      postal_code: addr.postal_code || "",
+      country_code: addr.country_code || "ae",
+      address_name: "Home"
+    })
+    setInternalAddressToEdit(addr)
+    setView("form")
+  }
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => setFormData(p => ({ ...p, [e.target.name]: e.target.value }))
 
@@ -206,13 +235,19 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
     
     try {
       let res
-      if (addressToEdit) {
-        res = await updateCustomerAddress({ addressId: addressToEdit.id }, fd)
+      const activeAddressToEdit = addressToEdit || internalAddressToEdit
+      if (activeAddressToEdit) {
+        res = await updateCustomerAddress({ addressId: activeAddressToEdit.id }, fd)
       } else {
         res = await addCustomerAddress({}, fd)
       }
       
       if (res.success || (res as any).id) {
+        // If adding a new address, auto-select it if possible
+        if (!activeAddressToEdit && res.address && onSelect) {
+          onSelect(res.address)
+        }
+        
         onClose()
       } else {
         console.error(res.error)
@@ -230,7 +265,7 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
       <div className={`fixed top-0 right-0 h-full w-full max-w-[460px] bg-bg z-[110] shadow-2xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center justify-between px-8 py-6 border-b border-accent/5">
           <h2 className="font-newsreader italic text-2xl text-accent">
-            {view === "list" ? "Select From Saved Addresses" : addressToEdit ? "Edit Address" : "Add New Address"}
+            {view === "list" ? "Select From Saved Addresses" : (addressToEdit || internalAddressToEdit) ? "Edit Address" : "Add New Address"}
           </h2>
           <button onClick={onClose} className="p-2 text-accent/30 hover:text-accent transition-colors">{Ico.x("w-5 h-5")}</button>
         </div>
@@ -252,7 +287,20 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
                     <button key={addr.id} onClick={() => { onSelect?.(addr); onClose() }} className="w-full text-left p-6 border border-accent/5 hover:border-accent/20 transition-all group bg-bg">
                       <div className="flex items-start justify-between">
                         <div className="flex items-center gap-3 mb-2">{Ico.home("w-4 h-4 text-accent/30")}<span className="font-manrope text-[15px] font-bold text-accent">{addr.first_name}&apos;s Home</span>{addr.is_default_shipping && <span className="font-manrope text-[9px] bg-accent/5 text-accent/50 px-2 py-0.5 uppercase tracking-widest font-bold">Default</span>}</div>
-                        <button onClick={(e) => { e.stopPropagation(); onDelete?.(addr.id) }} className="p-1.5 text-accent/15 hover:text-red-500 transition-colors">{Ico.dots("w-4 h-4")}</button>
+                        <div className="flex items-center gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); handleEdit(addr) }} 
+                            className="p-1.5 text-accent/30 hover:text-accent transition-colors"
+                          >
+                            <Edit2 size={16} />
+                          </button>
+                          <button 
+                            onClick={(e) => { e.stopPropagation(); onDelete?.(addr.id) }} 
+                            className="p-1.5 text-accent/15 hover:text-red-500 transition-colors"
+                          >
+                            {Ico.dots("w-4 h-4")}
+                          </button>
+                        </div>
                       </div>
                       <p className="font-manrope text-[13px] text-accent/40 leading-relaxed pl-8">{addr.address_1}{addr.city ? `, ${addr.city}` : ""} {addr.postal_code}{addr.phone ? ` , ${addr.phone}` : ""}</p>
                     </button>
@@ -262,13 +310,37 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
             </>
           ) : (
             <div className="flex flex-col gap-5">
-              {(addresses.length > 0 && onSelect) && (
-                <button onClick={() => setView("list")} className="flex items-center gap-2 text-accent font-manrope text-[12px] font-bold uppercase tracking-widest mb-4">{Ico.chevLeft("w-4 h-4")} Back to list</button>
+              {(addresses.length > 0 || onSelect) && (
+                <button 
+                  onClick={() => {
+                    setInternalAddressToEdit(null)
+                    setView("list")
+                  }} 
+                  className="flex items-center gap-2 text-accent font-manrope text-[12px] font-bold uppercase tracking-widest mb-4"
+                >
+                  {Ico.chevLeft("w-4 h-4")} Back to list
+                </button>
               )}
               
+              <EditorialSelect 
+                label="Country" 
+                value={formData.country_code} 
+                options={countries.length > 0 ? countries.map(c => ({ value: c.iso_2 || "", label: c.display_name || c.name || "" })) : COUNTRIES} 
+                onChange={(v) => {
+                  const dialMap: Record<string, string> = {
+                    ae: "+971", sa: "+966", qa: "+974", kw: "+965", bh: "+973", om: "+968", in: "+91", us: "+1", gb: "+44", ca: "+1", au: "+61"
+                  }
+                  setFormData(p => ({ 
+                    ...p, 
+                    country_code: v, 
+                    dialing_code: dialMap[v] || p.dialing_code 
+                  }))
+                }} 
+              />
+
               <div className="flex flex-col gap-2">
                 <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Full Name</label>
-                <input name="first_name" value={formData.first_name} onChange={handleChange} className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
+                <input name="first_name" value={formData.first_name} onChange={handleChange} placeholder="John Doe" className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
               </div>
 
               <div className="flex flex-col gap-2">
@@ -294,22 +366,6 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
                 </div>
               </div>
 
-              <EditorialSelect 
-                label="Country" 
-                value={formData.country_code} 
-                options={countries.length > 0 ? countries.map(c => ({ value: c.iso_2 || "", label: c.display_name || c.name || "" })) : COUNTRIES} 
-                onChange={(v) => {
-                  const dialMap: Record<string, string> = {
-                    ae: "+971", sa: "+966", qa: "+974", kw: "+965", bh: "+973", om: "+968", in: "+91", us: "+1", gb: "+44", ca: "+1", au: "+61"
-                  }
-                  setFormData(p => ({ 
-                    ...p, 
-                    country_code: v, 
-                    dialing_code: dialMap[v] || p.dialing_code 
-                  }))
-                }} 
-              />
-
               {[
                 { n: "address_1", l: "Address Line 1" }, { n: "address_2", l: "Address Line 2" },
                 { n: "city", l: "City" }, { n: "province", l: "State" }, { n: "postal_code", l: "Zipcode" },
@@ -329,7 +385,7 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
                 disabled={isSaving} 
                 className="w-full py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase mt-4 hover:bg-accent/90 transition-all disabled:opacity-50"
               >
-                {isSaving ? "Saving..." : addressToEdit ? "Update Address" : "Save Address"}
+                {isSaving ? "Saving..." : (addressToEdit || internalAddressToEdit) ? "Update Address" : "Save Address"}
               </button>
             </div>
           )}

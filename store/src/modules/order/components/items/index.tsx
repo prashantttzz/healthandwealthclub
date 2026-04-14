@@ -28,7 +28,6 @@ const Items = ({ order }: ItemsProps) => {
                     <Item
                       key={item.id}
                       item={item}
-                      currencyCode={order.currency_code}
                     />
                   )
                 })

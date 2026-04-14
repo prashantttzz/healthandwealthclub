@@ -1,15 +1,18 @@
+"use client"
+
 import { Container, Heading, Text } from "@medusajs/ui"
 
 import { isStripeLike, paymentInfoMap } from "@lib/constants"
 import Divider from "@modules/common/components/divider"
-import { convertToLocale } from "@lib/util/money"
 import { HttpTypes } from "@medusajs/types"
+import { useCurrencyFormatter } from "@lib/currency"
 
 type PaymentDetailsProps = {
   order: HttpTypes.StoreOrder
 }
 
 const PaymentDetails = ({ order }: PaymentDetailsProps) => {
+  const { formatPrice } = useCurrencyFormatter()
   const payment = order.payment_collections?.[0].payments?.[0]
 
   return (
@@ -42,10 +45,7 @@ const PaymentDetails = ({ order }: PaymentDetailsProps) => {
                 <Text data-testid="payment-amount">
                   {isStripeLike(payment.provider_id) && payment.data?.card_last4
                     ? `**** **** **** ${payment.data.card_last4}`
-                    : `${convertToLocale({
-                        amount: payment.amount,
-                        currency_code: order.currency_code,
-                      })} paid at ${new Date(
+                    : `${formatPrice(payment.amount)} paid at ${new Date(
                         payment.created_at ?? ""
                       ).toLocaleString()}`}
                 </Text>

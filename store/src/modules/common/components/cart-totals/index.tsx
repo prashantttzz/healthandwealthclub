@@ -1,14 +1,13 @@
 "use client"
 
-import { convertToLocale } from "@lib/util/money"
 import React from "react"
+import LocalizedPrice from "@modules/common/components/localized-price"
 
 type CartTotalsProps = {
   totals: {
     total?: number | null
     subtotal?: number | null
     tax_total?: number | null
-    currency_code: string
     item_subtotal?: number | null
     shipping_subtotal?: number | null
     discount_subtotal?: number | null
@@ -17,7 +16,6 @@ type CartTotalsProps = {
 
 const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
   const {
-    currency_code,
     total,
     tax_total,
     item_subtotal,
@@ -31,13 +29,13 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
         <div className="flex items-center justify-between">
           <span className="opacity-60">Subtotal</span>
           <span data-testid="cart-subtotal" data-value={item_subtotal || 0}>
-            {convertToLocale({ amount: item_subtotal ?? 0, currency_code })}
+            <LocalizedPrice amount={item_subtotal ?? 0} />
           </span>
         </div>
         <div className="flex items-center justify-between">
           <span className="opacity-60">Shipping</span>
           <span data-testid="cart-shipping" data-value={shipping_subtotal || 0}>
-            {convertToLocale({ amount: shipping_subtotal ?? 0, currency_code })}
+            <LocalizedPrice amount={shipping_subtotal ?? 0} />
           </span>
         </div>
         {!!discount_subtotal && (
@@ -48,18 +46,14 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
               data-testid="cart-discount"
               data-value={discount_subtotal || 0}
             >
-              -{" "}
-              {convertToLocale({
-                amount: discount_subtotal ?? 0,
-                currency_code,
-              })}
+              - <LocalizedPrice amount={discount_subtotal ?? 0} />
             </span>
           </div>
         )}
         <div className="flex justify-between">
           <span className="opacity-60">Taxes</span>
           <span data-testid="cart-taxes" data-value={tax_total || 0}>
-            {convertToLocale({ amount: tax_total ?? 0, currency_code })}
+            <LocalizedPrice amount={tax_total ?? 0} />
           </span>
         </div>
       </div>
@@ -71,7 +65,7 @@ const CartTotals: React.FC<CartTotalsProps> = ({ totals }) => {
           data-testid="cart-total"
           data-value={total || 0}
         >
-          {convertToLocale({ amount: total ?? 0, currency_code })}
+          <LocalizedPrice amount={total ?? 0} />
         </span>
       </div>
     </div>

@@ -99,12 +99,12 @@ const RefinementList = ({
     router.push(`${pathname}?${params.toString()}`)
   }
 
-  const handleCategorySelect = (categoryId: string) => {
+  const handleCategorySelect = (categoryHandle: string) => {
     const params = new URLSearchParams(searchParams.toString())
-    if (params.get("category") === categoryId) {
+    if (params.get("category") === categoryHandle) {
        params.delete("category") // allow deselect
     } else {
-       params.set("category", categoryId)
+       params.set("category", categoryHandle)
     }
     params.delete("page")
     router.push(`${pathname}?${params.toString()}`)
@@ -134,11 +134,11 @@ const RefinementList = ({
           {categories?.map((cat) => (
             <li 
               key={cat.id} 
-              onClick={() => handleCategorySelect(cat.id)}
+              onClick={() => handleCategorySelect(cat.handle)}
               className="flex items-center gap-3 text-[11px] uppercase tracking-[0.1em] text-accent/60 group cursor-pointer hover:text-accent transition-all"
             >
               <div className="w-4 h-4 border border-black/10 rounded-sm flex items-center justify-center group-hover:border-accent transition-colors">
-                <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${activeCategory === cat.id ? "opacity-100" : "opacity-0"}`} />
+                <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${activeCategory === cat.handle ? "opacity-100" : "opacity-0"}`} />
               </div>
               <span className="text-accent/70 lowercase">{cat.name}</span>
             </li>

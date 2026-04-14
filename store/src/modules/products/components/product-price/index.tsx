@@ -1,7 +1,10 @@
+"use client"
+
 import { clx } from "@medusajs/ui"
 
 import { getProductPrice } from "@lib/util/get-product-price"
 import { HttpTypes } from "@medusajs/types"
+import LocalizedPrice from "@modules/common/components/localized-price"
 
 export default function ProductPrice({
   product,
@@ -33,7 +36,7 @@ export default function ProductPrice({
           data-testid="product-price"
           data-value={selectedPrice.calculated_price_number}
         >
-          {selectedPrice.calculated_price}
+          <LocalizedPrice amount={selectedPrice.calculated_price_number} />
         </span>
       </span>
       {selectedPrice.price_type === "sale" && (
@@ -45,7 +48,7 @@ export default function ProductPrice({
               data-testid="original-product-price"
               data-value={selectedPrice.original_price_number}
             >
-              {selectedPrice.original_price}
+              <LocalizedPrice amount={selectedPrice.original_price_number} />
             </span>
           </p>
           <span className="text-ui-fg-interactive">

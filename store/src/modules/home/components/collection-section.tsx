@@ -1,9 +1,8 @@
 "use client";
-import React, { useRef, useState, useMemo } from "react";
+import React, { useRef, useState } from "react";
 import { useMotionValueEvent, useScroll, motion, AnimatePresence, useSpring } from "framer-motion";
 import Image from "next/image";
 import { HttpTypes } from "@medusajs/types";
-import Thumbnail from "@modules/products/components/thumbnail";
 import Link from "next/link";
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
 
@@ -12,51 +11,31 @@ interface CategoryStickyScrollProps {
 }
 
 export default function CategoryStickyScroll({ collections = [] }: CategoryStickyScrollProps) {
-  // Map backend collections to UI categories or use mock data if empty
-  const CATEGORIES = useMemo(() => {
-    if (collections.length > 0) {
-      return collections.map((col) => ({
-        title: col.title,
-        sub: (col.metadata?.sub as string) || "Seasonal Edit",
-        description: (col.metadata?.description as string) || "A curated selection of our finest pieces, designed with an emphasis on silhouette and longevity.",
-        id: col.handle,
-        image: (col.metadata?.image as string) || "/about.png", // Fallback image
-        realId: col.id
-      }))
-    }
-    
-    // Fallback Mock Data
-    return [
-      { 
-        title: "Backless\nTops", 
-        sub: "The Evening Series",
-        description: "Minimalist silhouettes designed for the modern evening. Crafted from premium silk blends that drape effortlessly against the skin.",
-        id: "backless-tops",
-        image: "/about.png" 
-      },
-      { 
-        title: "DeepSplits\nSkirts", 
-        sub: "Architectural Form",
-        description: "Movement defined by precision. A bold statement piece for the contemporary wardrobe, featuring hand-finished detailing.",
-        id: "deep-split-skirts",
-        image: "/about-hero.png" 
-      },
-      { 
-        title: "Bucket\nHats", 
-        sub: "Summer Essentials",
-        description: "The essential sun-drenched accessory. Reimagined in structured canvas and seasonal tones for the coastal minimalist.",
-        id: "bucket-hats",
-        image: "/p-1.png" 
-      },
-      { 
-        title: "Wrap\nDresses", 
-        sub: "Dusk to Dawn",
-        description: "Effortless versatility. Featuring an adjustable fit that celebrates the feminine form with timeless elegance.",
-        id: "wrap-dresses",
-        image: "/p-2.png" 
-      },
-    ]
-  }, [collections])
+  // Fallback images if no metadata ones are provided
+  const FALLBACK_IMAGES = [
+    "/p-1.png",
+    "/p-2.png",
+    "/about.png",
+    "/footer.png"
+  ];
+
+  // Map dynamic collections to our card format
+  const dynamicCategories = (collections || []).slice(0, 4).map((collection, index) => ({
+    title: collection.title.toUpperCase(),
+    sub: (collection.metadata?.sub_title as string) || "Essential Collection",
+    description: (collection.metadata?.description as string) || "Curated precision from The Health & Wealth Club. Designed for those who value authenticity and quality.",
+    id: collection.id,
+    handle: collection.handle,
+    buttonText: (collection.metadata?.button_text as string) || "Explore Products",
+    link: `collections/${collection.handle}`,
+    image: (collection.metadata?.image_url as string) || FALLBACK_IMAGES[index % FALLBACK_IMAGES.length]
+  }));
+
+  // If no collections, don't render the section or show nothing
+  if (!dynamicCategories.length) return null;
+
+  // Final array used for rendering
+  const CATEGORIES = dynamicCategories;
 
   const [activeCard, setActiveCard] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -66,7 +45,6 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
     offset: ["start start", "end end"],
   });
 
-  // Smooth scroll progress for the side indicator
   const scaleY = useSpring(scrollYProgress, {
     stiffness: 100,
     damping: 30,
@@ -93,17 +71,17 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
         >
           <div className="space-y-4">
             <h2 className="font-newsreader italic text-5xl lg:text-7xl text-bg leading-[0.85]">
-              The Club Shop
+              The Collection
             </h2>
           </div>
           <p className="font-manrope tracking-widest font-medium text-bg/90 uppercase text-[10px] md:text-[12px] max-w-xl text-center">
-            A curated selection of seasonal staples designed with an emphasis on silhouette and longevity.
+            Precision engineering meets high-end fashion. Purely curated.
           </p>
         </motion.div>
       </div>
 
-      <div ref={containerRef} className="relative max-w-[1400px] mx-auto px-6 lg:px-40">
-                <div className="absolute left-10 lg:left-20 top-0 bottom-0 w-px bg-bg/5 hidden md:block">
+      <div ref={containerRef} className="relative mx-auto px-6 lg:px-40">
+        <div className="absolute left-10 lg:left-20 top-0 bottom-0 w-px bg-bg/5 hidden md:block">
           <motion.div 
             style={{ scaleY, originY: 0 }}
             className="w-full h-full bg-bg origin-top"
@@ -111,11 +89,10 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
         </div>
 
         <div className="flex flex-col md:flex-row gap-10 lg:gap-24">
-          
           <div className="w-full md:w-1/2">
             {CATEGORIES.map((item, index) => (
               <div 
-                key={item.title + index} 
+                key={item.id + index} 
                 className="min-h-[60vh] md:min-h-screen flex flex-col justify-center py-10"
               >
                 <div className="md:hidden w-full max-w-[280px] mx-auto aspect-[4/5] mb-8 overflow-hidden rounded-sm">
@@ -135,25 +112,24 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
                   whileInView={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
                   viewport={{ margin: "-10%" }}
-                  className="md:-mt-32 md:text-start  text-center"
+                  className="md:-mt-32 md:text-start text-center"
                 >
                   <span className="font-manrope text-[9px] font-semibold tracking-[0.3em] uppercase text-bg/40 mb-2 block">
                     {item.sub}
                   </span>
-                  <h3 className="text-5xl lg:text-7xl font-newsreader font-regular italic text-bg leading-[0.95] mb-6 mt-3 md:mt-0">
+                  <h3 className="text-5xl lg:text-7xl font-newsreader font-regular italic text-bg leading-[0.95] mb-6 mt-3 md:mt-0 whitespace-pre-line">
                     {item.title}
                   </h3>
-                  <p className="text-sm lg:text-lg font-manrope text-bg/70 max-w-sm mb-10 leading-relaxed">
+                  <p className="text-sm lg:text-lg font-manrope text-bg/70 mb-10 leading-relaxed">
                     {item.description}
                   </p>
-                  <LocalizedClientLink href={`/store?collection=${item.id}`} className="group inline-flex items-center gap-4">
-                    <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-bg">View Collection</span>
-                    <div className="relative h-px w-10 bg-bg/20 overflow-hidden">
+                  <LocalizedClientLink href={`/${item.link}`} className="group inline-flex items-center gap-4">
+                    <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-bg">{item.buttonText}</span>
+                    <div className="relative h-px w-10 bg-bg/20 overflow-hidden text-bg">
                       <motion.div 
-                        className="absolute inset-0 bg-accent"
+                        className="absolute inset-0 bg-bg"
                         initial={{ x: "-100%" }}
                         whileHover={{ x: 0 }}
-                        whileTap={{ scale: 0.95 }}
                         transition={{ duration: 0.4 }}
                       />
                     </div>
@@ -179,29 +155,26 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
                     alt={CATEGORIES[activeCard].title}
                     fill
                     sizes="50vw"
-                    priority={true} 
+                    priority={activeCard === 0} 
                     className="object-cover transition-transform duration-[2s] hover:scale-110"
                   />
-                  {/* Subtle Grain or Gradient Overlay for Texture */}
                   <div className="absolute inset-0 bg-black/[0.02] pointer-events-none" />
                 </motion.div>
               </AnimatePresence>
               
-              {/* Counter Indicator */}
               <div className="absolute bottom-8 right-8 mix-blend-difference text-white font-manrope text-[10px] tracking-[.5em]">
                 0{activeCard + 1} / 0{CATEGORIES.length}
               </div>
             </div>
           </div>
-
         </div>
       </div>
 
       <div className="py-5 md:py-24 text-center border-b border-black/5">
-        <Link href="/shop-all" className="group text-[12px] font-semibold uppercase tracking-[0.2em] text-bg/80 hover:text-bg transition-colors">
-          Browse All Departments 
+        <LocalizedClientLink href="/store" className="group text-[12px] font-semibold uppercase tracking-[0.2em] text-bg/80 hover:text-bg transition-colors">
+          View All Collections
           <motion.span className="inline-block ml-2 group-hover:translate-x-2 transition-transform">→</motion.span>
-        </Link>
+        </LocalizedClientLink>
       </div>
     </section>
   );

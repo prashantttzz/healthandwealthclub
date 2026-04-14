@@ -2,8 +2,10 @@
 
 import React, { useState } from "react"
 import { useCart } from "@lib/context/cart-context"
-import { convertToLocale } from "@lib/util/money"
 import { applyPromotions } from "@lib/data/cart"
+import { HttpTypes } from "@medusajs/types"
+import { toast } from "@medusajs/ui"
+import LocalizedPrice from "@modules/common/components/localized-price"
 import Thumbnail from "@modules/products/components/thumbnail"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { X, Minus, Plus, ShoppingBag, Tag, ChevronRight } from "lucide-react"
@@ -23,10 +25,19 @@ const BagStep = ({ onContinue }: { onContinue: () => void }) => {
   const [updatingId, setUpdatingId] = useState<string | null>(null)
   const [couponOpen, setCouponOpen] = useState(false)
 
-  const changeQty = async (lineId: string, qty: number) => {
+  const changeQty = async (item: HttpTypes.StoreCartLineItem, qty: number) => {
     if (qty < 1) return
-    setUpdatingId(lineId)
-    await updateQuantity(lineId, qty)
+
+    const inventory = item.variant?.inventory_quantity || 0
+    const manageInventory = item.variant?.manage_inventory !== false
+
+    if (qty > item.quantity && manageInventory && qty > inventory) {
+      toast.error("Maximum quantity reached for this item.")
+      return
+    }
+
+    setUpdatingId(item.id)
+    await updateQuantity(item.id, qty)
     setUpdatingId(null)
   }
 
@@ -59,13 +70,19 @@ const BagStep = ({ onContinue }: { onContinue: () => void }) => {
                 </div>
                 <div className="flex items-center gap-4 mt-4">
                   <div className="flex items-center border border-accent/10">
-                    <button onClick={() => changeQty(item.id, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center text-accent/30 hover:text-accent transition-all">{Ico.minus("w-3.5 h-3.5")}</button>
+                    <button onClick={() => changeQty(item, item.quantity - 1)} className="w-7 h-7 flex items-center justify-center text-accent/30 hover:text-accent transition-all">{Ico.minus("w-3.5 h-3.5")}</button>
                     <span className="w-7 h-7 flex items-center justify-center font-manrope text-[13px] font-bold text-accent border-x border-accent/10">{item.quantity}</span>
-                    <button onClick={() => changeQty(item.id, item.quantity + 1)} className="w-7 h-7 flex items-center justify-center text-accent/30 hover:text-accent transition-all">{Ico.plus("w-3.5 h-3.5")}</button>
+                    <button 
+                      onClick={() => changeQty(item, item.quantity + 1)} 
+                      disabled={item.variant?.manage_inventory !== false && item.quantity >= (item.variant?.inventory_quantity || 0)}
+                      className="w-7 h-7 flex items-center justify-center text-accent/30 hover:text-accent transition-all disabled:opacity-30 disabled:cursor-not-allowed"
+                    >
+                      {Ico.plus("w-3.5 h-3.5")}
+                    </button>
                   </div>
                 </div>
                 <div className="mt-4">
-                  <p className="font-manrope text-[16px] font-bold text-accent">{convertToLocale({ amount: (item.unit_price || 0) * item.quantity, currency_code: cart.currency_code })}</p>
+                  <p className="font-manrope text-[16px] font-bold text-accent"><LocalizedPrice amount={(item.unit_price || 0) * item.quantity} /></p>
                 </div>
               </div>
             </div>

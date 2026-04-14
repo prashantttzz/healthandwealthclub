@@ -112,7 +112,7 @@ export default function ClubFooter() {
                 }
               }
             }}
-            className="grid grid-cols-2 lg:grid-cols-4 gap-y-12 gap-x-8"
+            className="grid grid-cols-2 lg:grid-cols-3 gap-y-12 gap-x-8"
           >
             
             {/* Column 1: Brand — full width on mobile */}
@@ -120,7 +120,7 @@ export default function ClubFooter() {
               variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
               className="col-span-2 lg:col-span-1 flex flex-col items-start space-y-6 text-left"
             >
-              <div className="flex flex-row lg:flex-col items-start gap-5 lg:gap-0 lg:space-y-6">
+              <div className="flex flex-row lg:flex-col items-center lg:items-start gap-5 lg:gap-0 lg:space-y-6">
                 <LocalizedClientLink href="/" className="flex-shrink-0">
                   <Image 
                     src="/main-logo-h.png" 
@@ -130,9 +130,27 @@ export default function ClubFooter() {
                     className="brightness-0 invert object-contain transition-transform duration-500 hover:scale-105 w-[160px] lg:w-[200px]"
                   />
                 </LocalizedClientLink>
-                <p className="text-white/50 text-[12px] lg:text-[13px] leading-relaxed max-w-[200px] lg:max-w-[240px] font-manrope text-center">
+                <p className="text-white/50 text-[12px] lg:text-[13px] leading-relaxed max-w-[200px] lg:max-w-[240px] font-manrope text-left pt-2 lg:pt-0">
                   Elevating your lifestyle through a curated blend of health and wealth essentials.
                 </p>
+                
+                <div className="flex gap-4 pt-4">
+                  {[
+                    { icon: Instagram, href: "https://www.instagram.com/thehealthywealthclub?igsh=MTFjd2h0MjBvMGF1cw==" },
+                    { icon: WhatsappFreeIcons, href: "#" },
+                    { icon: Mail, href: "mailto:contact@healthandwealth.club" }
+                  ].map((social, i) => (
+                    <motion.a 
+                      key={i}
+                      whileHover={{ scale: 1.1, color: "rgba(255, 255, 255, 1)" }}
+                      whileTap={{ scale: 0.9 }}
+                      href={social.href} 
+                      className="flex items-center justify-center text-white/40 transition-colors"
+                    >
+                      <HugeiconsIcon icon={social.icon} size={20} />
+                    </motion.a>
+                  ))}
+                </div>
               </div>
             </motion.div>
 
@@ -192,48 +210,6 @@ export default function ClubFooter() {
               </ul>
             </motion.div>
 
-            {/* Column 4: Community / Newsletter */}
-            <motion.div 
-              variants={{ hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0 } }}
-              className="col-span-2 lg:col-span-1 flex flex-col items-start space-y-6 text-left"
-            >
-              <h4 className="font-newsreader italic text-xl text-white/90">Join The Club</h4>
-              <p className="font-manrope text-[12px] font-regular text-white/40 leading-relaxed max-w-[240px]">
-                Subscribe for exclusive collection drops and lifestyle insights.
-              </p>
-              
-              {/* Newsletter Form */}
-              <div className="w-full space-y-4">
-                <div className="relative group w-full">
-                  <input 
-                    type="email" 
-                    placeholder="ENTER YOUR EMAIL"
-                    className="w-full bg-transparent border-b border-white/10 py-3 pr-10 text-[10px] font-manrope tracking-widest text-white placeholder:text-white/20 focus:border-white focus:outline-none transition-all"
-                  />
-                  <button className="absolute right-0 top-1/2 -translate-y-1/2 text-white/40 hover:text-white transition-colors group-hover:translate-x-1 duration-300">
-                    <HugeiconsIcon icon={ArrowUpRight01Icon} size={16} />
-                  </button>
-                </div>
-
-                <div className="flex gap-4 pt-4">
-                  {[
-                    { icon: Instagram, href: "#" },
-                    { icon: WhatsappFreeIcons, href: "#" },
-                    { icon: Mail, href: "mailto:contact@healthandwealth.club" }
-                  ].map((social, i) => (
-                    <motion.a 
-                      key={i}
-                      whileHover={{ scale: 1.1, color: "rgba(255, 255, 255, 1)" }}
-                      whileTap={{ scale: 0.9 }}
-                      href={social.href} 
-                      className="flex items-center justify-center text-white/40 transition-colors"
-                    >
-                      <HugeiconsIcon icon={social.icon} size={20} />
-                    </motion.a>
-                  ))}
-                </div>
-              </div>
-            </motion.div>
           </motion.div>
  
           {/* Bottom Bar: Stacked on mobile */}

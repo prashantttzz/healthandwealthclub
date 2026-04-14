@@ -2,14 +2,14 @@
 
 import React from "react"
 import { useCart } from "@lib/context/cart-context"
-import { convertToLocale } from "@lib/util/money"
+import LocalizedPrice from "@modules/common/components/localized-price"
 import { X } from "lucide-react"
 
 const Ico = {
   x: (c = "") => <X className={c} strokeWidth={2} />,
 }
 
-const MobilePriceDrawer = ({ isOpen, onClose, selectedShippingPrice }: { isOpen: boolean, onClose: () => void, selectedShippingPrice?: number }) => {
+const MobilePriceDrawer = ({ isOpen, onClose, selectedShippingPrice }: { isOpen: boolean; onClose: () => void; selectedShippingPrice?: number | null }) => {
   const { cart, subtotal } = useCart()
   if (!cart) return null
 
@@ -27,12 +27,12 @@ const MobilePriceDrawer = ({ isOpen, onClose, selectedShippingPrice }: { isOpen:
           </div>
           
           <div className="flex flex-col gap-5 font-manrope text-[13px] uppercase tracking-[0.15em]">
-            <div className="flex justify-between"><span className="text-bg/60">Total MRP</span><span className="text-bg font-semibold">{convertToLocale({ amount: subtotal || 0, currency_code: cart.currency_code })}</span></div>
-            {(cart.discount_total ?? 0) > 0 && <div className="flex justify-between"><span className="text-bg/60">Discount</span><span className="text-green-400 font-bold">- {convertToLocale({ amount: cart.discount_total || 0, currency_code: cart.currency_code })}</span></div>}
+            <div className="flex justify-between"><span className="text-bg/60">Total MRP</span><span className="text-bg font-semibold"><LocalizedPrice amount={subtotal || 0} /></span></div>
+            {(cart.discount_total ?? 0) > 0 && <div className="flex justify-between"><span className="text-bg/60">Discount</span><span className="text-green-400 font-bold">- <LocalizedPrice amount={cart.discount_total || 0} /></span></div>}
             <div className="flex justify-between">
               <span className="text-bg/60">Delivery Fee</span>
               <span className="text-green-400 font-bold">
-                {(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 ? "Free" : convertToLocale({ amount: selectedShippingPrice ?? cart.shipping_total ?? 0, currency_code: cart.currency_code })}
+                {(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 ? "Free" : <LocalizedPrice amount={selectedShippingPrice ?? cart.shipping_total ?? 0} />}
               </span>
             </div>
           </div>
@@ -40,10 +40,7 @@ const MobilePriceDrawer = ({ isOpen, onClose, selectedShippingPrice }: { isOpen:
             <div className="flex flex-col gap-1">
               <span className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-bg/30">Total Payable</span>
               <span className="font-newsreader italic text-3xl text-bg leading-none">
-                {convertToLocale({ 
-                  amount: (subtotal || 0) - (cart.discount_total ?? 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total ?? 0), 
-                  currency_code: cart.currency_code 
-                })}
+                <LocalizedPrice amount={(subtotal || 0) - (cart.discount_total ?? 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total ?? 0)} />
               </span>
             </div>
             <button onClick={onClose} className="bg-bg text-accent px-10 py-5 font-manrope text-[11px] font-bold uppercase tracking-[0.2em] shadow-lg animate-in fade-in zoom-in duration-500 delay-300">Got it</button>

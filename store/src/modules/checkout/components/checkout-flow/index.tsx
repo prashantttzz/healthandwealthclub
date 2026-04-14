@@ -3,7 +3,8 @@
 import React, { useState, useMemo, useEffect } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { convertToLocale } from "@lib/util/money"
-import { listCartOptions, setShippingMethod, selectSavedAddress } from "@lib/data/cart"
+import { listCartOptions, setShippingMethod, selectSavedAddress, retrieveCart, updateCart } from "@lib/data/cart"
+import { useCurrencyFormatter } from "@lib/currency"
 import { deleteCustomerAddress } from "@lib/data/customer"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { Check, ChevronLeft, ChevronRight } from "lucide-react"
@@ -26,13 +27,22 @@ const Ico = {
 
 const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCart; customer: HttpTypes.StoreCustomer | null }) => {
   const { cart, setCart, optimisticItems } = useCart()
+  const { formatPrice } = useCurrencyFormatter()
   const [currentStep, setCurrentStep] = useState(0)
-  const [selectedAddress, setSelectedAddress] = useState<HttpTypes.StoreCustomerAddress | null>(
-    customer?.addresses?.find(a => a.is_default_shipping) ?? customer?.addresses?.[0] ?? null
-  )
+  const [selectedAddress, setSelectedAddress] = useState<HttpTypes.StoreCustomerAddress | null>(() => {
+    const countriesInRegion = initialCart?.region?.countries?.map((c) => c.iso_2?.toLowerCase()) || []
+    const validAddresses = customer?.addresses?.filter(
+      (a) => a.country_code && countriesInRegion.includes(a.country_code.toLowerCase())
+    ) || []
+    
+    return validAddresses.find(a => a.is_default_shipping) ?? validAddresses[0] ?? null
+  })
   const [shippingOptions, setShippingOptions] = useState<HttpTypes.StoreCartShippingOption[]>([])
   const [selectedShippingOptionId, setSelectedShippingOptionId] = useState<string | null>(null)
   const [isLoadingShipping, setIsLoadingShipping] = useState(false)
+
+  const [recipientName, setRecipientName] = useState(cart?.shipping_address?.metadata?.recipient_name as string || "")
+  const [recipientPhone, setRecipientPhone] = useState(cart?.shipping_address?.metadata?.recipient_phone as string || "")
 
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
@@ -49,12 +59,26 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
       setIsLoadingShipping(true)
       try {
         // First sync the selected address with the cart in Medusa
-        await selectSavedAddress(selectedAddress)
-        const opts = await listCartOptions()
-        setShippingOptions(opts.shipping_options || [])
-        // Auto select first option if none selected
-        if (opts.shipping_options?.length > 0 && !selectedShippingOptionId) {
-          setSelectedShippingOptionId(opts.shipping_options[0].id)
+        const res = await selectSavedAddress(selectedAddress)
+        
+        if (res.success) {
+          // Re-fetch the cart to ensure the region and address are fully synced on the frontend
+          const updatedCart = await retrieveCart()
+          if (updatedCart) {
+            setCart(updatedCart)
+          }
+
+          // Add a small delay for Medusa to process the update and recalculate options
+          await new Promise(resolve => setTimeout(resolve, 800))
+          const opts = await listCartOptions()
+          setShippingOptions(opts.shipping_options || [])
+          
+          // Auto select first option if none selected
+          if (opts.shipping_options?.length > 0 && !selectedShippingOptionId) {
+            setSelectedShippingOptionId(opts.shipping_options[0].id)
+          }
+        } else {
+          console.error("Failed to sync address:", res.error)
         }
       } catch (err) {
         console.error("Error fetching shipping options:", err)
@@ -84,6 +108,19 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
       if (selectedShippingOptionId && cart?.id) {
         setIsLoadingShipping(true)
         try {
+          // Sync gifting metadata before proceeding
+          if (recipientName || recipientPhone) {
+            await updateCart({
+              shipping_address: {
+                metadata: {
+                  ...cart.shipping_address?.metadata,
+                  recipient_name: recipientName,
+                  recipient_phone: recipientPhone
+                }
+              }
+            })
+          }
+          
           await setShippingMethod({ cartId: cart.id, shippingMethodId: selectedShippingOptionId })
           goToStep(currentStep + 1)
         } catch (err) {
@@ -103,7 +140,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
 
   if (showSuccess && cart) {
     const totalPayable = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total ?? 0) + selectedShippingPrice
-    
+     console.log("hi",selectedShippingPrice)
     return (
       <div className="fixed inset-0 bg-black/30 z-[200] flex items-center justify-center p-6">
         <div className="bg-bg p-12 max-w-md w-full flex flex-col items-center gap-8 shadow-2xl animate-in zoom-in-95 fade-in duration-500">
@@ -113,7 +150,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
           <h2 className="font-newsreader italic text-3xl text-accent">Order Placed!</h2>
           <p className="font-manrope text-[14px] text-accent/50 text-center leading-relaxed">Estimated delivery by <span className="font-bold text-accent">{new Date(Date.now() + 5 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span></p>
           <div className="bg-accent/[0.03] border border-accent/5 p-6 w-full">
-            <div className="flex justify-between font-manrope text-[13px] uppercase tracking-widest font-bold"><span className="text-accent/40">Total Paid</span><span className="text-accent">{convertToLocale({ amount: totalPayable, currency_code: cart.currency_code })}</span></div>
+            <div className="flex justify-between font-manrope text-[13px] uppercase tracking-widest font-bold"><span className="text-accent/40">Total Paid</span><span className="text-accent">{formatPrice(totalPayable)}</span></div>
           </div>
           <LocalizedClientLink href="/store" className="px-10 py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all">Continue Shopping</LocalizedClientLink>
         </div>
@@ -157,6 +194,10 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
                   selectedShippingOptionId={selectedShippingOptionId}
                   setSelectedShippingOptionId={setSelectedShippingOptionId}
                   isLoadingShipping={isLoadingShipping}
+                  recipientName={recipientName}
+                  setRecipientName={setRecipientName}
+                  recipientPhone={recipientPhone}
+                  setRecipientPhone={setRecipientPhone}
                 />
               )}
               {currentStep === 2 && <PaymentStep cart={cart} />}
@@ -172,6 +213,8 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
                 selectedAddress={selectedAddress} 
                 isLoadingShipping={isLoadingShipping}
                 selectedShippingPrice={selectedShippingPrice}
+                selectedShippingOptionId={selectedShippingOptionId}
+                shippingOptions={shippingOptions}
               />
             </div>
           </div>
@@ -181,10 +224,17 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
       {/* Mobile Bottom Bar */}
       <div className="lg:hidden fixed bottom-0 left-0 right-0 bg-bg border-t shadow-[0_-4px_20px_rgba(0,0,0,0.03)] border-accent/5 px-4 py-3 z-50 flex items-center justify-between">
         <div onClick={() => setDrawerOpen(true)} className="cursor-pointer">
-          <p className="font-newsreader italic text-xl text-accent">{convertToLocale({ amount: payableAmount, currency_code: cart.currency_code })}</p>
-          <button className="font-manrope text-[10px] uppercase font-bold tracking-widest text-accent/40 flex items-center gap-1 mt-0.5">View Details {Ico.chevRight("w-3 h-3 -rotate-90")}</button>
+          <p className="font-newsreader italic text-xl text-accent">{formatPrice(payableAmount)}</p>
+          {shippingOptions.length === 0 && currentStep === 1 ? (
+            <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest">
+               {selectedAddress 
+                 ? "No shipping methods available" 
+                 : "Select an address"}
+            </div>
+          ) : (<button className="font-manrope text-[10px] uppercase font-bold tracking-widest text-accent/40 flex items-center gap-1 mt-0.5">View Details {Ico.chevRight("w-3 h-3 -rotate-90")}</button>
+          )}
         </div>
-        <button onClick={handleProceed} disabled={(currentStep === 1 && !selectedAddress) || isLoadingShipping}
+        <button onClick={handleProceed} disabled={(currentStep === 1 && (!selectedAddress || shippingOptions.length === 0 || !selectedShippingOptionId)) || isLoadingShipping}
           className="px-8 py-4 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
           {isLoadingShipping ? "Processing..." : currentStep === 0 ? "PROCEED" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"}
         </button>

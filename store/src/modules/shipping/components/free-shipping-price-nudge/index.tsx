@@ -1,6 +1,6 @@
 "use client"
 
-import { convertToLocale } from "@lib/util/money"
+import { formatPrice, useCurrencyFormatter } from "@lib/currency"
 import { CheckCircleSolid, XMark } from "@medusajs/icons"
 import {
   HttpTypes,
@@ -83,6 +83,7 @@ export default function ShippingPriceNudge({
   shippingOptions: StoreCartShippingOption[]
 }) {
   const { openCartSidebar } = useUI()
+  const { formatPrice } = useCurrencyFormatter()
   if (!cart || !shippingOptions?.length) {
     return
   }
@@ -126,9 +127,9 @@ export default function ShippingPriceNudge({
   }
 
   if (variant === "popup") {
-    return <FreeShippingPopup cart={cart} price={freeShippingPrice} />
+    return <FreeShippingPopup cart={cart} price={freeShippingPrice} formatPrice={formatPrice} />
   } else {
-    return <FreeShippingInline cart={cart} price={freeShippingPrice} />
+    return <FreeShippingInline cart={cart} price={freeShippingPrice} formatPrice={formatPrice} />
   }
 }
 
@@ -142,6 +143,7 @@ function FreeShippingInline({
     target_remaining: number
     remaining_percentage: number
   }
+  formatPrice: (amount: number) => string
 }) {
   return (
     <div className="bg-neutral-100 p-2 rounded-lg border">
@@ -165,10 +167,7 @@ function FreeShippingInline({
           >
             Only{" "}
             <span className="text-neutral-950">
-              {convertToLocale({
-                amount: price.target_remaining,
-                currency_code: cart.currency_code,
-              })}
+              {price.target_remaining}
             </span>{" "}
             away
           </div>
@@ -196,6 +195,7 @@ function FreeShippingPopup({
 }: {
   cart: StoreCart
   price: StoreFreeShippingPrice
+  formatPrice: (amount: number) => string
 }) {
   const { openCartSidebar } = useUI()
   const [isClosed, setIsClosed] = useState(false)
@@ -242,10 +242,7 @@ function FreeShippingPopup({
               >
                 Only{" "}
                 <span className="text-white">
-                  {convertToLocale({
-                    amount: price.target_remaining,
-                    currency_code: cart.currency_code,
-                  })}
+                  {price.target_remaining}
                 </span>{" "}
                 away
               </div>

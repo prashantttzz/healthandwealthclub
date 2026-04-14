@@ -2,11 +2,11 @@
 
 import React, { useState, useMemo } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { convertToLocale } from "@lib/util/money"
 import { Home, Truck, Plus, ChevronRight } from "lucide-react"
 import Thumbnail from "@modules/products/components/thumbnail"
 import AddressSidebar from "../address-sidebar"
 import { deleteCustomerAddress } from "@lib/data/customer"
+import LocalizedPrice from "@modules/common/components/localized-price"
 
 const Ico = {
   plus: (c = "") => <Plus className={c} strokeWidth={2.5}  />,
@@ -15,7 +15,7 @@ const Ico = {
   truck: (c = "") => <Truck className={c} strokeWidth={1.5} />,
 }
 
-const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onContinue, shippingOptions, selectedShippingOptionId, setSelectedShippingOptionId, isLoadingShipping }: {
+const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, shippingOptions, selectedShippingOptionId, setSelectedShippingOptionId, isLoadingShipping, recipientName, setRecipientName, recipientPhone, setRecipientPhone }: {
   cart: HttpTypes.StoreCart; 
   customer: HttpTypes.StoreCustomer | null
   selectedAddress: HttpTypes.StoreCustomerAddress | null; 
@@ -25,18 +25,29 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
   selectedShippingOptionId: string | null;
   setSelectedShippingOptionId: (id: string) => void;
   isLoadingShipping: boolean;
+  recipientName: string;
+  setRecipientName: (val: string) => void;
+  recipientPhone: string;
+  setRecipientPhone: (val: string) => void;
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
+  const [isGift, setIsGift] = useState(!!recipientName || !!recipientPhone)
 
   const deliveryOptions = useMemo(() => {
     return shippingOptions.map(opt => ({
       id: opt.id,
       label: opt.name,
-      sub: opt.amount === 0 ? "Free Shipping" : convertToLocale({ amount: opt.amount, currency_code: cart.currency_code }),
+      amount: opt.amount,
       enabled: true
     }))
-  }, [shippingOptions, cart.currency_code])
+  }, [shippingOptions])
 
+  const addressesInRegion = useMemo(() => {
+    const countriesInRegion = cart?.region?.countries?.map((c) => c.iso_2?.toLowerCase()) || []
+    return customer?.addresses.filter(
+      (a) => a.country_code && countriesInRegion.includes(a.country_code.toLowerCase())
+    ) || []
+  }, [customer?.addresses, cart?.region])
   return (
     <div className="flex flex-col gap-14 mb-20 md:mt-0">
       {/* Delivery Address */}
@@ -51,7 +62,8 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
                   <span className="font-manrope text-[15px] font-bold text-accent">{selectedAddress.first_name}&apos;s Home</span>
                   {selectedAddress.is_default_shipping && <span className="font-manrope text-[9px] bg-accent/5 text-accent/50 px-2 py-0.5 uppercase tracking-widest font-bold">Default</span>}
                 </div>
-                <p className="font-manrope text-[13px] text-accent/40 leading-relaxed">{selectedAddress.address_1}{selectedAddress.city ? `, ${selectedAddress.city}` : ""} {selectedAddress.postal_code}{selectedAddress.phone ? ` , ${selectedAddress.phone}` : ""}</p>
+                <p className="font-manrope text-[13px] text-accent/40 leading-relaxed">{selectedAddress.address_1}{selectedAddress.city ? `, ${selectedAddress.city}` : ""} {selectedAddress.postal_code}</p>
+                <p className="font-manrope text-[12px] text-accent/20 mt-2 italic">Standard Phone: {selectedAddress.phone}</p>
               </div>
             </div>
             <button onClick={() => setSidebarOpen(true)} className="px-5 py-3 border border-accent/10 font-manrope text-[11px] font-bold text-accent uppercase tracking-widest hover:border-accent hover:bg-accent hover:text-bg transition-all duration-300 flex-shrink-0">Change Address</button>
@@ -64,6 +76,47 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
             </div>
             {Ico.chevRight("w-4 h-4")}
           </button>
+        )}
+
+        {/* Gifting Details Form */}
+        {selectedAddress && (
+          <div className="mt-8 border border-accent/10 bg-black/[0.02] p-8">
+            <label className="flex items-center gap-4 cursor-pointer group">
+              <input 
+                type="checkbox" 
+                checked={isGift} 
+                onChange={(e) => setIsGift(e.target.checked)}
+                className="w-5 h-5 rounded-none border-accent/20 text-accent focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer"
+              />
+              <div>
+                <span className="font-newsreader italic text-xl text-accent block">Is this a gift?</span>
+                <span className="font-manrope text-[11px] text-accent/30 uppercase tracking-widest font-bold">Add recipient name and phone number</span>
+              </div>
+            </label>
+
+            {isGift && (
+              <div className="mt-8 pt-8 border-t border-accent/5 grid md:grid-cols-2 gap-8 animate-in slide-in-from-top-2 duration-500">
+                <div className="flex flex-col gap-3">
+                  <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Recipient Name</label>
+                  <input 
+                    value={recipientName} 
+                    onChange={(e) => setRecipientName(e.target.value)}
+                    placeholder="John Doe"
+                    className="w-full h-12 px-4 bg-bg border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" 
+                  />
+                </div>
+                <div className="flex flex-col gap-3">
+                  <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Recipient Phone</label>
+                  <input 
+                    value={recipientPhone} 
+                    onChange={(e) => setRecipientPhone(e.target.value)}
+                    placeholder="+971 00 000 0000"
+                    className="w-full h-12 px-4 bg-bg border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" 
+                  />
+                </div>
+              </div>
+            )}
+          </div>
         )}
       </div>
 
@@ -94,7 +147,9 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
                     </div>
                     <div>
                       <p className={`font-manrope text-[15px] font-bold transition-colors duration-300 ${sel ? "text-accent" : "text-accent/40"}`}>{opt.label}</p>
-                      <p className={`font-manrope text-[12px] transition-colors duration-300 ${sel ? "text-accent/60" : "text-accent/20"} mt-0.5`}>{opt.sub}</p>
+                      <p className={`font-manrope text-[12px] transition-colors duration-300 ${sel ? "text-accent/60" : "text-accent/20"} mt-0.5`}>
+                        {opt.amount === 0 ? "Free Shipping" : <LocalizedPrice amount={opt.amount} />}
+                      </p>
                     </div>
                   </div>
                   <span className={`w-6 h-6 rounded-full border flex items-center justify-center transition-all ${sel ? "border-accent bg-accent" : "border-accent/10"}`}>
@@ -124,7 +179,7 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, onCo
       <AddressSidebar 
         isOpen={sidebarOpen} 
         onClose={() => setSidebarOpen(false)} 
-        addresses={customer?.addresses ?? []} 
+        addresses={addressesInRegion} 
         onSelect={setSelectedAddress} 
         onDelete={async (id) => { try { await deleteCustomerAddress(id) } catch {} }} 
         countries={cart?.region?.countries}

@@ -1,6 +1,6 @@
 "use client"
 
-import { Table, Text, clx } from "@medusajs/ui"
+import { Table, Text, clx, toast } from "@medusajs/ui"
 import { updateLineItem } from "@lib/data/cart"
 import { HttpTypes } from "@medusajs/types"
 import CartItemSelect from "@modules/cart/components/cart-item-select"
@@ -18,15 +18,23 @@ import QuantitySelector from "@modules/cart/components/item/quantity-selector"
 type ItemProps = {
   item: HttpTypes.StoreCartLineItem
   type?: "full" | "preview"
-  currencyCode: string
 }
 
-const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
+const Item = ({ item, type = "full" }: ItemProps) => {
   const [updating, setUpdating] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
   const changeQuantity = async (quantity: number) => {
     setError(null)
+
+    const inventory = item.variant?.inventory_quantity || 0
+    const manageInventory = item.variant?.manage_inventory !== false
+
+    if (quantity > item.quantity && manageInventory && quantity > inventory) {
+      toast.error("Maximum quantity reached for this item.")
+      return
+    }
+
     setUpdating(true)
 
     await updateLineItem({
@@ -41,9 +49,9 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
       })
   }
 
-  // TODO: Update this to grab the actual max inventory
-  const maxQtyFromInventory = 10
-  const maxQuantity = item.variant?.manage_inventory ? 10 : maxQtyFromInventory
+  const maxQuantity = item.variant?.manage_inventory === false 
+    ? 100 
+    : (item.variant?.inventory_quantity || 0)
 
   return (
     <>
@@ -67,7 +75,7 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
             <div className="font-manrope text-[11px] uppercase tracking-widest text-accent/60 font-bold">
               <LineItemOptions variant={item.variant} />
             </div>
-            <LineItemUnitPrice item={item} style="tight" currencyCode={currencyCode} />
+            <LineItemUnitPrice item={item} style="tight" />
           </div>
         </div>
 
@@ -86,7 +94,7 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
 
         <div className="flex items-center justify-between">
           <span className="font-manrope text-[10px] uppercase font-bold text-accent/30 tracking-widest">Total cost</span>
-          <LineItemPrice item={item} style="tight" currencyCode={currencyCode} />
+          <LineItemPrice item={item} style="tight" />
         </div>
         <ErrorMessage error={error} />
       </div>
@@ -140,7 +148,6 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
             <LineItemUnitPrice
               item={item}
               style="tight"
-              currencyCode={currencyCode}
             />
           </Table.Cell>
         )}
@@ -149,7 +156,6 @@ const Item = ({ item, type = "full", currencyCode }: ItemProps) => {
           <LineItemPrice
             item={item}
             style="tight"
-            currencyCode={currencyCode}
           />
         </Table.Cell>
       </Table.Row>

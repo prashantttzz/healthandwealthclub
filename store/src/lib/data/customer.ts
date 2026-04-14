@@ -182,9 +182,7 @@ export const addCustomerAddress = async (
     phone,
     is_default_billing: isDefaultBilling,
     is_default_shipping: isDefaultShipping,
-    metadata: {
-      recipient_name: formData.get("recipient_name") as string,
-    }
+    metadata: {}
   }
 
   const headers = {
@@ -244,6 +242,7 @@ export const updateCustomerAddress = async (
     postal_code: formData.get("postal_code") as string,
     province: formData.get("province") as string,
     country_code: formData.get("country_code") as string,
+    metadata: {}
   } as HttpTypes.StoreUpdateCustomerAddress
 
   const phone = formData.get("phone") as string

@@ -9,12 +9,14 @@ import { isEqual } from "lodash"
 import { clx } from "@medusajs/ui"
 import { useCart } from "@lib/context/cart-context"
 import { useUI } from "@lib/context/ui-context"
+import { toast } from "@medusajs/ui"
 import { getProductPrice } from "@lib/util/get-product-price"
 import { getColorHex } from "@lib/util/get-color-hex"
 import CraftsmanshipSection from "../components/craftsmanship-section"
 import ProductTabs from "../components/product-tabs"
 import ProductReviews from "../components/product-reviews"
 import ImageCarousel from "../components/image-carousel"
+import LocalizedPrice from "@modules/common/components/localized-price"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -42,7 +44,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const searchParams = useSearchParams()
   const actionsRef = useRef<HTMLDivElement>(null)
   const [options, setOptions] = useState<Record<string, string | undefined>>({})
-  const { addItem } = useCart()
+  const { addItem, optimisticItems } = useCart()
   const { openCartSidebar } = useUI()
   const [isAdding, setIsAdding] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
@@ -59,6 +61,17 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     if (!product.variants) return
     return product.variants.find((v) => isEqual(optionsAsKeymap(v.options), options))
   }, [product.variants, options])
+
+  const isAtMaximumQuantity = useMemo(() => {
+    if (!selectedVariant || selectedVariant.manage_inventory === false) return false
+
+    const cartItem = optimisticItems.find(
+      (item) => item.variant_id === selectedVariant.id
+    )
+    const currentQty = cartItem?.quantity || 0
+
+    return currentQty >= (selectedVariant.inventory_quantity || 0)
+  }, [selectedVariant, optimisticItems])
 
   // Function to check if a specific option value combination is available (has stock)
   const isOptionAvailable = (optionId: string, value: string) => {
@@ -107,6 +120,11 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return
     
+    if (isAtMaximumQuantity) {
+      toast.error("You've reached the maximum available quantity for this item.")
+      return
+    }
+
     // Optimistic UI updates
     setIsAdding(true)
     setIsSuccess(true)
@@ -143,8 +161,20 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   const [showDock, setShowDock] = useState(true)
 
-  if (!product || !product.id) return notFound()
+  // Determine if we should show the selection options
+  // Hide if there's ONLY one variant and its options are default/minimal
+  const hasMultipleVariants = (product.variants?.length || 0) > 1
+  const hasOptions = (product.options?.length || 0) > 0
+  const showOptions = hasMultipleVariants || (hasOptions && product.options?.some(o => (o.values?.length || 0) > 1))
 
+  const inStock = useMemo(() => {
+    if (!selectedVariant) return false
+    const manageInventory = selectedVariant.manage_inventory ?? false
+    if (!manageInventory) return true
+    return (selectedVariant.inventory_quantity ?? 0) > 0
+  }, [selectedVariant])
+
+  if (!product || !product.id) return notFound()
   return (
     <>
       <div className="bg-bg w-full min-h-screen">
@@ -196,56 +226,78 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 {product.title}
               </h1>
               <p className="font-newsreader text-[13px] md:text-[15px] italic text-accent/60 font-regular">
-                {selectedVariant?.title || "Experience Selection"}
+                {showOptions ? (selectedVariant?.title || "Experience Selection") : ""}
               </p>
             </div>
 
             {/* Pricing */}
             <div className="text-2xl md:text-3xl font-manrope font-light tracking-tight text-accent">
-              {selectedPrice?.calculated_price}
+           <LocalizedPrice amount={selectedPrice?.calculated_price_number}/>
             </div>
 
             {/* Description */}
          
-            <div className="space-y-12" ref={actionsRef}>
-              {(product.options || []).map((option) => {
-                const isColor = option.title?.toLowerCase() === "color"
-                const current = options[option.id]
+            {showOptions && (
+              <div className="space-y-12" ref={actionsRef}>
+                {(product.options || []).map((option) => {
+                  const isColor = option.title?.toLowerCase() === "color"
+                  const current = options[option.id]
 
-                return (
-                  <div key={option.id} className="space-y-4">
-                    <div className="flex items-center justify-between">
-                      <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/90">
-                        Select {option.title}
-                      </span>
-                      {option.title?.toLowerCase() === "size" && (
-                        <button className="font-manrope text-[9px] tracking-[0.2em] uppercase font-regular text-accent/90 hover:text-accent transition-colors">
-                          Size Guide
-                        </button>
-                      )}
-                    </div>
+                  return (
+                    <div key={option.id} className="space-y-4">
+                      <div className="flex items-center justify-between">
+                        <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/90">
+                          Select {option.title}
+                        </span>
+                        {option.title?.toLowerCase() === "size" && (
+                          <button className="font-manrope text-[9px] tracking-[0.2em] uppercase font-regular text-accent/90 hover:text-accent transition-colors">
+                            Size Guide
+                          </button>
+                        )}
+                      </div>
 
-                    <div className="flex flex-wrap gap-3">
-                      {(option.values || []).map((v) => {
-                        const isSelected = v.value === current
-                        const isAvailable = isOptionAvailable(option.id, v.value)
+                      <div className="flex flex-wrap gap-3">
+                        {(option.values || []).map((v) => {
+                          const isSelected = v.value === current
+                          const isAvailable = isOptionAvailable(option.id, v.value)
 
-                        if (isColor) {
-                          const colorHexFromMetadata = (v.metadata?.visual as string) || (v.metadata?.hex as string) || (v.metadata?.color as string)
-                          const colorHex = colorHexFromMetadata || getColorHex(v.value)
+                          if (isColor) {
+                            const colorHexFromMetadata = (v.metadata?.visual as string) || (v.metadata?.hex as string) || (v.metadata?.color as string)
+                            const colorHex = colorHexFromMetadata || getColorHex(v.value)
+                            return (
+                              <button
+                                key={v.id}
+                                disabled={!isAvailable}
+                                onClick={() => updateOption(option.id, v.value)}
+                                className={clx("w-10 h-10 border transition-all relative flex items-center justify-center", {
+                                  "border-accent scale-110": isSelected,
+                                  "border-accent/10 hover:border-accent/30": !isSelected && isAvailable,
+                                  "opacity-40 cursor-not-allowed grayscale-[0.6] border-black/5": !isAvailable,
+                                })}
+                                title={v.value + (!isAvailable ? " (Out of Stock)" : "")}
+                              >
+                                <div className="w-9 h-9 shadow-inner border border-black/5" style={{ backgroundColor: colorHex }} />
+                                {!isAvailable && (
+                                  <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
+                                    <div className="w-[120%] h-[2px] bg-red-500/80 rotate-45 absolute" />
+                                    <div className="w-[120%] h-[2px] bg-red-500/80 -rotate-45 absolute" />
+                                  </div>
+                                )}
+                              </button>
+                            )
+                          }
                           return (
                             <button
                               key={v.id}
                               disabled={!isAvailable}
                               onClick={() => updateOption(option.id, v.value)}
-                              className={clx("w-10 h-10 border transition-all relative flex items-center justify-center", {
-                                "border-accent scale-110": isSelected,
-                                "border-accent/10 hover:border-accent/30": !isSelected && isAvailable,
-                                "opacity-40 cursor-not-allowed grayscale-[0.6] border-black/5": !isAvailable,
+                              className={clx("relative px-5 py-3 text-[13px] font-manrope tracking-widest uppercase transition-all", {
+                                "text-accent font-bold border-b-2 border-black bg-accent/10 ": isSelected,
+                                "text-accent/30 hover:text-accent/60 border-b border-black/30": !isSelected && isAvailable,
+                                "opacity-50 cursor-not-allowed": !isAvailable,
                               })}
-                              title={v.value + (!isAvailable ? " (Out of Stock)" : "")}
                             >
-                              <div className="w-9 h-9 shadow-inner border border-black/5" style={{ backgroundColor: colorHex }} />
+                              <span className={clx({ "opacity-40": !isAvailable })}>{v.value}</span>
                               {!isAvailable && (
                                 <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
                                   <div className="w-[120%] h-[2px] bg-red-500/80 rotate-45 absolute" />
@@ -254,49 +306,45 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                               )}
                             </button>
                           )
-                        }
-                        return (
-                          <button
-                            key={v.id}
-                            disabled={!isAvailable}
-                            onClick={() => updateOption(option.id, v.value)}
-                            className={clx("relative px-5 py-3 text-[13px] font-manrope tracking-widest uppercase transition-all", {
-                              "text-accent font-bold border-b-2 border-black bg-accent/10 ": isSelected,
-                              "text-accent/30 hover:text-accent/60 border-b border-black/30": !isSelected && isAvailable,
-                              "opacity-50 cursor-not-allowed": !isAvailable,
-                            })}
-                          >
-                            <span className={clx({ "opacity-40": !isAvailable })}>{v.value}</span>
-                            {!isAvailable && (
-                              <div className="absolute inset-0 flex items-center justify-center pointer-events-none z-10">
-                                <div className="w-[120%] h-[2px] bg-red-500/80 rotate-45 absolute" />
-                                <div className="w-[120%] h-[2px] bg-red-500/80 -rotate-45 absolute" />
-                              </div>
-                            )}
-                          </button>
-                        )
-                      })}
+                        })}
+                      </div>
                     </div>
-                  </div>
-                )
-              })}
-            </div>
+                  )
+                })}
+              </div>
+            )}
 
-            {/* ACTION */}
+            {/* ACTION / STOCK STATUS */}
             <div className="pt-6">
-              <button
-                onClick={handleAddToCart}
-                disabled={!isValidVariant || isAdding}
-                className={clx(
-                  "w-full h-16 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden relative group",
-                  { "opacity-50 cursor-not-allowed": !isValidVariant || isAdding }
-                )}
-              >
-                <span className="relative z-10">
-                  {isSuccess ? "Added to Cart!" : (isValidVariant ? "Add to cart →" : "Select Selection")}
-                </span>
-                <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-              </button>
+              {!inStock ? (
+                <div className="p-8 border border-red-500/10 bg-red-500/[0.02] flex flex-col items-center justify-center space-y-3 text-center">
+                  <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
+                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+                  </div>
+                  <div className="space-y-1">
+                    <p className="font-manrope text-[11px] font-bold uppercase tracking-[0.2em] text-red-500">
+                      Currently Unavailable
+                    </p>
+                    <p className="font-newsreader text-[14px] italic text-accent/60">
+                      This selection is out of stock. Please check back soon.
+                    </p>
+                  </div>
+                </div>
+              ) : (
+                <button
+                  onClick={handleAddToCart}
+                  disabled={!isValidVariant || isAdding || isAtMaximumQuantity}
+                  className={clx(
+                    "w-full h-16 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden relative group",
+                    { "opacity-50 cursor-not-allowed": !isValidVariant || isAdding || isAtMaximumQuantity }
+                  )}
+                >
+                  <span className="relative z-10">
+                    {isSuccess ? "Added to Cart!" : (isAtMaximumQuantity ? "Limit Reached" : (isValidVariant ? "Add to cart →" : "Select Selection"))}
+                  </span>
+                  <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                </button>
+              )}
             </div>
             <div className="max-w-md pt-8 border-t border-accent/10 mt-8">
               <p className="font-manrope text-[15px] leading-relaxed font-regular text-black/50 whitespace-pre-line">
@@ -332,11 +380,11 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 </p>
                 <div className="flex items-center gap-2">
                   <span className="font-manrope text-[10px] font-bold uppercase tracking-widest text-accent/40">
-                    {selectedVariant?.title || "Quantity: 1"}
+                    {showOptions ? (selectedVariant?.title || "Quantity: 1") : "Quantity: 1"}
                   </span>
                   <span className="text-accent/20">•</span>
                   <span className="font-manrope text-[10px] font-bold uppercase tracking-widest text-accent">
-                    {selectedPrice?.calculated_price}
+                    {!inStock ? "OUT OF STOCK" : (selectedPrice?.calculated_price)}
                   </span>
                 </div>
               </div>
@@ -352,13 +400,13 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 
                 <button
                   onClick={handleAddToCart}
-                  disabled={!isValidVariant || isAdding}
+                  disabled={!isValidVariant || isAdding || !inStock || isAtMaximumQuantity}
                   className={clx(
                     "flex-1 h-14 px-6 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.2em] uppercase transition-all active:scale-95 flex items-center justify-center",
-                    { "opacity-50": !isValidVariant || isAdding }
+                    { "opacity-50": !isValidVariant || isAdding || !inStock || isAtMaximumQuantity }
                   )}
                 >
-                  {isSuccess ? "Added!" : (isAdding ? "..." : "Add to Cart →")}
+                  {isSuccess ? "Added!" : (isAdding ? "..." : (!inStock ? "Out of Stock" : (isAtMaximumQuantity ? "Limit Reached" : "Add to Cart →")))}
                 </button>
               </div>
             </div>

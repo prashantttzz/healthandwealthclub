@@ -21,12 +21,12 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
       >
         {/* Overline */}
         <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/70 mb-4">
-          Explore the Pillars
+          Explore the club
         </span>
 
         {/* Heading */}
         <h2 className="font-newsreader italic text-4xl md:text-7xl tracking-tighter text-accent text-center leading-none">
-          The Inaugural Drop
+          Club Collection
         </h2>
 
       </motion.div>

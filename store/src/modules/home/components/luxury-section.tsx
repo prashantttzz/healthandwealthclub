@@ -57,7 +57,7 @@ export default function LuxurySection() {
           viewport={{ once: true }}
           transition={{ duration: 0.7, ease: "easeOut" }}
         >
-          Uncompromising Craftsmanship
+          Timeless  Craftsmanship
         </motion.p>
 
         {/* Heading */}
@@ -81,13 +81,6 @@ export default function LuxurySection() {
           transition={{ duration: 0.8, delay: 0.5 }}
           className="flex flex-col sm:flex-row gap-4 items-center justify-center pt-4"
         >
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            className="px-10 py-4 bg-white text-accent font-manrope text-[11px] tracking-[0.4em] uppercase font-bold transition-all"
-          >
-            Shop the Collection
-          </motion.button>
           <motion.button
             whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.1)" }}
             whileTap={{ scale: 0.98 }}

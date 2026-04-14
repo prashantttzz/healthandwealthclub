@@ -1,17 +1,17 @@
-import { convertToLocale } from "@lib/util/money"
+"use client"
+
 import { HttpTypes } from "@medusajs/types"
 import { clx } from "@medusajs/ui"
+import LocalizedPrice from "@modules/common/components/localized-price"
 
 type LineItemUnitPriceProps = {
   item: HttpTypes.StoreCartLineItem | HttpTypes.StoreOrderLineItem
   style?: "default" | "tight"
-  currencyCode: string
 }
 
 const LineItemUnitPrice = ({
   item,
   style = "default",
-  currencyCode,
 }: LineItemUnitPriceProps) => {
   const total = item.total ?? 0
   const original_total = item.original_total ?? 0
@@ -34,10 +34,7 @@ const LineItemUnitPrice = ({
               className="line-through"
               data-testid="product-unit-original-price"
             >
-              {convertToLocale({
-                amount: original_total / quantity,
-                currency_code: currencyCode,
-              })}
+              <LocalizedPrice amount={original_total / quantity} />
             </span>
           </p>
           {style === "default" && (
@@ -51,10 +48,7 @@ const LineItemUnitPrice = ({
         })}
         data-testid="product-unit-price"
       >
-        {convertToLocale({
-          amount: total / quantity,
-          currency_code: currencyCode,
-        })}
+        <LocalizedPrice amount={total / quantity} />
       </span>
     </div>
   )

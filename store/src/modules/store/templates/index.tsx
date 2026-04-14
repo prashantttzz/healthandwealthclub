@@ -36,10 +36,21 @@ const StoreTemplate = async ({
   const categories = await listCategories()
   let collectionId: string | undefined
   let collectionTitle: string | undefined
+  let resolvedCategoryId: string | undefined
+  let categoryTitle: string | undefined
+
   if (collection) {
     const col = await getCollectionByHandle(collection)
     collectionId = col?.id
     collectionTitle = col?.title
+  }
+
+  if (category) {
+    const targetCategory = categories.find(c => c.handle === category)
+    if (targetCategory) {
+      resolvedCategoryId = targetCategory.id
+      categoryTitle = targetCategory.name
+    }
   }
 
   return (
@@ -51,7 +62,8 @@ const StoreTemplate = async ({
             items={[
               { label: "Home", href: "/" },
               { label: "Collection", href: "/store" },
-              ...(collectionTitle ? [{ label: collectionTitle }] : [])
+              ...(collectionTitle ? [{ label: collectionTitle }] : []),
+              ...(categoryTitle ? [{ label: categoryTitle }] : [])
             ]} 
             className="py-5"
           />
@@ -75,7 +87,7 @@ const StoreTemplate = async ({
                 sortBy={sort}
                 page={pageNumber}
                 search={search}
-                categoryId={category}
+                categoryId={resolvedCategoryId}
                 collectionId={collectionId}
                 size={size}
                 color={color}

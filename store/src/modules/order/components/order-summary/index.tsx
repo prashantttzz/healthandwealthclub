@@ -1,20 +1,20 @@
-import { convertToLocale } from "@lib/util/money"
+"use client"
+
 import { HttpTypes } from "@medusajs/types"
+import { useCurrencyFormatter } from "@lib/currency"
 
 type OrderSummaryProps = {
   order: HttpTypes.StoreOrder
 }
 
 const OrderSummary = ({ order }: OrderSummaryProps) => {
+  const { formatPrice } = useCurrencyFormatter()
   const getAmount = (amount?: number | null) => {
-    if (!amount) {
+    if (amount === undefined || amount === null) {
       return
     }
 
-    return convertToLocale({
-      amount,
-      currency_code: order.currency_code,
-    })
+    return formatPrice(amount)
   }
 
   return (
