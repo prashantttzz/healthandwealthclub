@@ -4,6 +4,7 @@ import { HttpTypes } from "@medusajs/types"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import Image from "next/image"
 import { getProductPrice } from "@lib/util/get-product-price"
+import LocalizedPrice from "@modules/common/components/localized-price"
 
 type RelatedProductsProps = {
   product: HttpTypes.StoreProduct
@@ -54,8 +55,8 @@ export default async function RelatedProducts({
               Complete the Look
             </h2>
           </div>
-          
-          <LocalizedClientLink 
+
+          <LocalizedClientLink
             href="/store"
             className="font-manrope text-[10px] font-bold tracking-[0.2em] uppercase text-accent border-b border-accent/20 pb-0.5 hover:opacity-60 transition-all mb-2"
           >
@@ -68,8 +69,8 @@ export default async function RelatedProducts({
           {products.map((p) => {
             const { cheapestPrice } = getProductPrice({ product: p })
             return (
-              <LocalizedClientLink 
-                key={p.id} 
+              <LocalizedClientLink
+                key={p.id}
                 href={`/products/${p.handle}`}
                 className="group flex flex-col space-y-5"
               >
@@ -86,7 +87,7 @@ export default async function RelatedProducts({
                     {p.title}
                   </h3>
                   <p className="font-manrope text-[12px] text-accent/80 font-medium">
-                    {cheapestPrice?.calculated_price}
+                    <LocalizedPrice amount={cheapestPrice?.calculated_price_number} />
                   </p>
                 </div>
               </LocalizedClientLink>

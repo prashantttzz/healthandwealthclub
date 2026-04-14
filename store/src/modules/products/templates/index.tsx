@@ -384,7 +384,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                   </span>
                   <span className="text-accent/20">•</span>
                   <span className="font-manrope text-[10px] font-bold uppercase tracking-widest text-accent">
-                    {!inStock ? "OUT OF STOCK" : (selectedPrice?.calculated_price)}
+                    {!inStock ? "OUT OF STOCK" : <LocalizedPrice amount={selectedPrice?.calculated_price_number}/>}
                   </span>
                 </div>
               </div>
