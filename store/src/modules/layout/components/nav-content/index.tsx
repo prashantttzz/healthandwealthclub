@@ -70,8 +70,9 @@ export default function NavContent({
   const showSolid = isScrolled || !isHome || !!hoveredItem
 
   return (
+    <>
     <motion.nav 
-      className="fixed top-0 inset-x-0 z-[1000] pointer-events-auto overflow-hidden"
+      className="fixed top-0 inset-x-0 z-[1000] pointer-events-auto"
       onMouseLeave={() => setHoveredItem(null)}
       animate={{ 
         backgroundColor: showSolid ? "rgba(242, 237, 229, 1)" : "rgba(242, 237, 229, 0)",
@@ -359,10 +360,11 @@ export default function NavContent({
         </AnimatePresence>
       </div>
 
-      <MobileMenu 
-        isOpen={isMenuOpen} 
-        onClose={() => setIsMenuOpen(false)} 
-      />
     </motion.nav>
+    <MobileMenu 
+      isOpen={isMenuOpen} 
+      onClose={() => setIsMenuOpen(false)} 
+    />
+    </>
   )
 }
