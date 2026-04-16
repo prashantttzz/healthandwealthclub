@@ -68,7 +68,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               justify-content: center;
               overflow: hidden;
               opacity: 0;
-              animation: fadeIn 1.2s ease-out 0.3s forwards;
+              animation: fadeIn 0.35s ease-out 0.05s forwards;
             }
             #hard-loader img {
               width: 80%;
@@ -91,7 +91,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               pointer-events: none;
               z-index: 100000;
               opacity: 0;
-              animation: fadeIn 0.5s ease-out forwards;
+              animation: fadeIn 0.25s ease-out forwards;
             }
           `
         }} />

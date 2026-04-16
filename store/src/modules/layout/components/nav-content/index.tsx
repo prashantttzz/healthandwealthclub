@@ -16,6 +16,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import MobileMenu from "../mobile-menu"
 import { clx } from "@medusajs/ui"
+import { SUPPORT_LINKS } from "@lib/constants"
 
 import { HttpTypes } from "@medusajs/types"
 
@@ -160,11 +161,11 @@ export default function NavContent({
                 Collection
               </LocalizedClientLink>
               <LocalizedClientLink 
-                href="/#about-us" 
+                href="/collabrations" 
                 className="hover:opacity-60 transition-opacity h-full flex items-center px-4"
                 onMouseEnter={() => setHoveredItem("about")}
               >
-                About us
+                Collabrations
               </LocalizedClientLink>
             </div>
           </div>
@@ -314,9 +315,9 @@ export default function NavContent({
                       <div className="flex flex-col gap-4">
                         <h5 className="font-newsreader italic text-2xl text-accent mb-2">Information</h5>
                         <div className="flex flex-col gap-3 font-manrope text-[11px] font-bold tracking-[0.2em] uppercase text-accent/40">
-                          <LocalizedClientLink href="/faq" className="hover:text-accent transition-colors">FAQs</LocalizedClientLink>
-                          <LocalizedClientLink href="/terms" className="hover:text-accent transition-colors">Terms & Conditions</LocalizedClientLink>
-                          <LocalizedClientLink href="/privacy" className="hover:text-accent transition-colors">Privacy Policy</LocalizedClientLink>
+                          <LocalizedClientLink href={SUPPORT_LINKS.faqs} className="hover:text-accent transition-colors">FAQs</LocalizedClientLink>
+                          <LocalizedClientLink href={SUPPORT_LINKS.terms} className="hover:text-accent transition-colors">Terms & Conditions</LocalizedClientLink>
+                          <LocalizedClientLink href={SUPPORT_LINKS.privacy} className="hover:text-accent transition-colors">Privacy Policy</LocalizedClientLink>
                         </div>
                       </div>
                     </div>
@@ -332,8 +333,8 @@ export default function NavContent({
                       <div className="grid grid-cols-2 gap-8 text-[11px] font-bold tracking-[0.25em] uppercase font-manrope text-accent/40 mt-10">
                         <LocalizedClientLink href="/#about-us" className="hover:text-accent transition-colors underline underline-offset-8">Our Vision</LocalizedClientLink>
                         <LocalizedClientLink href="/#about-us" className="hover:text-accent transition-colors underline underline-offset-8">Sustainability</LocalizedClientLink>
-                        <LocalizedClientLink href="/#collaborate" className="hover:text-accent transition-colors underline underline-offset-8">Manufacturing</LocalizedClientLink>
-                        <LocalizedClientLink href="/#collaborate" className="hover:text-accent transition-colors underline underline-offset-8">Working with us</LocalizedClientLink>
+                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Manufacturing</LocalizedClientLink>
+                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Working with us</LocalizedClientLink>
                       </div>
                     </div>
                     <div className="w-[400px] flex flex-col gap-4">

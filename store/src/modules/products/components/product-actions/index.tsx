@@ -106,6 +106,25 @@ export default function ProductActions({
     return currentQty >= (selectedVariant.inventory_quantity || 0)
   }, [selectedVariant, optimisticItems])
 
+  const lowStockMessage = useMemo(() => {
+    if (!selectedVariant || selectedVariant.manage_inventory === false) return null
+
+    const cartItem = optimisticItems.find(
+      (item) => item.variant_id === selectedVariant.id
+    )
+    const currentQty = cartItem?.quantity || 0
+    const remainingStock = Math.max(
+      (selectedVariant.inventory_quantity || 0) - currentQty,
+      0
+    )
+
+    if (remainingStock <= 0 || remainingStock > 3) return null
+    if (remainingStock === 1) return "Only one left in stock"
+    if (remainingStock === 2) return "Only two left in stock"
+
+    return `Only ${remainingStock} left in stock`
+  }, [selectedVariant, optimisticItems])
+
   const updateOption = (id: string, value: string) => {
     setOptions((prev) => ({ ...prev, [id]: value }))
   }
@@ -185,23 +204,31 @@ export default function ProductActions({
         <div className="flex flex-col gap-y-4">
           <ProductPrice product={product} variant={selectedVariant}  />
           
-          <Button
-            onClick={handleAddToCart}
-            disabled={!selectedVariant || !!disabled || isAdding || isOutOfStock || isAtMaximumQuantity}
-            variant="primary"
-            className="w-full h-14 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase transition-all duration-300 hover:bg-bg/90"
-            data-testid="add-product-button"
-          >
-            {!selectedVariant
-              ? "Select Option"
-              : isOutOfStock
-              ? "Out of Stock"
-              : isAtMaximumQuantity
-              ? "Maximum Quantity Reached"
-              : isAdded 
-              ? "Added \u2713"
-              : "Add to Experience"}
-          </Button>
+          <div className="flex flex-col gap-y-2">
+            <Button
+              onClick={handleAddToCart}
+              disabled={!selectedVariant || !!disabled || isAdding || isOutOfStock || isAtMaximumQuantity}
+              variant="primary"
+              className="w-full h-14 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase transition-all duration-300 hover:bg-bg/90"
+              data-testid="add-product-button"
+            >
+              {!selectedVariant
+                ? "Select Option"
+                : isOutOfStock
+                ? "Out of Stock"
+                : isAtMaximumQuantity
+                ? "Maximum Quantity Reached"
+                : isAdded 
+                ? "Added \u2713"
+                : "Add to Experience"}
+            </Button>
+
+            {lowStockMessage && (
+              <p className="font-manrope text-[11px] uppercase tracking-[0.18em] text-ui-fg-subtle">
+                {lowStockMessage}
+              </p>
+            )}
+          </div>
         </div>
       </div>
 

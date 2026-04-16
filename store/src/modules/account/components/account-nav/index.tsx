@@ -43,8 +43,8 @@ const AccountNav = ({
         <AccountNavLink href="/account/profile" route={route} label="Profile Details" icon={<HugeiconsIcon icon={UserCircleIcon} size={16} />} />
         <AccountNavLink href="/account/orders" route={route} label="Dossier & Orders" icon={<HugeiconsIcon icon={ShoppingBag01Icon} size={16} />} />
         <AccountNavLink href="/account/addresses" route={route} label="Address Book" icon={<HugeiconsIcon icon={Location01Icon} size={16} />} />
-        <AccountNavLink href="/account/payment-methods" route={route} label="Financial Cards" icon={<HugeiconsIcon icon={CreditCardIcon} size={16} />} />
-        <AccountNavLink href="/account/password" route={route} label="Identity Access" icon={<HugeiconsIcon icon={Settings01Icon} size={16} />} />
+        <AccountNavLink href="/account/profile" route={route} label="Financial Cards" icon={<HugeiconsIcon icon={CreditCardIcon} size={16} />} />
+        <AccountNavLink href="/account/profile" route={route} label="Identity Access" icon={<HugeiconsIcon icon={Settings01Icon} size={16} />} />
       </div>
       
       {/* Brand Signature - Desktop Only */}

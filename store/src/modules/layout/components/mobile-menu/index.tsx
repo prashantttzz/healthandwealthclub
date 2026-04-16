@@ -15,6 +15,8 @@ import { Text, clx } from "@medusajs/ui"
 import Image from "next/image"
 import ReactCountryFlag from "react-country-flag"
 import { useRegion } from "@lib/context/region-context"
+import { CONTACT_LINKS } from "@lib/constants"
+import TikTokIcon from "@modules/common/icons/tiktok"
 
 const menuVariants = {
   closed: {
@@ -50,8 +52,7 @@ const MENU_LINKS = [
   { name: "HOME", href: "/" },
   { name: "COLLECTIONS", href: "/store" },
   { name: "ABOUT US", href: "/#about-us" },
-  { name: "WORK WITH US", href: "/#collaborate" },
-  { name: "THE CLUB", href: "/club" },
+  { name: "COLLABRATION", href: "/collabrations" },
 ]
 
 export default function MobileMenu({ 
@@ -99,8 +100,8 @@ export default function MobileMenu({
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-16 border-b border-black/5">
               <a 
-                href="https://www.instagram.com/thehealthywealthclub?igsh=MTFjd2h0MjBvMGF1cw==" 
-                target="_blank" 
+                href={CONTACT_LINKS.instagram}
+                target="_blank"
                 rel="noopener noreferrer"
                 className="flex-shrink-0"
               >
@@ -134,7 +135,7 @@ export default function MobileMenu({
                         href={link.href}
                         onClick={onClose}
                         className={clx(
-                          "font-newsreader italic text-3xl text-accent transition-all block relative w-fit ",
+                          "font-newsreader italic text-2xl text-accent transition-all block relative w-fit ",
                           isActive ? "opacity-100 " : "text-black/40"
                         )}
                       >
@@ -166,16 +167,23 @@ export default function MobileMenu({
                   <div className="flex justify-between items-center">
                     <div className="flex gap-6">
                       {[
-                        { icon: Instagram, href: "#" },
-                        { icon: WhatsappFreeIcons, href: "#" },
-                        { icon: Mail, href: "mailto:contact@healthandwealth.club" }
+                        { icon: Instagram, href: CONTACT_LINKS.tiktok, isTikTok: true },
+                        { icon: Instagram, href: CONTACT_LINKS.instagram },
+                        { icon: WhatsappFreeIcons, href: CONTACT_LINKS.whatsapp },
+                        { icon: Mail, href: CONTACT_LINKS.email }
                       ].map((social, i) => (
                         <a 
                           key={i}
                           href={social.href}
+                          target="_blank"
+                          rel="noreferrer"
                           className="text-accent hover:opacity-60 transition-opacity duration-300"
                         >
-                          <HugeiconsIcon icon={social.icon} size={20} />
+                          {social.isTikTok ? (
+                            <TikTokIcon className="w-5 h-5" />
+                          ) : (
+                            <HugeiconsIcon icon={social.icon} size={20} />
+                          )}
                         </a>
                       ))}
                     </div>

@@ -157,7 +157,7 @@ const CartSidebar = () => {
                           </div>
 
                           <span className="font-manrope text-[13px] font-semibold text-bg">
-                            <LocalizedPrice amount={item.unit_price * item.quantity} />
+                            <LocalizedPrice amount={(Number(item.unit_price) || 0) * (Number(item.quantity) || 0)} />
                           </span>
                         </div>
                       </div>

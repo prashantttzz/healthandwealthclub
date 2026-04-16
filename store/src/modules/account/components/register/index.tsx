@@ -7,6 +7,7 @@ import ErrorMessage from "@modules/checkout/components/error-message"
 import { SubmitButton } from "@modules/checkout/components/submit-button"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { signup } from "@lib/data/customer"
+import { SUPPORT_LINKS } from "@lib/constants"
 
 type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
@@ -98,14 +99,14 @@ const Register = ({ setCurrentView }: Props) => {
         <span className="block text-center text-accent/60 text-[11px] mt-2 mb-6">
           By creating an account, you agree to our{" "}
           <LocalizedClientLink
-            href="/content/privacy-policy"
+            href={SUPPORT_LINKS.privacy}
             className="font-bold underline text-accent"
           >
             Privacy Policy
           </LocalizedClientLink>{" "}
           and{" "}
           <LocalizedClientLink
-            href="/content/terms-of-use"
+            href={SUPPORT_LINKS.terms}
             className="font-bold underline text-accent"
           >
             Terms of Use

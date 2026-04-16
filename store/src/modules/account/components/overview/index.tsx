@@ -54,13 +54,13 @@ const   Overview = ({ customer, orders }: OverviewProps) => {
           desc="Change your personal profile settings" 
         />
         <MobileMenuTile 
-          href="/account/payment-methods" 
+          href="/account/profile" 
           icon={<HugeiconsIcon icon={CreditCardIcon} size={22} />} 
           label="Financial Cards" 
           desc="Manage your saved payment methods" 
         />
         <MobileMenuTile 
-          href="/account/password" 
+          href="/account/profile" 
           icon={<HugeiconsIcon icon={Settings01Icon} size={22} />} 
           label="Identity Access" 
           desc="Manage your password and security" 

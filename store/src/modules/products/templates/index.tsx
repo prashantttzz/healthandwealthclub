@@ -73,6 +73,29 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     return currentQty >= (selectedVariant.inventory_quantity || 0)
   }, [selectedVariant, optimisticItems])
 
+  const remainingStock = useMemo(() => {
+    if (!selectedVariant || selectedVariant.manage_inventory === false) return null
+
+    const cartItem = optimisticItems.find(
+      (item) => item.variant_id === selectedVariant.id
+    )
+    const currentQty = cartItem?.quantity || 0
+    const inventoryQuantity = selectedVariant.inventory_quantity || 0
+
+    return Math.max(inventoryQuantity - currentQty, 0)
+  }, [selectedVariant, optimisticItems])
+
+  const lowStockMessage = useMemo(() => {
+    if (remainingStock === null || remainingStock <= 0 || remainingStock > 3) {
+      return null
+    }
+
+    if (remainingStock === 1) return "Only one left in stock"
+    if (remainingStock === 2) return "Only two left in stock"
+
+    return `Only ${remainingStock} left in stock`
+  }, [remainingStock])
+
   // Function to check if a specific option value combination is available (has stock)
   const isOptionAvailable = (optionId: string, value: string) => {
     if (!product.variants) return false
@@ -134,7 +157,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
       const optimisticData = {
         product_title: product.title || "",
         thumbnail: product.thumbnail || "",
-        unit_price: selectedPrice?.calculated_price || 0,
+        unit_price: selectedPrice?.calculated_price_number || 0,
         variant: {
           title: selectedVariant.title || "",
           product: {
@@ -331,19 +354,27 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                   </div>
                 </div>
               ) : (
-                <button
-                  onClick={handleAddToCart}
-                  disabled={!isValidVariant || isAdding || isAtMaximumQuantity}
-                  className={clx(
-                    "w-full h-16 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden relative group",
-                    { "opacity-50 cursor-not-allowed": !isValidVariant || isAdding || isAtMaximumQuantity }
+                <div className="space-y-3">
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={!isValidVariant || isAdding || isAtMaximumQuantity}
+                    className={clx(
+                      "w-full h-16 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden relative group",
+                      { "opacity-50 cursor-not-allowed": !isValidVariant || isAdding || isAtMaximumQuantity }
+                    )}
+                  >
+                    <span className="relative z-10">
+                      {isSuccess ? "Added to Cart!" : (isAtMaximumQuantity ? "Limit Reached" : (isValidVariant ? "Add to cart →" : "Select Selection"))}
+                    </span>
+                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                  </button>
+
+                  {lowStockMessage && (
+                    <p className="font-manrope text-[11px] uppercase tracking-[0.18em] text-accent/60">
+                      {lowStockMessage}
+                    </p>
                   )}
-                >
-                  <span className="relative z-10">
-                    {isSuccess ? "Added to Cart!" : (isAtMaximumQuantity ? "Limit Reached" : (isValidVariant ? "Add to cart →" : "Select Selection"))}
-                  </span>
-                  <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
-                </button>
+                </div>
               )}
             </div>
             <div className="max-w-md pt-8 border-t border-accent/10 mt-8">
@@ -387,6 +418,11 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     {!inStock ? "OUT OF STOCK" : <LocalizedPrice amount={selectedPrice?.calculated_price_number}/>}
                   </span>
                 </div>
+                {lowStockMessage && (
+                  <p className="font-manrope text-[10px] uppercase tracking-[0.18em] text-accent/50">
+                    {lowStockMessage}
+                  </p>
+                )}
               </div>
 
               <div className="flex items-center gap-2">

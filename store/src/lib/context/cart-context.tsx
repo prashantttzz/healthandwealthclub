@@ -27,7 +27,45 @@ export const CartProvider: React.FC<{
   const [cart, setCart] = useState<HttpTypes.StoreCart | null>(initialCart || null)
   const [optimisticQuantities, setOptimisticQuantities] = useState<Record<string, number>>({})
   const [optimisticAdditions, setOptimisticAdditions] = useState<HttpTypes.StoreCartLineItem[]>([])
+  const [optimisticRemovedIds, setOptimisticRemovedIds] = useState<Record<string, true>>({})
   const [isAdding, setIsAdding] = useState(false)
+
+  const removeLineFromCartState = (currentCart: HttpTypes.StoreCart | null, lineId: string) => {
+    if (!currentCart?.items) {
+      return currentCart
+    }
+
+    return {
+      ...currentCart,
+      items: currentCart.items.filter((item) => item.id !== lineId),
+    }
+  }
+
+  const updateLineQuantityInCartState = (
+    currentCart: HttpTypes.StoreCart | null,
+    lineId: string,
+    quantity: number
+  ) => {
+    if (!currentCart?.items) {
+      return currentCart
+    }
+
+    if (quantity <= 0) {
+      return removeLineFromCartState(currentCart, lineId)
+    }
+
+    return {
+      ...currentCart,
+      items: currentCart.items.map((item) =>
+        item.id === lineId
+          ? {
+              ...item,
+              quantity,
+            }
+          : item
+      ),
+    }
+  }
 
   // ✅ Only sync when cart ID or item count changes
   useEffect(() => {
@@ -44,14 +82,14 @@ export const CartProvider: React.FC<{
       quantity: optimisticQuantities[item.id] !== undefined
         ? optimisticQuantities[item.id]
         : item.quantity
-    })).filter(item => item.quantity > 0) || []
+    })).filter(item => !optimisticRemovedIds[item.id] && item.quantity > 0) || []
 
     const filteredAdditions = optimisticAdditions.filter(addition =>
       !existingItems.some(item => item.variant_id === addition.variant_id)
     )
 
     return [...existingItems, ...filteredAdditions]
-  }, [cart?.items, optimisticQuantities, optimisticAdditions])
+  }, [cart?.items, optimisticQuantities, optimisticAdditions, optimisticRemovedIds])
 
   const totalItems = useMemo(() => {
     return optimisticItems.reduce((acc, item) => acc + item.quantity, 0)
@@ -80,6 +118,25 @@ export const CartProvider: React.FC<{
       return changed ? newState : prev
     })
   }, [cart?.items])
+
+  useEffect(() => {
+    if (!cart) return
+
+    setOptimisticRemovedIds(prev => {
+      const nextState = { ...prev }
+      let changed = false
+
+      Object.keys(prev).forEach(lineId => {
+        const itemStillExists = cart.items?.some(item => item.id === lineId)
+        if (!itemStillExists) {
+          delete nextState[lineId]
+          changed = true
+        }
+      })
+
+      return changed ? nextState : prev
+    })
+  }, [cart])
 
   const addItem = async (
     variantId: string,
@@ -143,9 +200,13 @@ export const CartProvider: React.FC<{
   }
 
   const updateQuantity = async (lineId: string, quantity: number) => {
+    const previousCart = cart
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: quantity }))
+    setCart(prev => updateLineQuantityInCartState(prev, lineId, quantity))
 
     if (quantity <= 0) {
+      setOptimisticRemovedIds(prev => ({ ...prev, [lineId]: true }))
+      setOptimisticAdditions(prev => prev.filter(item => item.id !== lineId))
       try {
         const updatedCart = await postDeleteLineItem(lineId)
         if (updatedCart) {
@@ -154,7 +215,13 @@ export const CartProvider: React.FC<{
           router.refresh()
         }
       } catch {
+        setCart(previousCart)
         setOptimisticQuantities(prev => {
+          const newState = { ...prev }
+          delete newState[lineId]
+          return newState
+        })
+        setOptimisticRemovedIds(prev => {
           const newState = { ...prev }
           delete newState[lineId]
           return newState
@@ -171,6 +238,7 @@ export const CartProvider: React.FC<{
         router.refresh()
       }
     } catch {
+      setCart(previousCart)
       setOptimisticQuantities(prev => {
         const newState = { ...prev }
         delete newState[lineId]
@@ -180,7 +248,11 @@ export const CartProvider: React.FC<{
   }
 
   const removeItem = async (lineId: string) => {
+    const previousCart = cart
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: 0 }))
+    setOptimisticRemovedIds(prev => ({ ...prev, [lineId]: true }))
+    setOptimisticAdditions(prev => prev.filter(item => item.id !== lineId))
+    setCart(prev => removeLineFromCartState(prev, lineId))
     try {
       const updatedCart = await postDeleteLineItem(lineId)
       if (updatedCart) {
@@ -189,7 +261,13 @@ export const CartProvider: React.FC<{
         router.refresh()
       }
     } catch {
+      setCart(previousCart)
       setOptimisticQuantities(prev => {
+        const newState = { ...prev }
+        delete newState[lineId]
+        return newState
+      })
+      setOptimisticRemovedIds(prev => {
         const newState = { ...prev }
         delete newState[lineId]
         return newState

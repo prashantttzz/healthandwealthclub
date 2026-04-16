@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState, useCallback } from "react"
 import { motion, AnimatePresence, useScroll, useTransform } from "framer-motion"
 import Image from "next/image"
+import Link from "next/link"
 
 
 const SLIDES = [
@@ -200,7 +201,9 @@ const Hero = () => {
               whileTap={{ scale: 0.95 }}
               className="px-10 py-4 border border-white/20 text-white font-manrope text-[11px] uppercase tracking-[0.3em] backdrop-blur-sm hover:bg-white hover:text-black transition-all duration-500"
             >
+              <Link href={"/store"}>
               {slide.cta}
+              </Link>
             </motion.button>
           </motion.div>
         </AnimatePresence>

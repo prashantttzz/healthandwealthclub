@@ -16,10 +16,11 @@ const LocalizedPrice: React.FC<LocalizedPriceProps> = ({
   "data-testid": testId 
 }) => {
   const { formatPrice } = useCurrencyFormatter()
-   console.log("amount",amount)
+  const safeAmount = Number.isFinite(amount) ? amount : 0
+
   return (
     <span className={clx(className)} data-testid={testId}>
-      {formatPrice(amount)}
+      {formatPrice(safeAmount)}
     </span>
   )
 }

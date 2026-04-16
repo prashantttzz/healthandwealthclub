@@ -5,6 +5,7 @@ import Image from "next/image";
 import { HttpTypes } from "@medusajs/types";
 import Link from "next/link";
 import LocalizedClientLink from "@modules/common/components/localized-client-link";
+import { CONTACT_LINKS } from "@lib/constants";
 
 interface CategoryStickyScrollProps {
   collections?: HttpTypes.StoreCollection[];
@@ -18,7 +19,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
       description: "Born from an engineer's obsession with precision and quality, The Health & Wealth Club was created to redefine luxury without the luxury price tag. We believe feeling wealthy isn't about status, it's about substance: premium fabrics, timeless design, and the quiet confidence of knowing you belong to something greater. This isn't just clothing. It's a lifestyle.",
       id: "about-us",
       buttonText:"Join the club",
-      link:"https://www.instagram.com/thehealthywealthclub?igsh=MTFjd2h0MjBvMGF1cw==",
+      link: CONTACT_LINKS.instagram,
       image: "/about-hero-1.png" 
     },
     { 
@@ -27,7 +28,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
       description: "I'm an engineer refined in London, where modeling with big agencies sharpened my eye for detail and fed my obsession with extraordinary clothing. Knowing the industry's secrets, I set out to deliver high-end finishes and uncompromising quality without the inflated price tags. Now in Abu Dhabi, The Health & Wealth Club is more than fashion, it's a movement, inviting people to wear a mindset of health, wealth, and elegance.",
       id: "founder",
       buttonText:"follow me",
-      link:"/",
+      link: CONTACT_LINKS.tiktok,
       image: "/me.jpeg" 
     },
     { 
@@ -136,7 +137,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
                   <p className="text-sm lg:text-lg font-manrope text-bg/70 mb-10 leading-relaxed">
                     {item.description}
                   </p>
-                  <LocalizedClientLink href={item.link.startsWith('http') ? item.link : `/${item.link}`} className="group inline-flex items-center gap-4">
+                  <LocalizedClientLink href={item.link.startsWith('http') ? item.link : `/${item.link.replace(/^\/+/, "")}`} className="group inline-flex items-center gap-4">
                     <span className="text-[10px] font-bold uppercase tracking-[0.4em] text-bg">{item.buttonText}</span>
                     <div className="relative h-px w-10 bg-bg/20 overflow-hidden text-bg">
                       <motion.div 

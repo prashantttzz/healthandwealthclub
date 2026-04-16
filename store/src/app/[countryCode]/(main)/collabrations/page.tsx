@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import AboutUsTemplate from "@modules/about/templates"
 
 export const metadata: Metadata = {
-  title: "About Us | The Health & Wealth Club",
+  title: "Collabrations | The Health & Wealth Club",
   description: "Learn more about the vision, ethos, and team behind The Health & Wealth Club.",
 }
 

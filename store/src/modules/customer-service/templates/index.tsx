@@ -11,6 +11,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import { motion } from "framer-motion"
 import Accordion from "@modules/products/components/product-tabs/accordion"
+import { CONTACT_LINKS } from "@lib/constants"
 
 const CustomerServiceTemplate = () => {
   return (
@@ -90,8 +91,8 @@ const CustomerServiceTemplate = () => {
                 Our direct concierge team is available Monday through Friday. Whether by email or instant message, we prioritize your requests with the utmost attention.
               </p>
               <div className="flex flex-wrap gap-4 pt-4">
-                <ContactButton label="Email Support" href="mailto:support@healthandwealth.club" />
-                <ContactButton label="WhatsApp Concierge" href="https://wa.me/something" secondary />
+                <ContactButton label="Email Support" href={CONTACT_LINKS.email} />
+                <ContactButton label="WhatsApp Concierge" href={CONTACT_LINKS.whatsapp} secondary />
               </div>
             </div>
             
@@ -286,6 +287,8 @@ const SupportCard = ({ icon, title, href }: { icon: React.ReactNode, title: stri
 const ContactButton = ({ label, href, secondary = false }: { label: string, href: string, secondary?: boolean }) => (
   <a 
     href={href} 
+    target="_blank"
+    rel="noreferrer"
     className={`px-8 py-4 text-[12px] font-bold uppercase tracking-widest transition-all ${
       secondary 
         ? "bg-transparent border border-accent text-accent hover:bg-accent hover:text-bg" 

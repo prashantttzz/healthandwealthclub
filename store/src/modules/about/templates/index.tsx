@@ -5,6 +5,7 @@ import Image from "next/image"
 import { HugeiconsIcon } from "@hugeicons/react"
 import { ArrowUpRight01Icon, Instagram, WhatsappFreeIcons, Mail } from "@hugeicons/core-free-icons"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
+import { CONTACT_LINKS } from "@lib/constants"
 
 const AboutUsTemplate = () => {
   return (
@@ -114,7 +115,9 @@ const AboutUsTemplate = () => {
                  {/* Email Link */}
                  <motion.a 
                     whileHover={{ x: 12 }} 
-                    href="mailto:concierge@healthandwealth.club" 
+                    href={CONTACT_LINKS.email}
+                    target="_blank"
+                    rel="noreferrer"
                     className="group border-b border-black/5 pb-10 flex items-center justify-between gap-12"
                  >
                     <div className="space-y-2">
@@ -128,7 +131,9 @@ const AboutUsTemplate = () => {
                  <div className="grid grid-cols-1 md:grid-cols-2 gap-16 md:gap-32">
                     <motion.a 
                        whileHover={{ x: 12 }} 
-                       href="https://wa.me/thehealthywealthclub" 
+                       href={CONTACT_LINKS.whatsapp}
+                       target="_blank"
+                       rel="noreferrer"
                        className="group flex flex-col gap-4 border-l border-black/5 pl-8"
                     >
                        <span className="font-manrope text-[9px] uppercase font-bold tracking-[0.3em] opacity-30 italic">Digital Hub</span>
@@ -136,7 +141,9 @@ const AboutUsTemplate = () => {
                     </motion.a>
                     <motion.a 
                        whileHover={{ x: 12 }} 
-                       href="https://www.instagram.com/thehealthywealthclub?igsh=MTFjd2h0MjBvMGF1cw==" 
+                       href={CONTACT_LINKS.instagram}
+                       target="_blank"
+                       rel="noreferrer"
                        className="group flex flex-col gap-4 border-l border-black/5 pl-8"
                     >
                        <span className="font-manrope text-[9px] uppercase font-bold tracking-[0.3em] opacity-30 italic">Follow us</span>

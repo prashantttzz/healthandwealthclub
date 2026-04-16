@@ -130,7 +130,7 @@ export default function NavContent({ cartButton }: { cartButton: React.ReactNode
             )}>
               <LocalizedClientLink href="/" className="hover:opacity-60 transition-opacity">Home</LocalizedClientLink>
               <LocalizedClientLink href="/store" className="hover:opacity-60 transition-opacity">Collection</LocalizedClientLink>
-              <LocalizedClientLink href="/about" className="hover:opacity-60 transition-opacity">About us</LocalizedClientLink>
+              <LocalizedClientLink href="/collabrations" className="hover:opacity-60 transition-opacity">Collabrations</LocalizedClientLink>
             </div>
           </div>
 

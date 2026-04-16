@@ -7,23 +7,23 @@ export default function Preloader() {
     const hasSeen = sessionStorage.getItem("hasSeenPreloader")
     if (hasSeen) return
 
-    const MIN_DISPLAY = 2500
-
+    const MIN_DISPLAY = 500
+    const FADE_OUT_DURATION = 250
 
     const hide = () => {
       const loader = document.getElementById("hard-loader")
       const frame = document.querySelector(".hard-loader-frame")
 
       if (loader) {
-        loader.style.transition = "opacity 0.5s ease"
+        loader.style.transition = `opacity ${FADE_OUT_DURATION}ms ease`
         loader.style.opacity = "0"
-        setTimeout(() => loader.remove(), 500)
+        setTimeout(() => loader.remove(), FADE_OUT_DURATION)
       }
 
       if (frame) {
-        ;(frame as HTMLElement).style.transition = "opacity 0.5s ease"
+        ;(frame as HTMLElement).style.transition = `opacity ${FADE_OUT_DURATION}ms ease`
         ;(frame as HTMLElement).style.opacity = "0"
-        setTimeout(() => frame.remove(), 500)
+        setTimeout(() => frame.remove(), FADE_OUT_DURATION)
       }
 
       document.documentElement.style.overflow = "visible"

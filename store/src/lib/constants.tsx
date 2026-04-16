@@ -73,3 +73,22 @@ export const noDivisionCurrencies = [
   "xdr",
   "xau",
 ]
+
+export const CONTACT_LINKS = {
+  tiktok:
+    "https://www.tiktok.com/@thehealthywealthclub?_r=1&_t=ZN-95Z9ADeN9JS",
+  whatsapp: "https://wa.me/971501092119",
+  instagram:
+    "https://www.instagram.com/thehealthywealthclub?igsh=MThkMmQyMGlkOHMxMg==",
+  email: "mailto:thehealthandwealthclub9@gmail.com",
+  emailAddress: "thehealthandwealthclub9@gmail.com",
+} as const
+
+export const SUPPORT_LINKS = {
+  contact: "/customer-service#contact",
+  shipping: "/customer-service#shipping",
+  returns: "/customer-service#returns",
+  faqs: "/customer-service#faqs",
+  terms: "/customer-service#terms",
+  privacy: "/customer-service#privacy",
+} as const

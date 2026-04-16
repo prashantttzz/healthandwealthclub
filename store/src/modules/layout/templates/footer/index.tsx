@@ -8,6 +8,8 @@ import LocalizedClientLink from "@modules/common/components/localized-client-lin
 import Image from "next/image";
 import { useRegion } from "@lib/context/region-context";
 import ReactCountryFlag from "react-country-flag";
+import { CONTACT_LINKS, SUPPORT_LINKS } from "@lib/constants";
+import TikTokIcon from "@modules/common/icons/tiktok";
 
 export default function ClubFooter() {
   const containerRef = useRef<HTMLDivElement>(null);
@@ -68,7 +70,7 @@ export default function ClubFooter() {
               <motion.div style={{ opacity: buttonOpacity }}>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <LocalizedClientLink
-                    href="/join"
+                    href="/account"
                     className="group inline-flex items-center gap-3 bg-white text-black md:bg-white/10 md:text-white md:backdrop-blur-md border border-white/20 px-6 py-3 md:px-8 md:py-4 rounded-full transition-all hover:bg-white hover:text-black"
                   >
                     <span className="font-manrope text-[10px] md:text-xs font-bold tracking-widest uppercase">
@@ -130,8 +132,8 @@ export default function ClubFooter() {
               <ul className="flex flex-col gap-3">
                 {[
                   { label: "Collection", href: "/store" },
-                  { label: "New Arrivals", href: "/new-arrivals" },
-                  { label: "Best Sellers", href: "/best-sellers" },
+                  { label: "New Arrivals", href: "/store" },
+                  { label: "Best Sellers", href: "/store" },
                 ].map((link) => (
                   <li key={link.label}>
                     <motion.div whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 300 }}>
@@ -154,10 +156,10 @@ export default function ClubFooter() {
               <ul className="flex flex-col gap-3">
                 {[
                   { label: "About Us", href: "/#about-us" },
-                  { label: "Work with us", href: "/#collaborate" },
-                  { label: "Shipping", href: "/customer-service#shipping" },
-                  { label: "Privacy", href: "/customer-service#privacy" },
-                  { label: "Terms", href: "/customer-service#terms" },
+                  { label: "Collabrations", href: "/collabrations" },
+                  { label: "Shipping", href: SUPPORT_LINKS.shipping },
+                  { label: "Privacy", href: SUPPORT_LINKS.privacy },
+                  { label: "Terms", href: SUPPORT_LINKS.terms },
                 ].map((link) => (
                   <li key={link.label}>
                     <motion.div whileHover={{ x: 4 }} transition={{ type: "spring", stiffness: 300 }}>
@@ -179,18 +181,25 @@ export default function ClubFooter() {
               <h4 className="font-newsreader italic text-lg text-white/90">Socials</h4>
               <ul className="flex flex-col gap-5">
                 {[
-                  { label: "Instagram", href: "https://www.instagram.com/thehealthywealthclub?igsh=MTFjd2h0MjBvMGF1cw==", icon: Instagram },
-                  { label: "WhatsApp", href: "#", icon: WhatsappFreeIcons },
-                  { label: "Email", href: "mailto:contact@healthandwealth.club", icon: Mail },
+                  { label: "TikTok", href: CONTACT_LINKS.tiktok, icon: Instagram, isTikTok: true },
+                  { label: "Instagram", href: CONTACT_LINKS.instagram, icon: Instagram },
+                  { label: "WhatsApp", href: CONTACT_LINKS.whatsapp, icon: WhatsappFreeIcons },
+                  { label: "Email", href: CONTACT_LINKS.email, icon: Mail },
                 ].map((social) => (
                   <li key={social.label}>
                     <motion.a
                       whileHover={{ x: 4, color: "rgba(255, 255, 255, 1)" }}
                       transition={{ type: "spring", stiffness: 300 }}
                       href={social.href}
+                      target="_blank"
+                      rel="noreferrer"
                       className="flex items-center gap-3 font-manrope text-[10px] tracking-[0.3em] uppercase font-bold text-white/40 hover:text-white transition-colors"
                     >
-                      <HugeiconsIcon icon={social.icon} size={18} className="opacity-60" />
+                      {social.isTikTok ? (
+                        <TikTokIcon className="w-[18px] h-[18px] opacity-60" />
+                      ) : (
+                        <HugeiconsIcon icon={social.icon} size={18} className="opacity-60" />
+                      )}
                       {social.label}
                     </motion.a>
                   </li>
