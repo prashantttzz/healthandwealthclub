@@ -16,7 +16,7 @@ import {
 } from "@hugeicons/core-free-icons"
 import MobileMenu from "../mobile-menu"
 import { clx } from "@medusajs/ui"
-import { SUPPORT_LINKS } from "@lib/constants"
+import { CONTACT_LINKS, SUPPORT_LINKS } from "@lib/constants"
 
 import { HttpTypes } from "@medusajs/types"
 
@@ -86,7 +86,7 @@ export default function NavContent({
       style={{ borderColor: "rgba(0,0,0,0.05)" }}
     >
       <div className="relative">
-        <div className="max-w-[1440px] mx-auto flex items-center justify-between w-full h-16 px-6 lg:px-10 font-manrope">
+        <div className=" mx-auto flex items-center justify-between w-full h-16 px-6 lg:px-10 font-manrope">
           {/* Left: Hamburger & Search (Mobile/Desktop) */}
           <div className="flex-1 basis-0 flex items-center gap-x-2">
             <button 
@@ -145,7 +145,7 @@ export default function NavContent({
               </motion.div>
             </LocalizedClientLink>
             
-            <div className="hidden lg:flex items-center h-full text-[12px] gap-x-10 font-semibold tracking-[0.15em] uppercase transition-colors font-manrope duration-500">
+            <div className="hidden lg:flex items-center h-full text-[12px] gap-x-10 font-semibold tracking-[0.15em] uppercase lg:ml-10  transition-colors font-manrope duration-500">
               <LocalizedClientLink 
                 href="/" 
                 className="hover:opacity-60 transition-opacity h-full flex items-center px-4"
@@ -161,11 +161,11 @@ export default function NavContent({
                 Collection
               </LocalizedClientLink>
               <LocalizedClientLink 
-                href="/collabrations" 
+                href="/collaborations" 
                 className="hover:opacity-60 transition-opacity h-full flex items-center px-4"
                 onMouseEnter={() => setHoveredItem("about")}
               >
-                Collabrations
+                Collaborations
               </LocalizedClientLink>
             </div>
           </div>
@@ -330,12 +330,11 @@ export default function NavContent({
                       <p className="font-manrope text-[13px] text-accent/50 max-w-xl leading-relaxed">
                         We believe in a life of balance. Our mission is to provide the tools for a healthier body and a wealthier mind.
                       </p>
-                      <div className="grid grid-cols-2 gap-8 text-[11px] font-bold tracking-[0.25em] uppercase font-manrope text-accent/40 mt-10">
+                      {/* <div className="grid grid-cols-2 gap-8 text-[11px] font-bold tracking-[0.25em] uppercase font-manrope text-accent/40 mt-10">
                         <LocalizedClientLink href="/#about-us" className="hover:text-accent transition-colors underline underline-offset-8">Our Vision</LocalizedClientLink>
                         <LocalizedClientLink href="/#about-us" className="hover:text-accent transition-colors underline underline-offset-8">Sustainability</LocalizedClientLink>
-                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Manufacturing</LocalizedClientLink>
-                        <LocalizedClientLink href="/about" className="hover:text-accent transition-colors underline underline-offset-8">Working with us</LocalizedClientLink>
-                      </div>
+                        <LocalizedClientLink href="/collaborations" className="hover:text-accent transition-colors underline underline-offset-8">Working with us</LocalizedClientLink>
+                      </div> */}
                     </div>
                     <div className="w-[400px] flex flex-col gap-4">
                       <div className="relative aspect-[16/9] overflow-hidden group">
@@ -346,7 +345,8 @@ export default function NavContent({
                           className="object-cover transition-transform duration-700 group-hover:scale-110" 
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
-                          <span className="font-newsreader italic text-2xl text-white">Join The Club</span>
+                          <span className="font-newsreader italic text-2xl text-white">
+                            <Link href={CONTACT_LINKS.instagram}>Join The Club</Link></span>
                         </div>
                       </div>
                       <p className="font-manrope text-[11px] text-accent/40 leading-relaxed tracking-wider">

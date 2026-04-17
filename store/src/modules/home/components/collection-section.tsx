@@ -45,7 +45,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
       sub: "The Movement",
       description: "It means joining a movement that redefines luxury. At The Health & Wealth Club, we blend engineering precision with fashion artistry to deliver clothing that feels exclusive yet accessible. Working with us means aligning with a brand that values authenticity, cultural nuance, and uncompromising quality, a partnership that elevates both style and mindset. We also offer custom made pieces upon request, whether in large or small quantities.",
       buttonText:"connect",
-      link:"/about",
+      link:"/collaborations",
       id: "collaborate",
       image: "/p-2.png" 
     },
@@ -75,7 +75,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
   });
 
   return (
-    <section className="bg-accent relative border-t border-black/5">
+    <section id="about-us" className="bg-accent relative border-t border-black/5">
       <div className="pt-20 md:pt-24 md:pb-12 px-6 lg:px-40 md:max-w-[1400px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -109,7 +109,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
                 key={item.title + index} 
                 className="min-h-[60vh] border-b border-white/20 md:border-none md:min-h-screen flex flex-col justify-center py-10"
               >
-                <div className="md:hidden w-full max-w-[280px] mx-auto aspect-[4/5] mb-8 overflow-hidden rounded-sm">
+                <div className="md:hidden w-full md:max-w-[280px] mx-auto aspect-[4/5] mb-8 overflow-hidden rounded-sm">
                   <Image
                     src={item.image}
                     alt={item.title}
@@ -186,10 +186,9 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
       </div>
 
       <div className="py-5 md:py-24 text-center border-b border-black/5">
-        <LocalizedClientLink href="/store" className="group text-[12px] font-semibold uppercase tracking-[0.2em] text-bg/80 hover:text-bg transition-colors">
-          Start Your Journey 
-          <motion.span className="inline-block ml-2 group-hover:translate-x-2 transition-transform">→</motion.span>
-        </LocalizedClientLink>
+        <div className="group text-[12px] font-semibold uppercase tracking-[0.2em] text-bg/80 hover:text-bg transition-colors">
+          health and wealth club
+</div>
       </div>
     </section>
   );

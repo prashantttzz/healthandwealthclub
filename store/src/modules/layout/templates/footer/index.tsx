@@ -70,7 +70,7 @@ export default function ClubFooter() {
               <motion.div style={{ opacity: buttonOpacity }}>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <LocalizedClientLink
-                    href="/account"
+                    href={CONTACT_LINKS.instagram}
                     className="group inline-flex items-center gap-3 bg-white text-black md:bg-white/10 md:text-white md:backdrop-blur-md border border-white/20 px-6 py-3 md:px-8 md:py-4 rounded-full transition-all hover:bg-white hover:text-black"
                   >
                     <span className="font-manrope text-[10px] md:text-xs font-bold tracking-widest uppercase">
@@ -156,7 +156,7 @@ export default function ClubFooter() {
               <ul className="flex flex-col gap-3">
                 {[
                   { label: "About Us", href: "/#about-us" },
-                  { label: "Collabrations", href: "/collabrations" },
+                  { label: "Collaborations", href: "/collaborations" },
                   { label: "Shipping", href: SUPPORT_LINKS.shipping },
                   { label: "Privacy", href: SUPPORT_LINKS.privacy },
                   { label: "Terms", href: SUPPORT_LINKS.terms },

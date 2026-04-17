@@ -218,7 +218,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 className="relative aspect-[4/5] w-full overflow-hidden bg-white/50 group border border-black/5"
               >
                 <Image
-                  src={selectedVariant?.metadata?.image_url as string || product.images?.[0]?.url || ""}
+                  src={selectedVariant?.metadata?.image_url as string || product.images?.[0]?.url || "/placeholder.png"}
                   alt={product.title || "Product main image"}
                   fill
                   priority
@@ -229,7 +229,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 {(product.images || []).slice(1, 4).map((image, i) => (
                   <div key={image.id} className="relative aspect-square w-full overflow-hidden bg-white/50 border border-black/5">
                     <Image
-                      src={image.url}
+                      src={image.url || "/placeholder.png"}
                       alt={`Product detail ${i + 1}`}
                       fill
                       className="object-cover"

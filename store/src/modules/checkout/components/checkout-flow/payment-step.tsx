@@ -2,71 +2,185 @@
 
 import React, { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { CreditCard, ShieldCheck, Smartphone } from "lucide-react"
+import { CreditCard, ShieldCheck } from "lucide-react"
+import PaymentWrapper from "@modules/checkout/components/payment-wrapper"
+import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
+import { placeOrder } from "@lib/data/cart"
 
 const Ico = {
   card: (c = "") => <CreditCard className={c} strokeWidth={1.5} />,
   shield: (c = "") => <ShieldCheck className={c} strokeWidth={1.5} />,
-  apple: (c = "") => <Smartphone className={c} strokeWidth={1.5} />,
 }
 
-const PaymentStep = ({ cart }: { cart: HttpTypes.StoreCart }) => {
-  const [method, setMethod] = useState<"card" | "apple" | "">("")
-  const [cardForm, setCardForm] = useState({ number: "", name: "", expiry: "", cvv: "" })
+const PaymentStepContent = ({
+  cart,
+  onPaymentSuccess,
+  setIsPlacingOrder,
+}: {
+  cart: HttpTypes.StoreCart
+  onPaymentSuccess: () => void
+  setIsPlacingOrder: (loading: boolean) => void
+}) => {
+  const stripe = useStripe()
+  const elements = useElements()
+  const [errorMessage, setErrorMessage] = useState<string | null>(null)
+  const [successMessage, setSuccessMessage] = useState<string | null>(null)
 
-  const handleCardChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target
-    if (name === "number") { const c = value.replace(/\D/g, "").slice(0, 16); setCardForm(p => ({ ...p, number: c.replace(/(.{4})/g, "$1 ").trim() })) }
-    else if (name === "expiry") { const c = value.replace(/\D/g, "").slice(0, 4); setCardForm(p => ({ ...p, expiry: c.length > 2 ? `${c.slice(0, 2)}/${c.slice(2)}` : c })) }
-    else if (name === "cvv") setCardForm(p => ({ ...p, cvv: value.replace(/\D/g, "").slice(0, 3) }))
-    else setCardForm(p => ({ ...p, [name]: value }))
+  const finalizeOrder = async () => {
+    setSuccessMessage("Payment authorized successfully. Finalizing your order...")
+    await placeOrder(cart.id).catch(() => {})
+    onPaymentSuccess()
   }
 
-  const brand = () => { const n = cardForm.number.replace(/\s/g, ""); return n.startsWith("4") ? "VISA" : n.startsWith("5") ? "MASTERCARD" : "" }
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    setIsPlacingOrder(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+
+    if (!stripe || !elements) {
+      setErrorMessage("Stripe payment form is still loading. Please wait a moment.")
+      setIsPlacingOrder(false)
+      return
+    }
+
+    const paymentElement = elements.getElement("payment")
+    if (!paymentElement) {
+      setErrorMessage("Stripe payment UI is not ready yet. Please refresh and try again.")
+      setIsPlacingOrder(false)
+      return
+    }
+
+    const paymentSession = cart.payment_collection?.payment_sessions?.find(
+      (s) => s.status === "pending"
+    )
+    const clientSecret = paymentSession?.data?.client_secret as string | undefined
+
+    if (!clientSecret) {
+      setErrorMessage("Missing Stripe payment session. Please refresh and try again.")
+      setIsPlacingOrder(false)
+      return
+    }
+
+    try {
+      const existingIntent = await stripe.retrievePaymentIntent(clientSecret)
+      const existingStatus = existingIntent.paymentIntent?.status
+
+      if (existingStatus === "requires_capture" || existingStatus === "succeeded") {
+        await finalizeOrder()
+        return
+      }
+
+      const submitResult = await elements.submit()
+
+      if (submitResult.error) {
+        setErrorMessage(submitResult.error.message || "Please check your payment details.")
+        return
+      }
+
+      const { error, paymentIntent } = await stripe.confirmPayment({
+        elements,
+        confirmParams: {
+          receipt_email: cart.email || undefined,
+        },
+        redirect: "if_required",
+      })
+
+      if (error) {
+        const errorIntentStatus = error.payment_intent?.status
+
+        if (errorIntentStatus === "requires_capture" || errorIntentStatus === "succeeded") {
+          await finalizeOrder()
+          return
+        }
+
+        setErrorMessage(error.message || "An error occurred with your payment.")
+      } else if (paymentIntent && (paymentIntent.status === "succeeded" || paymentIntent.status === "requires_capture")) {
+        await finalizeOrder()
+      } else {
+        setErrorMessage("Payment was not successful. Status: " + paymentIntent?.status)
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || "An unexpected error occurred.")
+    } finally {
+      setIsPlacingOrder(false)
+    }
+  }
 
   return (
-    <div className="flex flex-col gap-10">
+    <form onSubmit={handleSubmit} className="flex flex-col gap-10">
       <h3 className="font-manrope text-[13px] font-bold text-accent uppercase tracking-[0.2em]">Select Payment Method</h3>
 
-      {/* Card */}
-      <div className={`border transition-all duration-300 overflow-hidden ${method === "card" ? "border-accent/20 shadow-sm" : "border-accent/5"}`}>
-        <button onClick={() => setMethod(method === "card" ? "" : "card")} className="w-full flex items-center justify-between p-6 bg-black/[0.04] lg:bg-black/[0.02]">
-          <div className="flex items-center gap-5">{Ico.card(`w-6 h-6 ${method === "card" ? "text-accent" : "text-accent/20"}`)}<span className={`font-manrope text-[15px] font-bold ${method === "card" ? "text-accent" : "text-accent/40"}`}>Credit / Debit Card</span></div>
-          <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${method === "card" ? "border-accent bg-accent" : "border-accent/10"}`}>{method === "card" && <div className="w-2 h-2 rounded-full bg-bg" />}</span>
-        </button>
-        {method === "card" && (
-          <div className="px-6 pb-6 border-t border-accent/5 pt-5 animate-in slide-in-from-top-2 fade-in duration-300 bg-secondary/50">
-            <div className="flex flex-col gap-4">
-              <div className="relative">
-                <input name="number" value={cardForm.number} onChange={handleCardChange} placeholder="Card Number" className="w-full h-13 px-4 pr-24 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
-                {brand() && <span className="absolute right-4 top-1/2 -translate-y-1/2 font-manrope text-[10px] font-bold text-accent/30 tracking-widest">{brand()}</span>}
-              </div>
-              <input name="name" value={cardForm.name} onChange={handleCardChange} placeholder="Cardholder Name" className="w-full h-13 px-4 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
-              <div className="grid grid-cols-2 gap-4">
-                <input name="expiry" value={cardForm.expiry} onChange={handleCardChange} placeholder="MM/YY" className="w-full h-13 px-4 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
-                <input name="cvv" value={cardForm.cvv} onChange={handleCardChange} type="password" placeholder="CVV" className="w-full h-13 px-4 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
-              </div>
-              <div className="flex items-center gap-2 text-accent/20 mt-1">{Ico.shield("w-4 h-4")}<span className="font-manrope text-[10px] uppercase tracking-widest">Secured by 256-bit SSL encryption</span></div>
+      <div className="border border-accent/20 shadow-sm overflow-hidden">
+        <div className="w-full flex items-center justify-between p-6 bg-black/[0.04] lg:bg-black/[0.02]">
+          <div className="flex items-center gap-5">
+            {Ico.card("w-6 h-6 text-accent")}
+            <span className="font-manrope text-[15px] font-bold text-accent">Credit / Debit Card</span>
+          </div>
+          <span className="w-6 h-6 rounded-full border-2 border-accent bg-accent flex items-center justify-center">
+            <div className="w-2 h-2 rounded-full bg-bg" />
+          </span>
+        </div>
+        <div className="px-6 pb-6 border-t border-accent/5 pt-5 animate-in slide-in-from-top-2 fade-in duration-300 bg-secondary/50">
+          <div className="flex flex-col gap-4">
+            <div className="w-full p-4 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 rounded-sm">
+              <PaymentElement
+                onChange={() => {
+                  if (errorMessage) setErrorMessage(null)
+                  if (successMessage) setSuccessMessage(null)
+                }}
+              />
+            </div>
+
+            {errorMessage && (
+              <p className="font-manrope text-[11px] text-red-500 font-bold uppercase tracking-widest mt-1">
+                {errorMessage}
+              </p>
+            )}
+
+            {successMessage && (
+              <p className="font-manrope text-[11px] text-green-600 font-bold uppercase tracking-widest mt-1">
+                {successMessage}
+              </p>
+            )}
+
+            <div className="flex items-center gap-2 text-accent/30 mt-1">
+              {Ico.shield("w-4 h-4")}
+              <span className="font-manrope text-[10px] uppercase tracking-widest">
+                Powered by Stripe secure checkout
+              </span>
             </div>
           </div>
-        )}
+        </div>
       </div>
 
-      {/* Apple Pay */}
-      <div className={`border transition-all duration-300 overflow-hidden ${method === "apple" ? "border-accent/20 shadow-sm" : "border-accent/5"}`}>
-        <button onClick={() => setMethod(method === "apple" ? "" : "apple")} className="w-full flex items-center justify-between p-6 bg-black/[0.04] lg:bg-black/[0.02]">
-          <div className="flex items-center gap-5">{Ico.apple(`w-6 h-6 ${method === "apple" ? "text-accent" : "text-accent/20"}`)}<span className={`font-manrope text-[15px] font-bold ${method === "apple" ? "text-accent" : "text-accent/40"}`}>Apple Pay</span></div>
-          <span className={`w-6 h-6 rounded-full border-2 flex items-center justify-center transition-all ${method === "apple" ? "border-accent bg-accent" : "border-accent/10"}`}>{method === "apple" && <div className="w-2 h-2 rounded-full bg-bg" />}</span>
-        </button>
-        {method === "apple" && (
-          <div className="px-6 pb-6 border-t border-accent/5 pt-4 animate-in slide-in-from-top-2 fade-in duration-300 bg-secondary/50">
-            <p className="font-manrope text-[14px] text-accent/50">Pay securely using Apple Pay. Integration coming soon.</p>
-          </div>
-        )}
-      </div>
+      <p className="font-manrope text-[11px] text-accent/25 text-center mt-2 uppercase tracking-widest">
+        By placing order you agree to our <span className="underline cursor-pointer">Terms & Conditions</span>
+      </p>
 
-      <p className="font-manrope text-[11px] text-accent/25 text-center mt-2 uppercase tracking-widest">By placing order you agree to our <span className="underline cursor-pointer">Terms & Conditions</span></p>
-    </div>
+      {/* Hidden button triggered from external OrderSummary sidebar */}
+      <button type="submit" id="submit-stripe-payment-btn" className="hidden">Submit</button>
+    </form>
+  )
+}
+
+const PaymentStep = ({
+  cart,
+  onPaymentSuccess,
+  setIsPlacingOrder,
+}: {
+  cart: HttpTypes.StoreCart
+  onPaymentSuccess: () => void
+  setIsPlacingOrder: (loading: boolean) => void
+}) => {
+  return (
+    <PaymentWrapper cart={cart}>
+      <PaymentStepContent
+        cart={cart}
+        onPaymentSuccess={onPaymentSuccess}
+        setIsPlacingOrder={setIsPlacingOrder}
+      />
+    </PaymentWrapper>
   )
 }
 

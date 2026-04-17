@@ -38,11 +38,11 @@ const CartSidebar = () => {
   }, [isCartSidebarOpen])
 
   const handleQuantityChange = async (item: HttpTypes.StoreCartLineItem, quantity: number) => {
-    const inventory = item.variant?.inventory_quantity || 0
+    const inventory = item.variant?.inventory_quantity ?? 10
     const manageInventory = item.variant?.manage_inventory !== false
 
     if (quantity > item.quantity && manageInventory && quantity > inventory) {
-      toast.error("Maximum quantity reached for this item.")
+      toast.error(`Only ${inventory} items left in stock.`)
       return
     }
 
@@ -115,6 +115,8 @@ const CartSidebar = () => {
                       <LocalizedClientLink
                         href={`/products/${item.variant?.product?.handle}`}
                         className="w-20 h-24 shrink-0 group relative bg-bg/5 overflow-hidden rounded-sm"
+                        target="_blank"
+                        rel="noreferrer"
                       >
                         <Thumbnail
                           thumbnail={item.thumbnail}
@@ -131,6 +133,8 @@ const CartSidebar = () => {
                             <LocalizedClientLink
                               href={`/products/${item.variant?.product?.handle}`}
                               className="hover:opacity-70 transition-opacity"
+                              target="_blank"
+                              rel="noreferrer"
                             >
                               {item.product_title}
                             </LocalizedClientLink>
@@ -151,7 +155,7 @@ const CartSidebar = () => {
                             <QuantitySelector
                               quantity={item.quantity}
                               onChange={(val) => handleQuantityChange(item, val)}
-                              maxQuantity={item.variant?.manage_inventory === false ? 100 : (item.variant?.inventory_quantity || 0)}
+                              maxQuantity={item.variant?.manage_inventory === false ? 100 : (item.variant?.inventory_quantity ?? 10)}
                               loading={loadingItems[item.id]}
                             />
                           </div>

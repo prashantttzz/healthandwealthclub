@@ -76,10 +76,10 @@ export const noDivisionCurrencies = [
 
 export const CONTACT_LINKS = {
   tiktok:
-    "https://www.tiktok.com/@thehealthywealthclub?_r=1&_t=ZN-95Z9ADeN9JS",
+    "https://www.tiktok.com/@thehealthywealthclub",
   whatsapp: "https://wa.me/971501092119",
   instagram:
-    "https://www.instagram.com/thehealthywealthclub?igsh=MThkMmQyMGlkOHMxMg==",
+    "https://www.instagram.com/thehealthywealthclub",
   email: "mailto:thehealthandwealthclub9@gmail.com",
   emailAddress: "thehealthandwealthclub9@gmail.com",
 } as const

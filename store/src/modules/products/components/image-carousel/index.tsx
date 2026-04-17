@@ -77,7 +77,7 @@ const ImageCarousel = ({ images, title }: ImageCarouselProps) => {
           className="absolute inset-0 w-full h-full"
         >
           <Image
-            src={images[currentIndex].url}
+            src={images[currentIndex].url||"/placeholder.png"}
             alt={title || `Product image ${currentIndex + 1}`}
             fill
             priority

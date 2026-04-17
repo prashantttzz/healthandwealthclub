@@ -19,13 +19,15 @@ export default function ProductPreview({
     <LocalizedClientLink
       href={`/products/${product.handle}`}
       className="group block w-full"
+      target="_blank"
+      rel="noreferrer"
     >
       <div data-testid="product-wrapper" className="relative flex flex-col gap-3">
         
         {/* Image Container */}
         <div className="relative aspect-[3/4] w-full overflow-hidden bg-[#F9F6F2]">
           <Image
-            src={product.thumbnail || ""}
+            src={product.thumbnail || "/placeholder.png"}
             alt={product.title}
             fill
             sizes="(max-width: 768px) 50vw, 25vw"

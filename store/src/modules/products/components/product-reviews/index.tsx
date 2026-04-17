@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react"
+ import React, { useEffect, useState } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { clx } from "@medusajs/ui"
 import { HugeiconsIcon } from "@hugeicons/react"

@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from "react"
 import { getEligiblePromotions } from "@lib/data/promotion"
 import { useCart } from "@lib/context/cart-context"
-import { Tag, X } from "lucide-react"
+import { Tag, X, Loader2 } from "lucide-react"
 
 const Ico = {
   x: (c = "") => <X className={c} strokeWidth={2} />,
   tag: (c = "") => <Tag className={c} strokeWidth={1.5} />,
+  spinner: (c = "") => <Loader2 className={c} />,
 }
 
 const CouponSidebar = ({ isOpen, onClose, onApply }: { isOpen: boolean, onClose: () => void, onApply: (code: string) => void }) => {
@@ -38,14 +39,21 @@ const CouponSidebar = ({ isOpen, onClose, onApply }: { isOpen: boolean, onClose:
           <h2 className="font-newsreader italic text-2xl text-accent">Apply Coupon</h2>
           <button onClick={onClose} className="p-2 text-accent/30 hover:text-accent transition-colors hidden lg:block">{Ico.x("w-5 h-5")}</button>
         </div>
-        <div className="flex-1 overflow-y-auto px-8 py-8 flex flex-col gap-8">
+        <div className="flex-1 overflow-y-auto px-8 py-8 flex flex-col gap-8 relative">
+          {loading && (
+            <div className="absolute inset-0 bg-bg/60 backdrop-blur-[2px] z-50 flex flex-col items-center justify-center gap-4 animate-in fade-in duration-300">
+              {Ico.spinner("w-8 h-8 text-accent animate-spin")}
+              <p className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-accent/40">Securing offers...</p>
+            </div>
+          )}
+          
           <div className="flex gap-3">
             <input value={customCode} onChange={e => setCustomCode(e.target.value)} placeholder="Enter coupon code" className="flex-1 h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[13px] text-accent outline-none focus:border-accent/30 transition-colors uppercase placeholder:text-accent/20" />
-            <button onClick={() => { if (customCode) { setLoading(true); onApply(customCode); setLoading(false); onClose(); } }} disabled={!customCode || loading} className="px-6 bg-accent text-bg font-manrope text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-accent/90 transition-all disabled:opacity-50">Apply</button>
+            <button onClick={async () => { if (customCode) { setLoading(true); await onApply(customCode); setLoading(false); onClose(); } }} disabled={!customCode || loading} className="px-6 bg-accent text-bg font-manrope text-[11px] font-bold tracking-[0.2em] uppercase hover:bg-accent/90 transition-all disabled:opacity-50">Apply</button>
           </div>
           <div>
             <p className="font-manrope text-[12px] font-bold text-accent/30 uppercase tracking-[0.2em] mb-5">Available Offers</p>
-            {promotions.length === 0 ? <p className="font-newsreader italic text-lg text-accent/20 text-center py-8">No specific offers available</p> : (
+            {promotions.length === 0 && !loading ? <p className="font-newsreader italic text-lg text-accent/20 text-center py-8">No specific offers available</p> : (
               <div className="flex flex-col gap-4 pb-8">
                 {promotions.map((promo: any) => (
                   <div key={promo.id} className="p-5 border border-accent/10 bg-black/[0.02]">
@@ -55,13 +63,14 @@ const CouponSidebar = ({ isOpen, onClose, onApply }: { isOpen: boolean, onClose:
                         <span className="font-manrope text-[14px] font-bold tracking-widest">{promo.code}</span>
                       </div>
                       <button 
-                        onClick={async () => { 
-                          setLoading(true); 
+                        onClick={async () => {
+                          setLoading(true);
                           await onApply(promo.code); 
-                          setLoading(false); 
+                          setLoading(false);
                           onClose(); 
                         }} 
-                        className="text-[11px] font-manrope font-bold uppercase tracking-[0.1em] text-accent underline underline-offset-4 hover:text-accent/60 transition-colors"
+                        disabled={loading}
+                        className="text-[11px] font-manrope font-bold uppercase tracking-[0.1em] text-accent underline underline-offset-4 hover:text-accent/60 transition-colors disabled:opacity-30"
                       >
                         Apply
                       </button>

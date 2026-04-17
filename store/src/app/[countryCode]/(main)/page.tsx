@@ -4,14 +4,12 @@ import ParallaxContentWrapper from "@modules/home/components/parallax-content-wr
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import { listCollections } from "@lib/data/collections"
-import SmoothScroll from "@modules/common/components/smooth-scroll"
 import Preloader from "@modules/common/components/preloader"
 import dynamic from "next/dynamic"
 import CategoryStickyScroll from "@modules/home/components/collection-section"
 
 const InauguralDrop = dynamic(() => import("@modules/home/components/inaugural-drop").then(mod => mod.InauguralDrop))
 const LuxurySection = dynamic(() => import("@modules/home/components/luxury-section"))
-const ProductSection = dynamic(() => import("@modules/home/components/product-section"))
 const FeaturesSection = dynamic(() => import("@modules/home/components/features-section"))
 
 export const metadata: Metadata = {
@@ -42,7 +40,7 @@ export default async function Home(props: {
   }
 
   return (
-    <SmoothScroll>
+     <>
       <Preloader />
       <Hero />
       <ParallaxContentWrapper>
@@ -51,6 +49,6 @@ export default async function Home(props: {
         <CategoryStickyScroll collections={collections} />
         <FeaturesSection />
       </ParallaxContentWrapper>
-    </SmoothScroll>
+      </>
   )
 }

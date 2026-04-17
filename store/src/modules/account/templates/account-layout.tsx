@@ -1,7 +1,4 @@
 import React from "react"
-
-import UnderlineLink from "@modules/common/components/interactive-link"
-
 import AccountNav from "../components/account-nav"
 import { HttpTypes } from "@medusajs/types"
 
@@ -20,9 +17,9 @@ const AccountLayout: React.FC<AccountLayoutProps> = ({
 
       <div className="w-full mx-auto flex-1 flex flex-col">
         <div className="flex flex-col lg:flex-row gap-0 items-start">
-          {/* Sidebar */}
+          {/* Sidebar — sticky */}
           {customer && (
-            <div className="w-full lg:w-[320px] shrink-0 bg-accent lg:min-h-screen">
+            <div className="w-full lg:w-[320px] shrink-0 bg-accent lg:sticky lg:top-0 lg:h-screen lg:overflow-y-auto">
               <AccountNav customer={customer} />
             </div>
           )}

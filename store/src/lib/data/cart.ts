@@ -16,6 +16,8 @@ import {
 import { getRegion } from "./regions"
 import { getLocale } from "@lib/data/locale-actions"
 
+const CART_FIELDS = "*items, *region, *items.product, *items.variant, +items.variant.inventory_quantity, +items.variant.manage_inventory, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name"
+
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
  * @param cartId - optional - The ID of the cart to retrieve.
@@ -23,8 +25,7 @@ import { getLocale } from "@lib/data/locale-actions"
  */
 export async function retrieveCart(cartId?: string, fields?: string) {
   const id = cartId || (await getCartId())
-  fields ??=
-    "*items, *region, *items.product, *items.variant, +items.variant.inventory_quantity, +items.variant.manage_inventory, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name"
+  fields ??= CART_FIELDS
 
   if (!id) {
     return null
@@ -69,7 +70,7 @@ export async function getOrSetCart(countryCode: string) {
     const locale = await getLocale()
     const cartResp = await sdk.store.cart.create(
       { region_id: region.id, locale: locale || undefined },
-      {},
+      { fields: CART_FIELDS },
       headers
     )
     cart = cartResp.cart
@@ -81,7 +82,7 @@ export async function getOrSetCart(countryCode: string) {
   }
 
   if (cart && cart?.region_id !== region.id) {
-    await sdk.store.cart.update(cart.id, { region_id: region.id }, {}, headers)
+    await sdk.store.cart.update(cart.id, { region_id: region.id }, { fields: CART_FIELDS }, headers)
     const cartCacheTag = await getCacheTag("carts")
     revalidateTag(cartCacheTag)
   }
@@ -101,7 +102,7 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
   }
 
   return sdk.store.cart
-    .update(cartId, data, {}, headers)
+    .update(cartId, data, { fields: CART_FIELDS }, headers)
     .then(async ({ cart }: { cart: HttpTypes.StoreCart }) => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
@@ -141,7 +142,7 @@ export async function addToCart({
     const { cart: updatedCart } = await sdk.store.cart.createLineItem(
       cart.id,
       { variant_id: variantId, quantity },
-      {},
+      { fields: CART_FIELDS },
       headers
     )
 
@@ -183,7 +184,7 @@ export async function updateLineItem({
       cartId,
       lineId,
       { quantity },
-      {},
+      { fields: CART_FIELDS },
       headers
     )
 
@@ -219,7 +220,7 @@ export async function deleteLineItem(lineId: string) {
     const { parent: updatedCart } = await sdk.store.cart.deleteLineItem(
       cartId,
       lineId,
-      {},
+      { fields: CART_FIELDS },
       headers
     )
 
@@ -449,9 +450,9 @@ export async function selectSavedAddress(address: HttpTypes.StoreCustomerAddress
       },
     }
 
-    await updateCart(data)
+    const cart = await updateCart(data)
     revalidateTag("carts")
-    return { success: true }
+    return { success: true, cart }
   } catch (e: any) {
     console.error("Error in selectSavedAddress:", e.message)
     return { success: false, error: e.message }
@@ -553,5 +554,3 @@ export async function listCartOptions() {
     return { shipping_options: [] }
   }
 }
-
-

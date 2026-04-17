@@ -51,7 +51,6 @@ export const listProducts = async ({
 
   const next = {
     ...(await getCacheOptions("products")),
-    revalidate: 0,
   }
 
   return sdk.client
@@ -69,7 +68,6 @@ export const listProducts = async ({
         },
         headers,
         next,
-        cache: "no-store",
       }
     )
     .then(({ products, count }) => {

@@ -19,24 +19,32 @@ type DiscountCodeProps = {
 const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
   const [isOpen, setIsOpen] = React.useState(false)
   const [errorMessage, setErrorMessage] = React.useState("")
+  const [isLoading, setIsLoading] = React.useState(false)
   const { formatPrice } = useCurrencyFormatter()
 
   const { promotions = [] } = cart
   const removePromotionCode = async (code: string) => {
-    const validPromotions = promotions.filter(
-      (promotion) => promotion.code !== code
-    )
+    setIsLoading(true)
+    try {
+      const validPromotions = promotions.filter(
+        (promotion) => promotion.code !== code
+      )
 
-    await applyPromotions(
-      validPromotions.filter((p) => p.code !== undefined).map((p) => p.code!)
-    )
+      await applyPromotions(
+        validPromotions.filter((p) => p.code !== undefined).map((p) => p.code!)
+      )
+    } finally {
+      setIsLoading(false)
+    }
   }
 
   const addPromotionCode = async (formData: FormData) => {
     setErrorMessage("")
+    setIsLoading(true)
 
     const code = formData.get("code")
     if (!code) {
+      setIsLoading(false)
       return
     }
     const input = document.getElementById("promotion-input") as HTMLInputElement
@@ -49,6 +57,8 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
       await applyPromotions(codes)
     } catch (e: any) {
       setErrorMessage(e.message)
+    } finally {
+      setIsLoading(false)
     }
 
     if (input) {
@@ -79,9 +89,14 @@ const DiscountCode: React.FC<DiscountCodeProps> = ({ cart }) => {
                 <button
                   type="submit"
                   data-testid="discount-apply-button"
-                  className="bg-accent text-bg px-6 font-manrope text-[11px] uppercase font-bold tracking-widest hover:bg-accent/90 transition-all duration-300"
+                  disabled={isLoading}
+                  className="bg-accent text-bg px-6 font-manrope text-[11px] uppercase font-bold tracking-widest hover:bg-accent/90 transition-all duration-300 disabled:opacity-50 min-w-[80px] flex items-center justify-center"
                 >
-                  Apply
+                  {isLoading ? (
+                    <div className="w-4 h-4 border-2 border-bg border-t-transparent rounded-full animate-spin" />
+                  ) : (
+                    "Apply"
+                  )}
                 </button>
               </div>
            </div>

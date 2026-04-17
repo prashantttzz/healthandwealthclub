@@ -8,6 +8,7 @@ import {
   useTransform,
   useSpring,
 } from "framer-motion"
+import Link from "next/link"
 
 export default function LuxurySection() {
   const sectionRef = useRef<HTMLElement>(null)
@@ -86,7 +87,9 @@ export default function LuxurySection() {
             whileTap={{ scale: 0.98 }}
             className="px-10 py-4 border border-white/30 text-white font-manrope text-[11px] tracking-[0.4em] uppercase font-bold transition-all"
           >
+            <Link href={"/#about-us"}>
             Learn Our Story
+            </Link>
           </motion.button>
         </motion.div>
       </div>

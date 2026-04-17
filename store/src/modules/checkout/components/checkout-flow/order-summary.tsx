@@ -12,7 +12,7 @@ const Ico = {
   arrowRight: (c = "") => <ArrowRight className={c} strokeWidth={2} />,
 }
 
-const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipping, selectedShippingPrice, selectedShippingOptionId, shippingOptions }: {
+const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipping, selectedShippingPrice, selectedShippingOptionId, shippingOptions, isPlacingOrder }: {
   currentStep: number; 
   onContinue: () => void; 
   selectedAddress: HttpTypes.StoreCustomerAddress | null;
@@ -20,6 +20,7 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
   selectedShippingPrice?: number;
   selectedShippingOptionId?: string | null;
   shippingOptions?: HttpTypes.StoreCartShippingOption[];
+  isPlacingOrder?: boolean;
 }) => {
   const { cart, optimisticItems: items, subtotal } = useCart()
   const firstItem = items[0]
@@ -80,11 +81,11 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
       </div>
       <button onClick={onContinue} 
         disabled={
-          (currentStep === 1 && (!selectedAddress || (shippingOptions?.length || 0) === 0 || !selectedShippingOptionId)) || 
-          isLoadingShipping
+          (currentStep === 1 && (!selectedAddress || (shippingOptions?.length || 0) === 0 || !selectedShippingOptionId || isLoadingShipping)) || 
+          isPlacingOrder
         }
         className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-bg/90 transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-30 disabled:cursor-not-allowed">
-        {isLoadingShipping ? "Processing..." : label} {Ico.arrowRight("w-4 h-4 group-hover:translate-x-1 transition-transform")}
+        {(currentStep === 1 && isLoadingShipping) || isPlacingOrder ? "Processing..." : label} {Ico.arrowRight("w-4 h-4 group-hover:translate-x-1 transition-transform")}
       </button>
       <p className="font-manrope text-[10px] text-bg/80 text-center tracking-widest leading-relaxed">
         No refunds, no exchange. <br />

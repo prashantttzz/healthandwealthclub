@@ -1,14 +1,16 @@
 "use client"
 
-import React, { useState, useMemo, useEffect } from "react"
+import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { convertToLocale } from "@lib/util/money"
-import { listCartOptions, setShippingMethod, selectSavedAddress, retrieveCart, updateCart } from "@lib/data/cart"
+import { listCartOptions, setShippingMethod, selectSavedAddress, retrieveCart, updateCart, initiatePaymentSession, placeOrder } from "@lib/data/cart"
 import { useCurrencyFormatter } from "@lib/currency"
 import { deleteCustomerAddress } from "@lib/data/customer"
+import { listCartPaymentMethods } from "@lib/data/payment"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { Check, ChevronLeft, ChevronRight } from "lucide-react"
 import { useCart } from "@lib/context/cart-context"
+import { isStripeLike } from "@lib/constants"
 
 // Sub-components
 import AuthSidebar from "./auth-sidebar"
@@ -40,6 +42,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
   const [shippingOptions, setShippingOptions] = useState<HttpTypes.StoreCartShippingOption[]>([])
   const [selectedShippingOptionId, setSelectedShippingOptionId] = useState<string | null>(null)
   const [isLoadingShipping, setIsLoadingShipping] = useState(false)
+  const [isPlacingOrder, setIsPlacingOrder] = useState(false)
 
   const [recipientName, setRecipientName] = useState(cart?.shipping_address?.metadata?.recipient_name as string || "")
   const [recipientPhone, setRecipientPhone] = useState(cart?.shipping_address?.metadata?.recipient_phone as string || "")
@@ -47,50 +50,94 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
+  const lastSyncedAddressIdRef = useRef<string | null>(null)
+  const shippingRequestRef = useRef(0)
+  const [paymentProviders, setPaymentProviders] = useState<HttpTypes.StorePaymentProvider[]>([])
 
   const selectedShippingPrice = useMemo(() => {
     return shippingOptions.find(o => o.id === selectedShippingOptionId)?.amount || cart?.shipping_total || 0
   }, [selectedShippingOptionId, shippingOptions, cart?.shipping_total])
 
-  // Fetch shipping options when address changes
-  useEffect(() => {
-    const fetchOptions = async () => {
-      if (!cart?.id || !selectedAddress) return
-      setIsLoadingShipping(true)
-      try {
-        // First sync the selected address with the cart in Medusa
-        const res = await selectSavedAddress(selectedAddress)
-        
-        if (res.success) {
-          // Re-fetch the cart to ensure the region and address are fully synced on the frontend
-          const updatedCart = await retrieveCart()
-          if (updatedCart) {
-            setCart(updatedCart)
-          }
+  const stripeProviderId = useMemo(() => {
+    const activeSessionProviderId = cart?.payment_collection?.payment_sessions?.find(
+      (session) => session.status === "pending"
+    )?.provider_id
 
-          // Add a small delay for Medusa to process the update and recalculate options
-          await new Promise(resolve => setTimeout(resolve, 800))
-          const opts = await listCartOptions()
-          setShippingOptions(opts.shipping_options || [])
-          
-          // Auto select first option if none selected
-          if (opts.shipping_options?.length > 0 && !selectedShippingOptionId) {
-            setSelectedShippingOptionId(opts.shipping_options[0].id)
-          }
-        } else {
-          console.error("Failed to sync address:", res.error)
-        }
-      } catch (err) {
-        console.error("Error fetching shipping options:", err)
-      } finally {
-        setIsLoadingShipping(false)
+    if (activeSessionProviderId && isStripeLike(activeSessionProviderId)) {
+      return activeSessionProviderId
+    }
+
+    const stripeProvider = paymentProviders.find((provider) => isStripeLike(provider.id))
+    return stripeProvider?.id || paymentProviders[0]?.id || null
+  }, [cart?.payment_collection?.payment_sessions, paymentProviders])
+
+  useEffect(() => {
+    const fetchPaymentProviders = async () => {
+      const regionId = cart?.region?.id || initialCart?.region?.id
+      if (!regionId) return
+
+      const providers = await listCartPaymentMethods(regionId)
+      if (providers) {
+        setPaymentProviders(providers)
       }
     }
 
-    if (currentStep >= 1) {
-      fetchOptions()
-    }
-  }, [selectedAddress, currentStep, cart?.id])
+    fetchPaymentProviders()
+  }, [cart?.region?.id, initialCart?.region?.id])
+
+  const syncAddressAndShippingOptions = useCallback(
+    async (address: HttpTypes.StoreCustomerAddress) => {
+      if (!cart?.id || !address) return
+
+      const requestId = ++shippingRequestRef.current
+      setIsLoadingShipping(true)
+
+      try {
+        const res = await selectSavedAddress(address)
+
+        if (!res.success) {
+          console.error("Failed to sync address:", res.error)
+          return
+        }
+
+        if (res.cart && requestId === shippingRequestRef.current) {
+          setCart(res.cart)
+        }
+
+        const opts = await listCartOptions()
+        if (requestId !== shippingRequestRef.current) {
+          return
+        }
+
+        const nextOptions = opts.shipping_options || []
+        setShippingOptions(nextOptions)
+        lastSyncedAddressIdRef.current = address.id
+
+        setSelectedShippingOptionId((prev) => {
+          if (prev && nextOptions.some((option) => option.id === prev)) {
+            return prev
+          }
+
+          return nextOptions[0]?.id || null
+        })
+      } catch (err) {
+        console.error("Error fetching shipping options:", err)
+      } finally {
+        if (requestId === shippingRequestRef.current) {
+          setIsLoadingShipping(false)
+        }
+      }
+    },
+    [cart?.id, setCart]
+  )
+
+  // Fetch shipping options when address changes or as early as possible to prefetch
+  useEffect(() => {
+    if (!selectedAddress || !cart?.id) return
+    if (lastSyncedAddressIdRef.current === selectedAddress.id && shippingOptions.length > 0) return
+
+    syncAddressAndShippingOptions(selectedAddress)
+  }, [selectedAddress, cart?.id, shippingOptions.length, syncAddressAndShippingOptions])
 
   // Sync prop cart with global provider on mount
   useEffect(() => {
@@ -104,6 +151,11 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
   const handleProceed = async () => {
     if (currentStep === 0 && !customer) {
       setAuthOpen(true)
+    } else if (currentStep === 0) {
+      if (selectedAddress && lastSyncedAddressIdRef.current !== selectedAddress.id) {
+        void syncAddressAndShippingOptions(selectedAddress)
+      }
+      goToStep(1)
     } else if (currentStep === 1) {
       if (selectedShippingOptionId && cart?.id) {
         setIsLoadingShipping(true)
@@ -122,19 +174,25 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
           }
           
           await setShippingMethod({ cartId: cart.id, shippingMethodId: selectedShippingOptionId })
+
+          if (!stripeProviderId) {
+            throw new Error("No payment provider is configured for this region.")
+          }
+
+          await initiatePaymentSession(cart, { provider_id: stripeProviderId })
+          const updatedCart = await retrieveCart()
+          if (updatedCart) setCart(updatedCart)
           goToStep(currentStep + 1)
         } catch (err) {
-          console.error("Error setting shipping method:", err)
+          console.error("Error setting shipping method or payment session:", err)
         } finally {
           setIsLoadingShipping(false)
         }
       } else {
         goToStep(currentStep + 1)
       }
-    } else if (currentStep < 2) {
-      goToStep(currentStep + 1)
-    } else {
-      setShowSuccess(true)
+    } else if (currentStep === 2) {
+      document.getElementById("submit-stripe-payment-btn")?.click()
     }
   }
 
@@ -200,7 +258,13 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
                   setRecipientPhone={setRecipientPhone}
                 />
               )}
-              {currentStep === 2 && <PaymentStep cart={cart} />}
+              {currentStep === 2 && (
+                <PaymentStep 
+                  cart={cart} 
+                  onPaymentSuccess={() => setShowSuccess(true)}
+                  setIsPlacingOrder={setIsPlacingOrder}
+                />
+              )}
             </div>
           </div>
           
@@ -215,6 +279,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
                 selectedShippingPrice={selectedShippingPrice}
                 selectedShippingOptionId={selectedShippingOptionId}
                 shippingOptions={shippingOptions}
+                isPlacingOrder={isPlacingOrder}
               />
             </div>
           </div>
@@ -234,9 +299,9 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
           ) : (<button className="font-manrope text-[10px] uppercase font-bold tracking-widest text-accent/40 flex items-center gap-1 mt-0.5">View Details {Ico.chevRight("w-3 h-3 -rotate-90")}</button>
           )}
         </div>
-        <button onClick={handleProceed} disabled={(currentStep === 1 && (!selectedAddress || shippingOptions.length === 0 || !selectedShippingOptionId)) || isLoadingShipping}
+        <button onClick={handleProceed} disabled={(currentStep === 1 && (!selectedAddress || shippingOptions.length === 0 || !selectedShippingOptionId || isLoadingShipping)) || isPlacingOrder}
           className="px-8 py-4 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
-          {isLoadingShipping ? "Processing..." : currentStep === 0 ? "PROCEED" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"}
+          {(currentStep === 1 && isLoadingShipping) || isPlacingOrder ? "Processing..." : currentStep === 0 ? "PROCEED" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"}
         </button>
       </div>
 

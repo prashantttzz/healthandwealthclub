@@ -52,7 +52,7 @@ const MENU_LINKS = [
   { name: "HOME", href: "/" },
   { name: "COLLECTIONS", href: "/store" },
   { name: "ABOUT US", href: "/#about-us" },
-  { name: "COLLABRATION", href: "/collabrations" },
+  { name: "COLLABORATIONS", href: "/collaborations" },
 ]
 
 export default function MobileMenu({ 

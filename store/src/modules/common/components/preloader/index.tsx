@@ -4,7 +4,7 @@ import { useEffect } from "react"
 
 export default function Preloader() {
   useEffect(() => {
-    const hasSeen = sessionStorage.getItem("hasSeenPreloader")
+    const hasSeen = localStorage.getItem("hasSeenPreloader")
     if (hasSeen) return
 
     const MIN_DISPLAY = 500
@@ -27,7 +27,7 @@ export default function Preloader() {
       }
 
       document.documentElement.style.overflow = "visible"
-      sessionStorage.setItem("hasSeenPreloader", "true")
+      localStorage.setItem("hasSeenPreloader", "true")
     }
 
     const start = Date.now()

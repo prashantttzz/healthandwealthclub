@@ -4,6 +4,7 @@ import { UIProvider } from "@lib/context/ui-context"
 import { CartProvider } from "@lib/context/cart-context"
 import { Newsreader, Gilda_Display, Petit_Formal_Script, Poppins } from "next/font/google"
 import Preloader from "@modules/common/components/preloader"
+import SmoothScroll from "@modules/common/components/smooth-scroll"
 
 const manrope = Poppins({
   subsets: ["latin"],
@@ -99,7 +100,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         <script dangerouslySetInnerHTML={{
           __html: `
             (function() {
-              if (sessionStorage.getItem('hasSeenPreloader')) return;
+              if (localStorage.getItem('hasSeenPreloader')) return;
 
               var frame = document.createElement('div');
               frame.className = 'hard-loader-frame';
@@ -125,12 +126,14 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         }} />
       </head>
 
-      <body className="font-manrope">
+      <body className="font-manrope smooth-scroll">
         <CartProvider>
           <UIProvider>
             {/* ✅ React takes over and removes the hard loader */}
-            <Preloader />
-            <main className="relative">{props.children}</main>
+            <SmoothScroll>
+              <Preloader />
+              <main className="relative">{props.children}</main>
+            </SmoothScroll>
           </UIProvider>
         </CartProvider>
       </body>
