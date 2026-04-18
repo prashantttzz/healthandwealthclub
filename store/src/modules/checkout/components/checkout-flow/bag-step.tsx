@@ -31,7 +31,7 @@ const BagStep = ({ onContinue }: { onContinue: () => void }) => {
     const inventory = item.variant?.inventory_quantity
     const manageInventory = item.variant?.manage_inventory !== false
 
-    if (qty > item.quantity && manageInventory && inventory !== undefined && qty > inventory) {
+    if (qty > item.quantity && manageInventory && typeof inventory === "number" && qty > inventory) {
       toast.error("Maximum quantity reached for this item.")
       return
     }
@@ -74,7 +74,7 @@ const BagStep = ({ onContinue }: { onContinue: () => void }) => {
                     <span className="w-7 h-7 flex items-center justify-center font-manrope text-[13px] font-bold text-accent border-x border-accent/10">{item.quantity}</span>
                     <button 
                       onClick={() => changeQty(item, item.quantity + 1)} 
-                      disabled={item.variant?.manage_inventory !== false && item.variant?.inventory_quantity !== undefined && item.quantity >= item.variant.inventory_quantity}
+                      disabled={item.variant?.manage_inventory !== false && typeof item.variant?.inventory_quantity === "number" && item.quantity >= item.variant.inventory_quantity}
                       className="w-7 h-7 flex items-center justify-center text-accent/30 hover:text-accent transition-all disabled:opacity-30 disabled:cursor-not-allowed"
                     >
                       {Ico.plus("w-3.5 h-3.5")}

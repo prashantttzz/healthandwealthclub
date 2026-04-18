@@ -30,7 +30,7 @@ const Item = ({ item, type = "full" }: ItemProps) => {
     const inventory = item.variant?.inventory_quantity
     const manageInventory = item.variant?.manage_inventory !== false
 
-    if (quantity > item.quantity && manageInventory && inventory !== undefined && quantity > inventory) {
+    if (quantity > item.quantity && manageInventory && typeof inventory === "number" && quantity > inventory) {
       toast.error("Maximum quantity reached for this item.")
       return
     }
