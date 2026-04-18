@@ -17,6 +17,7 @@ import ProductTabs from "../components/product-tabs"
 import ProductReviews from "../components/product-reviews"
 import ImageCarousel from "../components/image-carousel"
 import LocalizedPrice from "@modules/common/components/localized-price"
+import { sortSizeValues } from "@lib/util/delivery-estimate"
 
 type ProductTemplateProps = {
   product: HttpTypes.StoreProduct
@@ -215,7 +216,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             {/* Desktop Editorial Grid */}
             <div className="hidden lg:flex flex-col gap-4">
               <div 
-                className="relative aspect-[4/5] w-full overflow-hidden bg-white/50 group border border-black/5"
+                className="relative aspect-[4/5] w-full overflow-hidden bg-secondary/50 group border border-black/5"
               >
                 <Image
                   src={selectedVariant?.metadata?.image_url as string || product.images?.[0]?.url || "/placeholder.png"}
@@ -227,7 +228,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
               </div>
               <div className="grid grid-cols-2 gap-4">
                 {(product.images || []).slice(1, 4).map((image, i) => (
-                  <div key={image.id} className="relative aspect-square w-full overflow-hidden bg-white/50 border border-black/5">
+                  <div key={image.id} className="relative aspect-square w-full overflow-hidden bg-secondary/50 border border-black/5">
                     <Image
                       src={image.url || "/placeholder.png"}
                       alt={`Product detail ${i + 1}`}
@@ -265,6 +266,9 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 {(product.options || []).map((option) => {
                   const isColor = option.title?.toLowerCase() === "color"
                   const current = options[option.id]
+                  const optionValues = option.title?.toLowerCase() === "size"
+                    ? sortSizeValues(option.values || [])
+                    : option.values || []
 
                   return (
                     <div key={option.id} className="space-y-4">
@@ -290,7 +294,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                       </div>
 
                       <div className="flex flex-wrap gap-3">
-                        {(option.values || []).map((v) => {
+                        {optionValues.map((v) => {
                           const isSelected = v.value === current
                           const isAvailable = isOptionAvailable(option.id, v.value)
 

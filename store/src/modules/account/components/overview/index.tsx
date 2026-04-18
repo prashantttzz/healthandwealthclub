@@ -7,7 +7,7 @@ import { HugeiconsIcon } from "@hugeicons/react"
 import { 
   PackageIcon, 
   Location01Icon, 
-UserIcon, 
+  UserIcon, 
   ArrowRight01Icon,
   CreditCardIcon,
   Settings01Icon
@@ -18,12 +18,12 @@ type OverviewProps = {
   orders: HttpTypes.StoreOrder[] | null
 }
 
-const   Overview = ({ customer, orders }: OverviewProps) => {
+const Overview = ({ customer, orders }: OverviewProps) => {
   const completion = getProfileCompletion(customer)
   const firstName = customer?.first_name || "there"
 
   return (
-    <div data-testid="overview-page-wrapper" className="flex flex-col gap-8 lg:gap-12  animate-in fade-in slide-in-from-bottom-4 duration-700 md:mt-10">
+    <div data-testid="overview-page-wrapper" className="flex flex-col gap-8 lg:gap-12 animate-in fade-in slide-in-from-bottom-4 duration-700 md:mt-10">
       <div className="flex flex-col gap-3">
         <h1 className="font-newsreader italic text-5xl lg:text-6xl text-accent tracking-tight leading-tight px-6 lg:px-0">
           Welcome home, <br className="md:hidden" /> {firstName}.
@@ -33,7 +33,6 @@ const   Overview = ({ customer, orders }: OverviewProps) => {
         </p>
       </div>
 
-      {/* MOBILE ONLY NAVIGATION HUB */}
       <div className="flex lg:hidden flex-col gap-0 border-t border-accent/5">
         <MobileMenuTile 
           href="/account/orders" 
@@ -67,10 +66,8 @@ const   Overview = ({ customer, orders }: OverviewProps) => {
         />
       </div>
 
-      {/* DESKTOP ONLY DASHBOARD */}
-      <div className="hidden lg:flex flex-col  gap-12">
+      <div className="hidden lg:flex flex-col gap-12">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-          {/* Profile Completion Card */}
           <div className="lg:col-span-2 flex flex-col justify-between p-10 bg-[#F2EDE5] border border-accent/5 shadow-sm relative overflow-hidden group">
             <div className="relative z-10 flex flex-col gap-8">
               <div className="flex flex-col gap-2">
@@ -96,11 +93,9 @@ const   Overview = ({ customer, orders }: OverviewProps) => {
               </div>
             </div>
             
-            {/* Abstract background element */}
             <div className="absolute -bottom-10 -right-10 w-48 h-48 bg-accent/[0.03] rounded-full blur-3xl pointer-events-none" />
           </div>
 
-          {/* Info Stat */}
           <div className="flex flex-col justify-center items-center p-10 bg-accent text-bg border border-accent/5 shadow-xl text-center gap-4">
             <div className="w-12 h-12 rounded-full border border-bg/10 flex items-center justify-center mb-2">
               <HugeiconsIcon icon={PackageIcon} size={20} className="text-bg/60" />
@@ -112,7 +107,6 @@ const   Overview = ({ customer, orders }: OverviewProps) => {
           </div>
         </div>
 
-        {/* Action Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <DashTile 
             href="/account/orders" 
@@ -131,7 +125,6 @@ const   Overview = ({ customer, orders }: OverviewProps) => {
           />
         </div>
 
-        {/* Recent Activity */}
         <div className="flex flex-col gap-8 mt-4">
           <div className="flex items-center justify-between border-b border-accent/5 pb-4">
             <h3 className="font-manrope text-[11px] uppercase font-bold tracking-[0.3em] text-accent/30">Recent Activity</h3>
@@ -202,7 +195,7 @@ const MobileMenuTile = ({ href, icon, label, desc }: { href: string, icon: React
 
 const DashTile = ({ href, icon, label }: { href: string, icon: React.ReactNode, label: string }) => (
   <LocalizedClientLink href={href} className="group">
-    <div className="flex items-center gap-5 p-6 bg-white border border-accent/5 group-hover:border-accent/30 transition-all duration-300">
+    <div className="flex items-center gap-5 p-6 bg-secondary border border-accent/5 group-hover:border-accent/30 transition-all duration-300">
       <div className="w-10 h-10 flex items-center justify-center text-accent/40 group-hover:text-accent transition-colors">
         {icon}
       </div>

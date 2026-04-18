@@ -13,6 +13,7 @@ import LineItemOptions from "@modules/common/components/line-item-options"
 import QuantitySelector from "@modules/cart/components/item/quantity-selector"
 import LocalizedPrice from "@modules/common/components/localized-price"
 import { useState, useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
 import Spinner from "@modules/common/icons/spinner"
 
 const sidebarVariants = {
@@ -31,11 +32,20 @@ const CartSidebar = () => {
   const { optimisticItems: items, subtotal, updateQuantity, removeItem, isAdding, cart } = useCart()
   const [isNavigating, setIsNavigating] = useState(false)
   const [loadingItems, setLoadingItems] = useState<Record<string, boolean>>({})
+  const { countryCode } = useParams() as { countryCode: string }
+  const router = useRouter()
 
   // ✅ Reset navigation state when sidebar closes
   useEffect(() => {
     if (!isCartSidebarOpen) setIsNavigating(false)
   }, [isCartSidebarOpen])
+
+  // ✅ Navigate instantly if not adding, otherwise wait for adding to finish
+  useEffect(() => {
+    if (isNavigating && !isAdding) {
+      router.push(`/${countryCode}/checkout`)
+    }
+  }, [isNavigating, isAdding, router, countryCode])
 
   const handleQuantityChange = async (item: HttpTypes.StoreCartLineItem, quantity: number) => {
     const inventory = item.variant?.inventory_quantity ?? 10
@@ -207,18 +217,20 @@ const CartSidebar = () => {
                   </p>
 
                   <LocalizedClientLink
-                    href={(isAdding || isNavigating) ? "#" : "/checkout"}
-                    onClick={(e: any) => (isAdding || isNavigating) && e.preventDefault()}
+                    href={`/${countryCode}/checkout`}
+                    onClick={(e: any) => {
+                      e.preventDefault()
+                      if (!isNavigating) setIsNavigating(true)
+                    }}
                     className={clx("block w-full text-center", {
-                      "pointer-events-none opacity-50": isAdding || isNavigating,
+                      "pointer-events-none opacity-50": isNavigating,
                     })}
                   >
                     <button
-                      onClick={() => (!isAdding && !isNavigating) && setIsNavigating(true)}
-                      disabled={isAdding || isNavigating}
+                      disabled={isNavigating}
                       className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] hover:bg-bg/90 transition-all duration-300 uppercase flex items-center justify-center gap-2"
                     >
-                      {isNavigating || isAdding ? <Spinner /> : "CHECK OUT"}
+                      {isNavigating ? <Spinner /> : "CHECK OUT"}
                     </button>
                   </LocalizedClientLink>
                 </div>

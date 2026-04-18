@@ -6,6 +6,7 @@ import Thumbnail from "@modules/products/components/thumbnail"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { paymentInfoMap } from "@lib/constants"
 import OnboardingCta from "@modules/order/components/onboarding-cta"
+import { getDeliveryEstimate } from "@lib/util/delivery-estimate"
 
 type OrderCompletedTemplateProps = {
   order: HttpTypes.StoreOrder
@@ -21,6 +22,10 @@ export default async function OrderCompletedTemplate({
   const paymentProviderId = payment?.provider_id || ""
   const paymentMethod = paymentInfoMap[paymentProviderId]?.title || "Payment Card"
   const cardLast4 = payment?.data?.card_last4 as string | undefined
+  const deliveryEstimate = getDeliveryEstimate({
+    countryCode: order.shipping_address?.country_code,
+    baseDate: order.created_at,
+  })
 
   return (
     <div className="min-h-screen bg-bg">
@@ -36,6 +41,9 @@ export default async function OrderCompletedTemplate({
           <h1 className="font-newsreader italic text-5xl md:text-6xl text-accent mb-6">Thank you.</h1>
           <p className="font-manrope text-[15px] text-accent/60 max-w-lg leading-relaxed">
             Your order <span className="font-bold text-accent">#{order.display_id}</span> has been successfully placed. We've sent your confirmation and tracking details to <span className="font-bold text-accent border-b border-accent/20 pb-0.5">{order.email}</span>.
+          </p>
+          <p className="font-manrope text-[12px] text-accent/45 uppercase tracking-[0.18em] mt-5">
+            Estimated delivery by <span className="font-bold text-accent">{deliveryEstimate.formattedDate}</span>
           </p>
         </div>
 
@@ -124,6 +132,10 @@ export default async function OrderCompletedTemplate({
                   <span className="text-bg font-semibold">
                     {order.shipping_total === 0 ? "Free" : <LocalizedPrice amount={order.shipping_total || 0} />}
                   </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery ETA</span>
+                  <span className="text-bg font-semibold">{deliveryEstimate.formattedDate}</span>
                 </div>
                 
                 {order.tax_total > 0 && (

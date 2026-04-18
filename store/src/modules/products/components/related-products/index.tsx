@@ -74,7 +74,7 @@ export default async function RelatedProducts({
                 href={`/products/${p.handle}`}
                 className="group flex flex-col space-y-5"
               >
-                <div className="relative aspect-[4/5] w-full overflow-hidden bg-white/40">
+                <div className="relative aspect-[4/5] w-full overflow-hidden bg-secondary/40">
                   <Image
                     src={p.thumbnail || p.images?.[0]?.url || ""}
                     alt={p.title}

@@ -7,6 +7,7 @@ import Thumbnail from "@modules/products/components/thumbnail"
 import AddressSidebar from "../address-sidebar"
 import { deleteCustomerAddress } from "@lib/data/customer"
 import LocalizedPrice from "@modules/common/components/localized-price"
+import { getDeliveryEstimate } from "@lib/util/delivery-estimate"
 
 const Ico = {
   plus: (c = "") => <Plus className={c} strokeWidth={2.5}  />,
@@ -48,6 +49,15 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
       (a) => a.country_code && countriesInRegion.includes(a.country_code.toLowerCase())
     ) || []
   }, [customer?.addresses, cart?.region])
+
+  const deliveryEstimate = useMemo(
+    () =>
+      getDeliveryEstimate({
+        countryCode: selectedAddress?.country_code || cart.shipping_address?.country_code,
+        baseDate: cart.created_at,
+      }),
+    [selectedAddress?.country_code, cart.shipping_address?.country_code, cart.created_at]
+  )
   return (
     <div className="flex flex-col gap-14 mb-20 md:mt-0">
       {/* Delivery Address */}
@@ -170,7 +180,10 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
             <div className="w-14 h-16 bg-accent/[0.02] overflow-hidden flex-shrink-0"><Thumbnail thumbnail={cart.items[0].thumbnail} size="square" /></div>
             <div>
               <p className="font-manrope text-[14px] font-bold text-accent">{cart.items[0].product_title}</p>
-              <p className="font-manrope text-[12px] text-accent/40 mt-0.5">Estimated Delivery: <span className="font-bold text-accent/70">{new Date(Date.now() + 5 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span></p>
+              <p className="font-manrope text-[12px] text-accent/40 mt-0.5">
+                Estimated Delivery: <span className="font-bold text-accent/70">{deliveryEstimate.formattedDate}</span>
+              </p>
+              <p className="font-manrope text-[11px] text-accent/30 mt-1">{deliveryEstimate.label}</p>
             </div>
           </div>
         </div>

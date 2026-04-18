@@ -19,9 +19,7 @@ const QuantitySelector = ({ quantity, onChange, maxQuantity = 10, loading, class
   }
 
   const handleIncrement = () => {
-    if (quantity < maxQuantity) {
-      onChange(quantity + 1)
-    }
+    onChange(quantity + 1)
   }
 
   return (
@@ -45,8 +43,8 @@ const QuantitySelector = ({ quantity, onChange, maxQuantity = 10, loading, class
 
         <button
           onClick={handleIncrement}
-          disabled={quantity >= maxQuantity || loading}
-          className={`w-6 h-6 flex items-center justify-center ${className} text-accent  disabled:opacity-20 transition-colors`}
+          disabled={loading}
+          className={`w-6 h-6 flex items-center justify-center ${className} text-accent  disabled:opacity-20 transition-colors ${quantity >= maxQuantity ? "opacity-50 hover:opacity-100" : ""}`}
         >
           <Plus className="w-2.5 h-2.5" strokeWidth={3} />
         </button>

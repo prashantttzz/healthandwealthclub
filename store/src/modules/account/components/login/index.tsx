@@ -8,8 +8,10 @@ type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
 }
 
+import Spinner from "@modules/common/icons/spinner"
+
 const Login = ({ setCurrentView }: Props) => {
-  const [message, formAction] = useActionState(login, null)
+  const [message, formAction, isPending] = useActionState(login, null)
 
   return (
     <div
@@ -51,10 +53,11 @@ const Login = ({ setCurrentView }: Props) => {
         <ErrorMessage error={message} data-testid="login-error-message" />
         <button 
           type="submit"
-          className="w-full h-14 bg-accent text-[#fbf8f1] font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50 mt-4" 
+          className="w-full h-14 bg-accent text-[#fbf8f1] font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50 mt-4 flex items-center justify-center gap-2" 
           data-testid="sign-in-button"
+          disabled={isPending}
         >
-          Sign in
+          {isPending ? <Spinner size="20" color="#fbf8f1" /> : "Sign in"}
         </button>
       </form>
       <span className="text-center text-accent/60 text-[13px] mt-8">

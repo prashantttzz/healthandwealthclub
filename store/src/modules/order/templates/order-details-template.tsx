@@ -15,6 +15,7 @@ import {
   Tick01Icon,
 } from "@hugeicons/core-free-icons"
 import React from "react"
+import { getDeliveryEstimate } from "@lib/util/delivery-estimate"
 
 type OrderDetailsTemplateProps = {
   order: HttpTypes.StoreOrder
@@ -26,6 +27,10 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
   const payment = order.payment_collections?.[0]?.payments?.[0]
   const paymentProviderId = payment?.provider_id || ""
   const paymentMethod = paymentInfoMap[paymentProviderId]?.title || "Payment Card"
+  const deliveryEstimate = getDeliveryEstimate({
+    countryCode: order.shipping_address?.country_code,
+    baseDate: order.created_at,
+  })
 
   const getStepLevel = () => {
     const fulfillmentStatus = order.fulfillment_status || ""
@@ -51,7 +56,6 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
     { label: "Delivered",         sub: "Delivered to your address",          icon: Tick01Icon,         timestamp: null },
   ]
 
-  const statusLabel  = ["Placed","Validated","Preparing","In Transit","Delivered"][currentStep] ?? "Processing"
   const isInProgress = currentStep < 4
 
   return (
@@ -71,9 +75,14 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
               <span className="font-manrope text-[10px] font-bold uppercase tracking-[0.4em] text-accent/30">Order Tracking</span>
               <h1 className="font-newsreader italic text-4xl md:text-5xl text-accent">Order #{order.display_id}</h1>
             </div>
-            <p className="font-manrope text-[12px] text-accent/40 font-semibold">
-              Placed on {new Date(order.created_at).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}
-            </p>
+            <div className="text-left sm:text-right">
+              <p className="font-manrope text-[12px] text-accent/40 font-semibold">
+                Placed on {new Date(order.created_at).toLocaleDateString("en-US", { day: "numeric", month: "long", year: "numeric" })}
+              </p>
+              <p className="font-manrope text-[12px] text-accent/50 mt-1">
+                Estimated delivery by <span className="font-bold text-accent/70">{deliveryEstimate.formattedDate}</span>
+              </p>
+            </div>
           </div>
         </div>
 
@@ -83,7 +92,7 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
           <div className="flex flex-col gap-10">
 
             {/* ── Myntra-style Vertical Timeline Card ── */}
-            <div className="border border-accent/10 bg-white shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
+            <div className="border border-accent/10 bg-secondary shadow-sm overflow-hidden animate-in fade-in slide-in-from-bottom-4 duration-700">
               {/* Card Header */}
               <div className="flex items-center justify-between px-6 py-4 border-b border-accent/5">
                 <span className="font-manrope text-[12px] font-bold uppercase tracking-[0.25em] text-accent/60">Timeline</span>
@@ -159,7 +168,7 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
               <div className="px-6 py-5 bg-accent/[0.02] border-t border-accent/5 flex items-center gap-3">
                 <MapPin className="w-4 h-4 text-accent/30 flex-shrink-0" />
                 <p className="font-manrope text-[12px] text-accent/50 leading-snug">
-                  Delivering to <span className="font-bold text-accent/70">{order.shipping_address?.address_1}, {order.shipping_address?.city}</span>
+                  Delivering to <span className="font-bold text-accent/70">{order.shipping_address?.address_1}, {order.shipping_address?.city}</span> by <span className="font-bold text-accent/70">{deliveryEstimate.formattedDate}</span>
                 </p>
               </div>
             </div>
@@ -169,7 +178,7 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
               <h2 className="font-manrope text-[12px] font-bold text-accent/50 uppercase tracking-[0.25em] mb-5 flex items-center gap-2">
                 <Package className="w-4 h-4" /> Items in this order
               </h2>
-              <div className="flex flex-col border border-accent/10 bg-white shadow-sm overflow-hidden">
+              <div className="flex flex-col border border-accent/10 bg-secondary shadow-sm overflow-hidden">
                 {order.items?.map((item, idx) => (
                   <LocalizedClientLink 
                     key={item.id} 
@@ -200,7 +209,7 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
 
             {/* ── Delivery + Payment ── */}
             <div className="grid sm:grid-cols-2 gap-6 animate-in fade-in duration-700 delay-300 fill-mode-both">
-              <section className="p-7 border border-accent/10 bg-white shadow-sm">
+              <section className="p-7 border border-accent/10 bg-secondary shadow-sm">
                 <h2 className="font-manrope text-[11px] font-bold text-accent/40 uppercase tracking-[0.25em] mb-5 flex items-center gap-2">
                   <Truck className="w-3.5 h-3.5" /> Delivery Address
                 </h2>
@@ -212,7 +221,7 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
                 </div>
               </section>
 
-              <section className="p-7 border border-accent/10 bg-white shadow-sm">
+              <section className="p-7 border border-accent/10 bg-secondary shadow-sm">
                 <h2 className="font-manrope text-[11px] font-bold text-accent/40 uppercase tracking-[0.25em] mb-5 flex items-center gap-2">
                   <CreditCard className="w-3.5 h-3.5" /> Payment
                 </h2>
@@ -251,6 +260,10 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
                   <span className="font-bold text-bg">
                     {order.shipping_total === 0 ? "Free" : <LocalizedPrice amount={order.shipping_total || 0} />}
                   </span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Delivery ETA</span>
+                  <span className="font-bold text-bg">{deliveryEstimate.formattedDate}</span>
                 </div>
                 {order.tax_total > 0 && (
                   <div className="flex justify-between">

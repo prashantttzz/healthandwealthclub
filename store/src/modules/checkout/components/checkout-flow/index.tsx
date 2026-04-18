@@ -2,10 +2,8 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { convertToLocale } from "@lib/util/money"
-import { listCartOptions, setShippingMethod, selectSavedAddress, retrieveCart, updateCart, initiatePaymentSession, placeOrder } from "@lib/data/cart"
+import { listCartOptions, setShippingMethod, selectSavedAddress, retrieveCart, updateCart, initiatePaymentSession } from "@lib/data/cart"
 import { useCurrencyFormatter } from "@lib/currency"
-import { deleteCustomerAddress } from "@lib/data/customer"
 import { listCartPaymentMethods } from "@lib/data/payment"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
 import { Check, ChevronLeft, ChevronRight } from "lucide-react"
@@ -20,6 +18,7 @@ import AddressStep from "./address-step"
 import PaymentStep from "./payment-step"
 import MobilePriceDrawer from "./mobile-price-drawer"
 import OrderSummary from "./order-summary"
+import { getDeliveryEstimate } from "@lib/util/delivery-estimate"
 
 const Ico = {
   check: (c = "") => <Check className={c} strokeWidth={3} />,
@@ -161,7 +160,11 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
         setIsLoadingShipping(true)
         try {
           // Sync gifting metadata before proceeding
-          if (recipientName || recipientPhone) {
+          const currentRecipientName = cart.shipping_address?.metadata?.recipient_name as string || ""
+          const currentRecipientPhone = cart.shipping_address?.metadata?.recipient_phone as string || ""
+          const metadataChanged = recipientName !== currentRecipientName || recipientPhone !== currentRecipientPhone
+
+          if (metadataChanged) {
             await updateCart({
               shipping_address: {
                 metadata: {
@@ -198,7 +201,10 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
 
   if (showSuccess && cart) {
     const totalPayable = (optimisticItems.reduce((acc, i) => acc + (i.unit_price || 0) * i.quantity, 0)) - (cart.discount_total ?? 0) + selectedShippingPrice
-     console.log("hi",selectedShippingPrice)
+    const deliveryEstimate = getDeliveryEstimate({
+      countryCode: selectedAddress?.country_code || cart.shipping_address?.country_code,
+      baseDate: new Date(),
+    })
     return (
       <div className="fixed inset-0 bg-black/30 z-[200] flex items-center justify-center p-6">
         <div className="bg-bg p-12 max-w-md w-full flex flex-col items-center gap-8 shadow-2xl animate-in zoom-in-95 fade-in duration-500">
@@ -206,7 +212,10 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
             {Ico.check("w-10 h-10 text-green-500")}
           </div>
           <h2 className="font-newsreader italic text-3xl text-accent">Order Placed!</h2>
-          <p className="font-manrope text-[14px] text-accent/50 text-center leading-relaxed">Estimated delivery by <span className="font-bold text-accent">{new Date(Date.now() + 5 * 86400000).toLocaleDateString("en-IN", { day: "numeric", month: "short", year: "numeric" })}</span></p>
+          <p className="font-manrope text-[14px] text-accent/50 text-center leading-relaxed">
+            Estimated delivery by <span className="font-bold text-accent">{deliveryEstimate.formattedDate}</span>
+          </p>
+          <p className="font-manrope text-[11px] text-accent/40 text-center uppercase tracking-[0.18em]">{deliveryEstimate.label}</p>
           <div className="bg-accent/[0.03] border border-accent/5 p-6 w-full">
             <div className="flex justify-between font-manrope text-[13px] uppercase tracking-widest font-bold"><span className="text-accent/40">Total Paid</span><span className="text-accent">{formatPrice(totalPayable)}</span></div>
           </div>
@@ -306,7 +315,13 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
       </div>
 
       {/* Mobile Price Drawer */}
-      <MobilePriceDrawer isOpen={drawerOpen} onClose={() => setDrawerOpen(false)} selectedShippingPrice={selectedShippingPrice} />
+      <MobilePriceDrawer
+        isOpen={drawerOpen}
+        onClose={() => setDrawerOpen(false)}
+        selectedShippingPrice={selectedShippingPrice}
+        countryCode={selectedAddress?.country_code || cart.shipping_address?.country_code}
+        baseDate={cart.created_at}
+      />
 
       {/* Auth Sidebar */}
       <AuthSidebar isOpen={authOpen} onClose={() => setAuthOpen(false)} />

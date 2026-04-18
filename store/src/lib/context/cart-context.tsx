@@ -4,6 +4,7 @@ import React, { createContext, useContext, useState, useEffect, useMemo } from "
 import { useRouter } from "next/navigation"
 import { HttpTypes } from "@medusajs/types"
 import { addToCart as postAddToCart, updateLineItem as postUpdateLineItem, deleteLineItem as postDeleteLineItem } from "@lib/data/cart"
+import { toast } from "@medusajs/ui"
 
 interface CartContextType {
   cart: HttpTypes.StoreCart | null
@@ -164,11 +165,12 @@ export const CartProvider: React.FC<{
         quantity,
         unit_price: optimisticData.unit_price || 0,
         thumbnail: optimisticData.thumbnail,
-        product_title: optimisticData.product_title,
+        product_title: optimisticData.title || optimisticData.product_title,
         variant: {
           title: optimisticData.variant?.title,
           product: {
-            images: optimisticData.variant?.product?.images
+            images: optimisticData.variant?.product?.images,
+            handle: optimisticData.product_handle
           }
         },
         ...optimisticData
@@ -184,7 +186,7 @@ export const CartProvider: React.FC<{
       } else {
         router.refresh() // fallback if server action doesn't return cart
       }
-    } catch (error) {
+    } catch (error: any) {
       // ✅ Rollback on failure
       if (existingItem) {
         setOptimisticQuantities(prev => {
@@ -195,6 +197,7 @@ export const CartProvider: React.FC<{
       } else if (tempId) {
         setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
       }
+      toast.error(error.message || "Couldn't add item to cart")
     } finally {
       setIsAdding(false)
     }
@@ -215,7 +218,7 @@ export const CartProvider: React.FC<{
         } else {
           router.refresh()
         }
-      } catch {
+      } catch (error: any) {
         setCart(previousCart)
         setOptimisticQuantities(prev => {
           const newState = { ...prev }
@@ -227,6 +230,7 @@ export const CartProvider: React.FC<{
           delete newState[lineId]
           return newState
         })
+        toast.error(error.message || "Couldn't remove item from cart")
       }
       return
     }
@@ -238,13 +242,14 @@ export const CartProvider: React.FC<{
       } else {
         router.refresh()
       }
-    } catch {
+    } catch (error: any) {
       setCart(previousCart)
       setOptimisticQuantities(prev => {
         const newState = { ...prev }
         delete newState[lineId]
         return newState
       })
+      toast.error(error.message || "Couldn't update item quantity")
     }
   }
 
@@ -261,7 +266,7 @@ export const CartProvider: React.FC<{
       } else {
         router.refresh()
       }
-    } catch {
+    } catch (error: any) {
       setCart(previousCart)
       setOptimisticQuantities(prev => {
         const newState = { ...prev }
@@ -273,6 +278,7 @@ export const CartProvider: React.FC<{
         delete newState[lineId]
         return newState
       })
+      toast.error(error.message || "Couldn't remove item from cart")
     }
   }
 

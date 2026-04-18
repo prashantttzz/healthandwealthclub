@@ -71,7 +71,7 @@ export default function ClubFooter() {
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
                   <LocalizedClientLink
                     href={CONTACT_LINKS.instagram}
-                    className="group inline-flex items-center gap-3 bg-white text-black md:bg-white/10 md:text-white md:backdrop-blur-md border border-white/20 px-6 py-3 md:px-8 md:py-4 rounded-full transition-all hover:bg-white hover:text-black"
+                    className="group inline-flex items-center gap-3 bg-secondary text-black md:bg-white/10 md:text-white md:backdrop-blur-md border border-white/20 px-6 py-3 md:px-8 md:py-4 rounded-full transition-all hover:bg-secondary hover:text-black"
                   >
                     <span className="font-manrope text-[10px] md:text-xs font-bold tracking-widest uppercase">
                       Become a Member

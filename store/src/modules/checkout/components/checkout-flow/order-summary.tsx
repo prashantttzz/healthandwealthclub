@@ -6,27 +6,41 @@ import { useCart } from "@lib/context/cart-context"
 import LocalizedPrice from "@modules/common/components/localized-price"
 import Thumbnail from "@modules/products/components/thumbnail"
 import { ArrowRight } from "lucide-react"
-import { formatPrice } from "@lib/currency"
+import { getDeliveryEstimate } from "@lib/util/delivery-estimate"
 
 const Ico = {
   arrowRight: (c = "") => <ArrowRight className={c} strokeWidth={2} />,
 }
 
-const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipping, selectedShippingPrice, selectedShippingOptionId, shippingOptions, isPlacingOrder }: {
-  currentStep: number; 
-  onContinue: () => void; 
-  selectedAddress: HttpTypes.StoreCustomerAddress | null;
-  isLoadingShipping: boolean;
-  selectedShippingPrice?: number;
-  selectedShippingOptionId?: string | null;
-  shippingOptions?: HttpTypes.StoreCartShippingOption[];
-  isPlacingOrder?: boolean;
+const OrderSummary = ({
+  currentStep,
+  onContinue,
+  selectedAddress,
+  isLoadingShipping,
+  selectedShippingPrice,
+  selectedShippingOptionId,
+  shippingOptions,
+  isPlacingOrder,
+}: {
+  currentStep: number
+  onContinue: () => void
+  selectedAddress: HttpTypes.StoreCustomerAddress | null
+  isLoadingShipping: boolean
+  selectedShippingPrice?: number
+  selectedShippingOptionId?: string | null
+  shippingOptions?: HttpTypes.StoreCartShippingOption[]
+  isPlacingOrder?: boolean
 }) => {
   const { cart, optimisticItems: items, subtotal } = useCart()
   const firstItem = items[0]
   const label = currentStep === 0 ? "PROCEED TO ADDRESS" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"
 
   if (!cart) return null
+
+  const deliveryEstimate = getDeliveryEstimate({
+    countryCode: selectedAddress?.country_code || cart.shipping_address?.country_code,
+    baseDate: cart.created_at,
+  })
 
   return (
     <div className="flex flex-col gap-8">
@@ -35,10 +49,17 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
       </div>
       {firstItem && (
         <div className="flex items-center bg-secondaryAccent gap-5 pb-6 border p-2 border-secondaryAccent">
-          <div className="w-16 h-20 overflow-hidden flex-shrink-0"><Thumbnail thumbnail={firstItem.thumbnail} size="square" /></div>
+          <div className="w-16 h-20 overflow-hidden flex-shrink-0">
+            <Thumbnail thumbnail={firstItem.thumbnail} size="square" />
+          </div>
           <div className="min-w-0">
             <p className="font-manrope text-[14px] font-bold text-bg truncate">{firstItem.product_title}</p>
-            <p className="font-manrope text-[12px] text-bg/30 uppercase tracking-widest mt-0.5">{firstItem.variant?.title} · Qty: {firstItem.quantity}</p>
+            <p className="font-manrope text-[12px] text-bg/30 uppercase tracking-widest mt-0.5">
+              {firstItem.variant?.title} · Qty: {firstItem.quantity}
+            </p>
+            <p className="font-manrope text-[11px] text-bg/60 mt-1">
+              Delivery by <span className="font-bold text-bg">{deliveryEstimate.formattedDate}</span>
+            </p>
           </div>
         </div>
       )}
@@ -47,8 +68,7 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
           <span className="text-bg">Total MRP</span>
           <span className="text-bg font-semibold"><LocalizedPrice amount={subtotal || 0} /></span>
         </div>
-        
-        {/* Discount Section */}
+
         {(cart.discount_total ?? 0) > 0 && (
           <div className="flex justify-between font-bold">
             <span className="text-green-700">Discount</span>
@@ -59,13 +79,17 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
         <div className="flex justify-between">
           <span className="text-bg">Delivery Fee</span>
           <span className={(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 ? "text-bg italic" : "text-bg font-semibold"}>
-            {(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 
-              ? (currentStep === 0 ? "Calculated at next step" : "Free")
-              : <LocalizedPrice amount={selectedShippingPrice ?? cart.shipping_total ?? 0}/>}
+            {(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0
+              ? currentStep === 0 ? "Calculated at next step" : "Free"
+              : <LocalizedPrice amount={selectedShippingPrice ?? cart.shipping_total ?? 0} />}
           </span>
         </div>
 
-        {/* Taxes Section */}
+        <div className="flex justify-between">
+          <span className="text-bg">Delivery ETA</span>
+          <span className="text-bg font-semibold">{deliveryEstimate.formattedDate}</span>
+        </div>
+
         {(cart.tax_total ?? 0) > 0 && (
           <div className="flex justify-between">
             <span className="text-bg">Taxes</span>
@@ -79,12 +103,14 @@ const OrderSummary = ({ currentStep, onContinue, selectedAddress, isLoadingShipp
           <LocalizedPrice amount={(subtotal || 0) - (cart.discount_total ?? 0) + (selectedShippingPrice ?? cart.shipping_total ?? 0) + (cart.tax_total ?? 0)} />
         </span>
       </div>
-      <button onClick={onContinue} 
+      <button
+        onClick={onContinue}
         disabled={
-          (currentStep === 1 && (!selectedAddress || (shippingOptions?.length || 0) === 0 || !selectedShippingOptionId || isLoadingShipping)) || 
+          (currentStep === 1 && (!selectedAddress || (shippingOptions?.length || 0) === 0 || !selectedShippingOptionId || isLoadingShipping)) ||
           isPlacingOrder
         }
-        className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-bg/90 transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-30 disabled:cursor-not-allowed">
+        className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-bg/90 transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-30 disabled:cursor-not-allowed"
+      >
         {(currentStep === 1 && isLoadingShipping) || isPlacingOrder ? "Processing..." : label} {Ico.arrowRight("w-4 h-4 group-hover:translate-x-1 transition-transform")}
       </button>
       <p className="font-manrope text-[10px] text-bg/80 text-center tracking-widest leading-relaxed">

@@ -158,7 +158,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="bg-white/50 border border-black/5 p-8 lg:p-12 space-y-10"
+                  className="bg-secondary/50 border border-black/5 p-8 lg:p-12 space-y-10"
                 >
                   <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="space-y-1">
@@ -247,7 +247,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
                       {reviews.slice(0, showAll ? undefined : 5).map((review) => (
-                        <div key={review.id} className="bg-white/30 border border-black/5 rounded-xl p-4 lg:p-5 space-y-3 shadow-sm hover:shadow-md hover:bg-white/50 transition-all duration-300">
+                        <div key={review.id} className="bg-secondary/30 border border-black/5 rounded-xl p-4 lg:p-5 space-y-3 shadow-sm hover:shadow-md hover:bg-secondary/50 transition-all duration-300">
                           <div className="flex items-start justify-between">
                             <div className="space-y-0.5">
                               <h4 className="font-newsreader text-[15px] xl:text-[16px] font-semibold italic text-accent">{review.customer_name}</h4>

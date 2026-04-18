@@ -207,7 +207,7 @@ export default function ProductActions({
           <div className="flex flex-col gap-y-2">
             <Button
               onClick={handleAddToCart}
-              disabled={!selectedVariant || !!disabled || isAdding || isOutOfStock || isAtMaximumQuantity}
+              disabled={!selectedVariant || !!disabled || isAdding || isOutOfStock}
               variant="primary"
               className="w-full h-14 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase transition-all duration-300 hover:bg-bg/90"
               data-testid="add-product-button"

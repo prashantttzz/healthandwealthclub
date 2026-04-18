@@ -271,7 +271,7 @@ const CustomerServiceTemplate = () => {
 
 const SupportCard = ({ icon, title, href }: { icon: React.ReactNode, title: string, href: string }) => (
   <a href={href} className="group">
-    <div className="flex flex-col items-center justify-center gap-4 p-8 bg-secondary/30 border border-accent/5 hover:bg-white hover:border-accent/20 hover:shadow-2xl hover:shadow-accent/5 transition-all duration-500 text-center relative overflow-hidden">
+    <div className="flex flex-col items-center justify-center gap-4 p-8 bg-secondary/30 border border-accent/5 hover:bg-secondary hover:border-accent/20 hover:shadow-2xl hover:shadow-accent/5 transition-all duration-500 text-center relative overflow-hidden">
       <div className="w-12 h-12 bg-accent text-bg flex items-center justify-center relative z-10 transition-transform group-hover:scale-110">
         <HugeiconsIcon icon={(icon as any).props.icon || icon} size={20} />
       </div>

@@ -11,8 +11,10 @@ type Props = {
   setCurrentView: (view: LOGIN_VIEW) => void
 }
 
+import Spinner from "@modules/common/icons/spinner"
+
 const Register = ({ setCurrentView }: Props) => {
-  const [message, formAction] = useActionState(signup, null)
+  const [message, formAction, isPending] = useActionState(signup, null)
 
   return (
     <div
@@ -113,10 +115,11 @@ const Register = ({ setCurrentView }: Props) => {
 
         <button 
           type="submit"
-          className="w-full h-14 bg-[#3d2f20] text-[#fbf8f1] font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50" 
+          className="w-full h-14 bg-[#3d2f20] text-[#fbf8f1] font-bold text-[14px] transition-all hover:opacity-90 disabled:opacity-50 flex items-center justify-center gap-2" 
           data-testid="register-button"
+          disabled={isPending}
         >
-          Join
+          {isPending ? <Spinner size="20" color="#fbf8f1" /> : "Join"}
         </button>
       </form>
       <span className="text-center text-accent/60 text-[13px] mt-8">

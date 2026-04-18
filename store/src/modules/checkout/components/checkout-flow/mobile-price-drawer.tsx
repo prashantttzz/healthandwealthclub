@@ -4,14 +4,32 @@ import React from "react"
 import { useCart } from "@lib/context/cart-context"
 import LocalizedPrice from "@modules/common/components/localized-price"
 import { X } from "lucide-react"
+import { getDeliveryEstimate } from "@lib/util/delivery-estimate"
 
 const Ico = {
   x: (c = "") => <X className={c} strokeWidth={2} />,
 }
 
-const MobilePriceDrawer = ({ isOpen, onClose, selectedShippingPrice }: { isOpen: boolean; onClose: () => void; selectedShippingPrice?: number | null }) => {
+const MobilePriceDrawer = ({
+  isOpen,
+  onClose,
+  selectedShippingPrice,
+  countryCode,
+  baseDate,
+}: {
+  isOpen: boolean
+  onClose: () => void
+  selectedShippingPrice?: number | null
+  countryCode?: string | null
+  baseDate?: string | Date | null
+}) => {
   const { cart, subtotal } = useCart()
   if (!cart) return null
+
+  const deliveryEstimate = getDeliveryEstimate({
+    countryCode: countryCode || cart.shipping_address?.country_code,
+    baseDate: baseDate || cart.created_at,
+  })
 
   return (
     <>
@@ -35,6 +53,11 @@ const MobilePriceDrawer = ({ isOpen, onClose, selectedShippingPrice }: { isOpen:
                 {(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 ? "Free" : <LocalizedPrice amount={selectedShippingPrice ?? cart.shipping_total ?? 0} />}
               </span>
             </div>
+          </div>
+          <div className="border border-bg/10 bg-bg/5 px-4 py-4">
+            <p className="font-manrope text-[10px] uppercase tracking-[0.2em] text-bg/40 font-bold">Estimated Delivery</p>
+            <p className="font-newsreader italic text-2xl text-bg mt-2">{deliveryEstimate.formattedDate}</p>
+            <p className="font-manrope text-[11px] text-bg/60 mt-1">{deliveryEstimate.label}</p>
           </div>
           <div className="border-t border-dashed border-bg/10 pt-8 flex justify-between items-end">
             <div className="flex flex-col gap-1">
