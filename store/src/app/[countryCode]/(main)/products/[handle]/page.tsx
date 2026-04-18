@@ -44,18 +44,17 @@ export default async function ProductPage(props: Props) {
   const params = await props.params
   const searchParams = await props.searchParams
 
-  const region = await getRegion(params.countryCode)
+  const [region, { response }] = await Promise.all([
+    getRegion(params.countryCode),
+    listProducts({
+      countryCode: params.countryCode,
+      queryParams: { handle: params.handle },
+    })
+  ])
 
-  if (!region) {
-    notFound()
-  }
+  const fetchedProduct = response.products[0]
 
-  const fetchedProduct = await listProducts({
-    countryCode: params.countryCode,
-    queryParams: { handle: params.handle },
-  }).then(({ response }) => response.products[0])
-
-  if (!fetchedProduct) {
+  if (!region || !fetchedProduct) {
     notFound()
   }
 

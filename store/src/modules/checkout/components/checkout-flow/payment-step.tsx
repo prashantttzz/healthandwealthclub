@@ -123,7 +123,7 @@ const PaymentStepContent = ({
         </div>
         <div className="px-6 pb-6 border-t border-accent/5 pt-5 animate-in slide-in-from-top-2 fade-in duration-300 bg-secondary/50">
           <div className="flex flex-col gap-4">
-            <div className="w-full p-4 bg-accent/[0.04] lg:bg-accent/[0.02] border border-accent/10 rounded-sm">
+            <div className="w-full mt-2">
               <PaymentElement
                 onChange={() => {
                   if (errorMessage) setErrorMessage(null)

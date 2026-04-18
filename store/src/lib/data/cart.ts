@@ -16,7 +16,7 @@ import {
 import { getRegion } from "./regions"
 import { getLocale } from "@lib/data/locale-actions"
 
-const CART_FIELDS = "*items, *region, *items.product, *items.variant, +items.variant.inventory_quantity, +items.variant.manage_inventory, *items.thumbnail, *items.metadata, +items.total, *promotions, +shipping_methods.name"
+const CART_FIELDS = "*items, *region, *shipping_address, *billing_address, *payment_collection, +items.variant.title, +items.variant.inventory_quantity, +items.variant.manage_inventory, +items.variant.options, +items.variant.product.handle, +items.variant.product.images, +items.thumbnail, +items.total, *promotions, +shipping_methods.name"
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.

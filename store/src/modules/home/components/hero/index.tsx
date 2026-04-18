@@ -153,9 +153,12 @@ const Hero = () => {
                 controls={false}
                 disablePictureInPicture
                 disableRemotePlayback
+                preload="metadata"
                 className="w-full h-full object-cover opacity-80"
               >
-                <source src={slide.src} type="video/mp4" />
+                  <source src="/home-video.webm" type="video/webm" />
+               
+                {/* <source src={slide.src} type="video/mp4" /> */}
               </video>
             ) : (
               <Image

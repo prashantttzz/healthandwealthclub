@@ -33,17 +33,15 @@ const StoreTemplate = async ({
 }) => {
   const pageNumber = page ? parseInt(page) : 1
   const sort = sortBy || "created_at"
-  const categories = await listCategories()
-  let collectionId: string | undefined
-  let collectionTitle: string | undefined
+  const [categories, col] = await Promise.all([
+    listCategories(),
+    collection ? getCollectionByHandle(collection) : Promise.resolve(null)
+  ])
+
+  let collectionId = col?.id
+  let collectionTitle = col?.title
   let resolvedCategoryId: string | undefined
   let categoryTitle: string | undefined
-
-  if (collection) {
-    const col = await getCollectionByHandle(collection)
-    collectionId = col?.id
-    collectionTitle = col?.title
-  }
 
   if (category) {
     const targetCategory = categories.find(c => c.handle === category)

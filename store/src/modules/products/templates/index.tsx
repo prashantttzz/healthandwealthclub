@@ -51,10 +51,15 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const [isSuccess, setIsSuccess] = useState(false)
   useEffect(() => {
     if (product.variants && product.variants.length > 0) {
-      const variantFromUrl = product.variants.find(v => v.id === searchParams.get("v_id"))
+      const variantIdMatch = searchParams.get("v_id")
+      const variantFromUrl = product.variants.find(v => v.id === variantIdMatch)
       const initialVariant = variantFromUrl || product.variants[0]
       const variantOptions = optionsAsKeymap(initialVariant.options)
-      setOptions(variantOptions ?? {})
+      
+      setOptions(prev => {
+        if (isEqual(prev, variantOptions)) return prev
+        return variantOptions ?? {}
+      })
     }
   }, [product.variants, searchParams])
 
@@ -135,11 +140,14 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
   useEffect(() => {
     if (isValidVariant && selectedVariant?.id) {
+      const currentElement = searchParams.get("v_id")
+      if (currentElement === selectedVariant.id) return
+
       const params = new URLSearchParams(searchParams.toString())
       params.set("v_id", selectedVariant.id)
       router.replace(pathname + "?" + params.toString(), { scroll: false })
     }
-  }, [selectedVariant, isValidVariant, pathname, router, searchParams])
+  }, [selectedVariant?.id, isValidVariant, pathname, router, searchParams])
 
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return
