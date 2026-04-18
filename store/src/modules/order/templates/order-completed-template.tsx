@@ -20,6 +20,7 @@ export default async function OrderCompletedTemplate({
   const payment = order.payment_collections?.[0]?.payments?.[0]
   const paymentProviderId = payment?.provider_id || ""
   const paymentMethod = paymentInfoMap[paymentProviderId]?.title || "Payment Card"
+  const cardLast4 = payment?.data?.card_last4 as string | undefined
 
   return (
     <div className="min-h-screen bg-bg">
@@ -93,9 +94,9 @@ export default async function OrderCompletedTemplate({
                 </h2>
                 <div className="font-manrope text-[14px] text-accent leading-relaxed">
                   <p className="font-bold mb-2 tracking-wide text-[15px]">{paymentMethod}</p>
-                  {payment?.data?.card_last4 && (
+                  {cardLast4 && (
                     <p className="text-accent/60 flex items-center gap-2 mt-1">
-                      <span className="tracking-[0.15em]">**** **** **** {payment.data.card_last4 as string}</span>
+                      <span className="tracking-[0.15em]">**** **** **** {cardLast4}</span>
                     </p>
                   )}
                   <p className="text-accent/60 mt-3 uppercase tracking-widest text-[11px] font-bold">

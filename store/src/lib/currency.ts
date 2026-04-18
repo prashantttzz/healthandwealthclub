@@ -77,32 +77,32 @@ export function formatPrice(
   const currencyCode = region.currency_code.toLowerCase()
 
   // UAE and all Gulf regions — price is already in correct currency from Medusa
-  if (NATIVE_REGION_CURRENCIES.includes(currencyCode)) {
-    return formatCurrency(value, currencyCode.toUpperCase())
-  }
+  // if (NATIVE_REGION_CURRENCIES.includes(currencyCode)) {
+  //   return formatCurrency(value, currencyCode.toUpperCase())
+  // }
 
   // International — Medusa gives USD, convert to local display currency
-  if (currencyCode === "usd") {
-    const country = region.country_code.toUpperCase()
-    const displayCurrency = INTERNATIONAL_DISPLAY_CURRENCIES[country]
+  // if (currencyCode === "usd") {
+  //   const country = region.country_code.toUpperCase()
+  //   const displayCurrency = INTERNATIONAL_DISPLAY_CURRENCIES[country]
 
-    if (displayCurrency) {
-      const rate = exchangeRates?.[displayCurrency]
-      if (rate) {
-        const localValue = value * rate
-        return formatCurrency(localValue, displayCurrency)
-      } else {
-        // Only log if we expect a conversion but rates are missing
-        console.warn(`[formatPrice] No rate found for ${displayCurrency} (Country: ${country})`)
-      }
-    } else {
-       // Log if country is not in our display list
-       console.log(`[formatPrice] No display currency mapped for country: ${country}`)
-    }
+  //   if (displayCurrency) {
+  //     const rate = exchangeRates?.[displayCurrency]
+  //     if (rate) {
+  //       const localValue = value * rate
+  //       return formatCurrency(localValue, displayCurrency)
+  //     } else {
+  //       // Only log if we expect a conversion but rates are missing
+  //       console.warn(`[formatPrice] No rate found for ${displayCurrency} (Country: ${country})`)
+  //     }
+  //   } else {
+  //      // Log if country is not in our display list
+  //      console.log(`[formatPrice] No display currency mapped for country: ${country}`)
+  //   }
 
-    // Fallback to USD display
-    return formatCurrency(value, "USD")
-  }
+  //   // Fallback to USD display
+  //   return formatCurrency(value, "USD")
+  // }
 
   // Catch-all fallback
   return formatCurrency(value, currencyCode.toUpperCase())

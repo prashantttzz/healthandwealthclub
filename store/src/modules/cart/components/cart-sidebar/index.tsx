@@ -157,6 +157,7 @@ const CartSidebar = () => {
                               onChange={(val) => handleQuantityChange(item, val)}
                               maxQuantity={item.variant?.manage_inventory === false ? 100 : (item.variant?.inventory_quantity ?? 10)}
                               loading={loadingItems[item.id]}
+                              className="text-bg"
                             />
                           </div>
 

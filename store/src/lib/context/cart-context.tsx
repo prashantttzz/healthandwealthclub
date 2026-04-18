@@ -15,6 +15,7 @@ interface CartContextType {
   updateQuantity: (lineId: string, quantity: number) => Promise<void>
   removeItem: (lineId: string) => Promise<void>
   setCart: (cart: HttpTypes.StoreCart | null) => void
+  clearCart: () => void
 }
 
 const CartContext = createContext<CartContextType | undefined>(undefined)
@@ -275,6 +276,13 @@ export const CartProvider: React.FC<{
     }
   }
 
+  const clearCart = () => {
+    setCart(null)
+    setOptimisticQuantities({})
+    setOptimisticAdditions([])
+    setOptimisticRemovedIds({})
+  }
+
   return (
     <CartContext.Provider
       value={{
@@ -286,7 +294,8 @@ export const CartProvider: React.FC<{
         addItem,
         updateQuantity,
         removeItem,
-        setCart
+        setCart,
+        clearCart
       }}
     >
       {children}

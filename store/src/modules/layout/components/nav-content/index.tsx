@@ -315,6 +315,7 @@ export default function NavContent({
                       <div className="flex flex-col gap-4">
                         <h5 className="font-newsreader italic text-2xl text-accent mb-2">Information</h5>
                         <div className="flex flex-col gap-3 font-manrope text-[11px] font-bold tracking-[0.2em] uppercase text-accent/40">
+                          <LocalizedClientLink href={SUPPORT_LINKS.sizeguide} className="hover:text-accent transition-colors">Size Guide</LocalizedClientLink>
                           <LocalizedClientLink href={SUPPORT_LINKS.faqs} className="hover:text-accent transition-colors">FAQs</LocalizedClientLink>
                           <LocalizedClientLink href={SUPPORT_LINKS.terms} className="hover:text-accent transition-colors">Terms & Conditions</LocalizedClientLink>
                           <LocalizedClientLink href={SUPPORT_LINKS.privacy} className="hover:text-accent transition-colors">Privacy Policy</LocalizedClientLink>

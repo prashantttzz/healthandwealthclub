@@ -14,17 +14,37 @@ export default async function orderNotificationHandler({
   const logger = container.resolve("logger")
   const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
 
-  // 1. Fetch the order with customer and item details
-  const order = await orderModuleService.retrieveOrder(data.id, {
+  // 1. Resolve the Order ID
+  let orderId = data.id
+  
+  // If the event is from fulfillment/shipment/delivery, we need to find the linked order
+  if (name.startsWith("fulfillment") || name.startsWith("shipment") || name.startsWith("delivery")) {
+    const remoteQuery = container.resolve("remoteQuery")
+    const query = {
+      entryPoint: "fulfillment",
+      fields: ["order.id"],
+      variables: { id: data.id },
+    }
+    const [fulfillment] = await remoteQuery(query)
+    orderId = fulfillment?.order?.id
+  }
+
+  if (!orderId) {
+    logger.warn(`Could not resolve orderId for event ${name}, skipping notification.`)
+    return
+  }
+
+  // 2. Fetch the order with customer and item details
+  const order = await orderModuleService.retrieveOrder(orderId, {
     relations: ["items", "shipping_address"]
   })
 
   if (!order || !order.email) {
-    logger.warn(`No email found for order ${data.id}, skipping notification.`)
+    logger.warn(`No email found for order ${orderId}, skipping notification.`)
     return
   }
 
-  // 2. Determine message based on event type
+  // 3. Determine message based on event type
   let subject = ""
   let title = ""
   let subtext = ""
@@ -36,20 +56,21 @@ export default async function orderNotificationHandler({
       subtext = `Welcome to the Health & Wealth Club. We've received your order #${order.display_id} and are preparing it for your curated experience.`
       break
 
-    case "order.fulfillment_created":
+    case "fulfillment.created":
       if (data.no_notification) return 
       subject = `Processing your order #${order.display_id}`
       title = "Curating your experience..."
       subtext = `We've started preparing your items for order #${order.display_id}. You'll receive another update once it's on the way.`
       break
 
-    case "order.fulfillment_shipped":
+    case "shipment.created":
       if (data.no_notification) return
       subject = `Your order #${order.display_id} has shipped!`
       title = "It's on the way!"
       subtext = `Great news! Your order #${order.display_id} has been handed over to our delivery partner. You can now track its journey reaching you soon.`
       break
     
+    case "delivery.created":
     case "order.completed":
       subject = `Order Delivered #${order.display_id}`
       title = "Curated delivered."
@@ -60,15 +81,28 @@ export default async function orderNotificationHandler({
       return
   }
 
-  // 3. Generate Item Rows for the email
-  const itemRows = (order.items || []).map(item => `
+  // 3. Setup Currency & Pricing Helpers
+  const currencyCode = (order.currency_code || "USD").toUpperCase()
+  const decimalFactor = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 1000 : 100
+  const decimals = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 3 : 2
+
+  // 4. Generate Item Rows (with manual calculation fallback to prevent NaN)
+  const itemRows = (order.items || []).map(item => {
+    const itemTotal = Number(item.total || (Number(item.unit_price || 0) * Number(item.quantity || 0)))
+    return `
     <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
       <div style="font-size: 14px;"><strong>${item.product_title}</strong> x ${item.quantity}</div>
-      <div style="font-size: 14px; font-weight: bold;">${(Number(item.total) / 100).toFixed(2)} ${order.currency_code.toUpperCase()}</div>
+      <div style="font-size: 14px; font-weight: bold;">
+        ${itemTotal} ${currencyCode}
+      </div>
     </div>
-  `).join('')
+    `
+  }).join('')
 
-  // 4. Send via Resend (Using API Key from .env)
+  // 5. Grand Total (Check direct field, then summary field, then fallback to 0)
+  const orderTotal = Number(order.total || (order as any).summary?.total || 0)
+
+  // 6. Send via Resend
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -96,7 +130,9 @@ export default async function orderNotificationHandler({
               ${itemRows}
               <div style="display: flex; justify-content: space-between; padding-top: 15px; font-weight: bold; font-size: 18px;">
                 <span>Total</span>
-                <span>${(Number(order.total) / 100).toFixed(2)} ${order.currency_code.toUpperCase()}</span>
+                <span>
+                  ${(orderTotal / decimalFactor).toFixed(decimals)} ${currencyCode}
+                </span>
               </div>
             </div>
 
@@ -123,8 +159,9 @@ export default async function orderNotificationHandler({
 export const config: SubscriberConfig = {
   event: [
     "order.placed", 
-    "order.fulfillment_created", 
-    "order.fulfillment_shipped", 
+    "fulfillment.created", 
+    "shipment.created", 
+    "delivery.created",
     "order.completed"
   ],
 }

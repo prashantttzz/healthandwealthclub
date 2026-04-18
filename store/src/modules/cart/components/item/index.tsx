@@ -27,10 +27,10 @@ const Item = ({ item, type = "full" }: ItemProps) => {
   const changeQuantity = async (quantity: number) => {
     setError(null)
 
-    const inventory = item.variant?.inventory_quantity || 0
+    const inventory = item.variant?.inventory_quantity
     const manageInventory = item.variant?.manage_inventory !== false
 
-    if (quantity > item.quantity && manageInventory && quantity > inventory) {
+    if (quantity > item.quantity && manageInventory && inventory !== undefined && quantity > inventory) {
       toast.error("Maximum quantity reached for this item.")
       return
     }
@@ -51,7 +51,7 @@ const Item = ({ item, type = "full" }: ItemProps) => {
 
   const maxQuantity = item.variant?.manage_inventory === false 
     ? 100 
-    : (item.variant?.inventory_quantity || 0)
+    : (item.variant?.inventory_quantity ?? 10)
 
   return (
     <>

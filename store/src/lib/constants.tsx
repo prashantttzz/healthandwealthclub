@@ -91,4 +91,5 @@ export const SUPPORT_LINKS = {
   faqs: "/customer-service#faqs",
   terms: "/customer-service#terms",
   privacy: "/customer-service#privacy",
+  sizeguide: "/size-guide",
 } as const

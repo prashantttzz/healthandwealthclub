@@ -157,6 +157,7 @@ export default function ClubFooter() {
                 {[
                   { label: "About Us", href: "/#about-us" },
                   { label: "Collaborations", href: "/collaborations" },
+                  { label: "Size Guide", href: SUPPORT_LINKS.sizeguide },
                   { label: "Shipping", href: SUPPORT_LINKS.shipping },
                   { label: "Privacy", href: SUPPORT_LINKS.privacy },
                   { label: "Terms", href: SUPPORT_LINKS.terms },

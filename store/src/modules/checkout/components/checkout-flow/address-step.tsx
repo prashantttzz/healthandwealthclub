@@ -182,7 +182,6 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
         addresses={addressesInRegion} 
         onSelect={setSelectedAddress} 
         onDelete={async (id) => { try { await deleteCustomerAddress(id) } catch {} }} 
-        countries={cart?.region?.countries}
       />
     </div>
   )

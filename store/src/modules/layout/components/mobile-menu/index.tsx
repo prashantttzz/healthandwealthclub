@@ -51,6 +51,7 @@ const itemVariants = {
 const MENU_LINKS = [
   { name: "HOME", href: "/" },
   { name: "COLLECTIONS", href: "/store" },
+  { name: "SIZE GUIDE", href: "/size-guide" },
   { name: "ABOUT US", href: "/#about-us" },
   { name: "COLLABORATIONS", href: "/collaborations" },
 ]

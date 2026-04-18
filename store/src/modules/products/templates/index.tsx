@@ -273,7 +273,17 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                           Select {option.title}
                         </span>
                         {option.title?.toLowerCase() === "size" && (
-                          <button className="font-manrope text-[9px] tracking-[0.2em] uppercase font-regular text-accent/90 hover:text-accent transition-colors">
+                          <button 
+                            onClick={() => {
+                              const element = document.getElementById("size-guide")
+                              if (element) {
+                                element.scrollIntoView({ behavior: "smooth", block: "center" })
+                                const trigger = element.querySelector('button[data-state="closed"]') as HTMLButtonElement
+                                if (trigger) trigger.click()
+                              }
+                            }}
+                            className="font-manrope text-[9px] tracking-[0.2em] uppercase font-regular text-accent/90 hover:text-accent transition-colors"
+                          >
                             Size Guide
                           </button>
                         )}
