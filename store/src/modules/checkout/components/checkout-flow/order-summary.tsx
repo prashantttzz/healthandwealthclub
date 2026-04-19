@@ -32,7 +32,6 @@ const OrderSummary = ({
   isPlacingOrder?: boolean
 }) => {
   const { cart, optimisticItems: items, subtotal } = useCart()
-  const firstItem = items[0]
   const label = currentStep === 0 ? "PROCEED TO ADDRESS" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"
 
   if (!cart) return null
@@ -47,22 +46,24 @@ const OrderSummary = ({
       <div className="flex items-center justify-between">
         <h3 className="font-newsreader italic text-2xl text-bg">Order Summary</h3>
       </div>
-      {firstItem && (
-        <div className="flex items-center bg-secondaryAccent gap-5 pb-6 border p-2 border-secondaryAccent">
-          <div className="w-16 h-20 overflow-hidden flex-shrink-0">
-            <Thumbnail thumbnail={firstItem.thumbnail} size="square" />
+      <div className="flex flex-col gap-4">
+        {items.map((item) => (
+          <div key={item.id} className="flex items-center bg-secondaryAccent gap-5 pb-4 border p-2 border-secondaryAccent">
+            <div className="w-16 h-20 overflow-hidden flex-shrink-0">
+              <Thumbnail thumbnail={item.thumbnail} size="square" />
+            </div>
+            <div className="min-w-0">
+              <p className="font-manrope text-[14px] font-bold text-bg truncate">{item.product_title}</p>
+              <p className="font-manrope text-[12px] text-bg/30 uppercase tracking-widest mt-0.5">
+                {item.variant?.title} · Qty: {item.quantity}
+              </p>
+              <p className="font-manrope text-[11px] text-bg/60 mt-1">
+                Delivery by <span className="font-bold text-bg">{deliveryEstimate.formattedDate}</span>
+              </p>
+            </div>
           </div>
-          <div className="min-w-0">
-            <p className="font-manrope text-[14px] font-bold text-bg truncate">{firstItem.product_title}</p>
-            <p className="font-manrope text-[12px] text-bg/30 uppercase tracking-widest mt-0.5">
-              {firstItem.variant?.title} · Qty: {firstItem.quantity}
-            </p>
-            <p className="font-manrope text-[11px] text-bg/60 mt-1">
-              Delivery by <span className="font-bold text-bg">{deliveryEstimate.formattedDate}</span>
-            </p>
-          </div>
-        </div>
-      )}
+        ))}
+      </div>
       <div className="flex flex-col gap-3 font-manrope text-[13px] uppercase font-regular">
         <div className="flex justify-between">
           <span className="text-bg">Total MRP</span>

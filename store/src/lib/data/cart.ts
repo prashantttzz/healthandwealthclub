@@ -32,10 +32,10 @@ const CART_BASE_FIELDS = [
   "+items.variant.product.images",
   "+items.thumbnail",
   "+items.total",
-].join(", ")
+].join(",")
 
 const CART_PAYMENT_FIELDS = "*payment_collection"
-const CART_FIELDS = [CART_BASE_FIELDS, CART_PAYMENT_FIELDS].join(", ")
+const CART_FIELDS = [CART_BASE_FIELDS, CART_PAYMENT_FIELDS].join(",")
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -321,7 +321,7 @@ export async function initiatePaymentSession(
     .initiatePaymentSession(
       cart,
       data,
-      { fields: CART_PAYMENT_FIELDS },
+      {},
       headers
     )
     .then(async ({ payment_collection }) => {

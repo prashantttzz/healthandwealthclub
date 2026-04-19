@@ -67,7 +67,13 @@ export default async function OrderCompletedTemplate({
                       <div className="flex justify-between items-start gap-4">
                         <div>
                           <p className="font-manrope text-[16px] font-bold text-accent mb-1.5">{item.product_title}</p>
-                          <p className="font-manrope text-[12px] text-accent/40 uppercase tracking-widest font-semibold">{item.variant_title || "Default"}</p>
+                          <p className="font-manrope text-[12px] text-accent/40 uppercase tracking-widest font-semibold mb-3">
+                            {item.variant_title || "Default"}
+                          </p>
+                          <div className="flex items-center gap-2 text-accent/40 bg-accent/[0.03] w-fit px-3 py-1.5 rounded-sm">
+                            <Truck size={14} className="text-accent/30" />
+                            <span className="font-manrope text-[11px] uppercase font-bold tracking-[0.1em]">Delivery by {deliveryEstimate.formattedDate}</span>
+                          </div>
                         </div>
                         <div className="text-right">
                           <p className="font-manrope text-[15px] font-bold text-accent">

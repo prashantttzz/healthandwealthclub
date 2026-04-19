@@ -179,11 +179,9 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
           const currentRecipientPhone = cart.shipping_address?.metadata?.recipient_phone as string || ""
           const metadataChanged = recipientName !== currentRecipientName || recipientPhone !== currentRecipientPhone
 
-          // ✅ 1. Update metadata and shipping method (can be done in parallel or sequence)
-          const updates: Promise<any>[] = []
-          
+          // ✅ 1. Update metadata and shipping method sequentially to avoid transaction conflicts in the backend
           if (metadataChanged) {
-            updates.push(updateCart({
+            const updatedCart = await updateCart({
               shipping_address: {
                 metadata: {
                   ...cart.shipping_address?.metadata,
@@ -191,20 +189,21 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
                   recipient_phone: recipientPhone
                 }
               }
-            }))
+            })
+            if (updatedCart) {
+              nextCart = updatedCart
+              setCart(updatedCart)
+            }
           }
 
-          updates.push(setShippingMethod({
-            cartId: cart.id,
+          const cartWithShipping = await setShippingMethod({
+            cartId: (nextCart || cart).id,
             shippingMethodId: selectedShippingOptionId,
-          }))
+          })
 
-          const results = await Promise.all(updates)
-          const latestCart = results[results.length - 1] // Last one should be the most up-to-date cart
-
-          if (latestCart) {
-            nextCart = latestCart
-            setCart(latestCart)
+          if (cartWithShipping) {
+            nextCart = cartWithShipping
+            setCart(cartWithShipping)
           }
 
           if (!stripeProviderId) {

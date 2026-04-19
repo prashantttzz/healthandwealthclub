@@ -194,7 +194,11 @@ const OrderDetailsTemplate: React.FC<OrderDetailsTemplateProps> = ({
                       <div className="flex justify-between items-start gap-4">
                         <div>
                           <p className="font-manrope text-[15px] font-bold text-accent mb-1">{item.product_title}</p>
-                          <p className="font-manrope text-[11px] text-accent/40 uppercase tracking-widest font-semibold">{item.variant_title || "Default"}</p>
+                          <p className="font-manrope text-[11px] text-accent/40 uppercase tracking-widest font-semibold mb-2.5">{item.variant_title || "Default"}</p>
+                          <div className="flex items-center gap-2 text-accent/30 bg-accent/[0.02] w-fit px-2.5 py-1 rounded-sm border border-accent/5">
+                            <Truck size={12} className="text-accent/20" />
+                            <span className="font-manrope text-[9px] uppercase font-bold tracking-[0.1em]">Delivery by {deliveryEstimate.formattedDate}</span>
+                          </div>
                           <p className="font-manrope text-[11px] text-accent/40 mt-1 font-bold">Qty: {item.quantity}</p>
                         </div>
                         <p className="font-manrope text-[14px] font-bold text-accent flex-shrink-0">
