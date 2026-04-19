@@ -36,9 +36,40 @@ const petit = Petit_Formal_Script({
 })
 
 export const metadata: Metadata = {
-  metadataBase: new URL("http://localhost:8000"),
-  title: "HEALTH & WEALTH CLUB",
-  description: "A premium health and wealth club experience.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"),
+  title: {
+    template: "%s | HEALTH & WEALTH CLUB",
+    default: "HEALTH & WEALTH CLUB - Premium Lifestyle & Wellness",
+  },
+  description: "Experience the pinnacle of health and wealth. A curated collection of premium lifestyle, wellness, and investment in self.",
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: "https://health-wealthclub.com",
+    siteName: "HEALTH & WEALTH CLUB",
+    images: [
+      {
+        url: "/opengraph-image.jpg",
+        width: 1200,
+        height: 630,
+        alt: "HEALTH & WEALTH CLUB",
+      },
+    ],
+  },
+  alternates: {
+    canonical: "/",
+  },
+  icons: {
+    icon: "/preloader.jpeg",
+    shortcut: "/preloader.jpeg",
+    apple: "/preloader.jpeg",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "HEALTH & WEALTH CLUB",
+    description: "Premium Lifestyle & Wellness",
+    images: ["/twitter-image.jpg"],
+  },
 }
 
 export default function RootLayout(props: { children: React.ReactNode }) {
@@ -49,8 +80,17 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       className={`${manrope.variable} ${newsreader.variable} ${gilda.variable} ${petit.variable}`}
       suppressHydrationWarning
     >
-
       <head>
+        {/* ✅ Performance: DNS and Connection Pre-warming */}
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+        <link rel="preconnect" href={process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL} />
+        <link rel="dns-prefetch" href={process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL} />
+
+        {/* ✅ Performance: Preload Critical Above-the-fold Assets */}
+        <link rel="preload" href="/preloader.jpeg" as="image" type="image/jpeg" />
+        <link rel="icon" href="/preloader.jpeg" />
+
         <style dangerouslySetInnerHTML={{
           __html: `
             #hard-loader {
@@ -79,11 +119,6 @@ export default function RootLayout(props: { children: React.ReactNode }) {
             @keyframes fadeIn {
               from { opacity: 0; transform: scale(0.95); }
               to { opacity: 1; transform: scale(1); }
-            }
-            @media (min-width: 768px) {
-              #hard-loader img {
-                /* base scale 1 is now handled by fadeIn animation */
-              }
             }
             .hard-loader-frame {
               position: fixed;
@@ -127,9 +162,24 @@ export default function RootLayout(props: { children: React.ReactNode }) {
       </head>
 
       <body className="font-manrope smooth-scroll">
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify({
+              "@context": "https://schema.org",
+              "@type": "Organization",
+              "name": "HEALTH & WEALTH CLUB",
+              "url": "https://health-wealthclub.com",
+              "logo": "https://health-wealthclub.com/logo.png",
+              "sameAs": [
+                "https://instagram.com/healthwealthclub",
+                "https://twitter.com/healthwealthclub"
+              ]
+            })
+          }}
+        />
         <CartProvider>
           <UIProvider>
-            {/* ✅ React takes over and removes the hard loader */}
             <SmoothScroll>
               <Preloader />
               <main className="relative">{props.children}</main>

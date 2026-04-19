@@ -82,7 +82,6 @@ export default async function PaginatedProducts({
   })
 
   const totalPages = Math.ceil(count / PRODUCT_LIMIT)
-   console.log("products",products)
 
   // Parse active filters for display
   const activeSizes = size ? size.split(",") : []

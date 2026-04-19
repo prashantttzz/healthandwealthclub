@@ -16,7 +16,26 @@ import {
 import { getRegion } from "./regions"
 import { getLocale } from "@lib/data/locale-actions"
 
-const CART_FIELDS = "*items, *region, *shipping_address, *billing_address, *payment_collection, +items.variant.title, +items.variant.inventory_quantity, +items.variant.manage_inventory, +items.variant.options, +items.variant.product.handle, +items.variant.product.images, +items.thumbnail, +items.total, *promotions, +shipping_methods.name"
+const CART_BASE_FIELDS = [
+  "*items",
+  "*region",
+  "*shipping_address",
+  "*billing_address",
+  "*promotions",
+  "*shipping_methods",
+  "+shipping_methods.name",
+  "+items.variant.title",
+  "+items.variant.inventory_quantity",
+  "+items.variant.manage_inventory",
+  "+items.variant.options",
+  "+items.variant.product.handle",
+  "+items.variant.product.images",
+  "+items.thumbnail",
+  "+items.total",
+].join(", ")
+
+const CART_PAYMENT_FIELDS = "*payment_collection"
+const CART_FIELDS = [CART_BASE_FIELDS, CART_PAYMENT_FIELDS].join(", ")
 
 /**
  * Retrieves a cart by its ID. If no ID is provided, it will use the cart ID from the cookies.
@@ -70,7 +89,7 @@ export async function getOrSetCart(countryCode: string) {
     const locale = await getLocale()
     const cartResp = await sdk.store.cart.create(
       { region_id: region.id, locale: locale || undefined },
-      { fields: CART_FIELDS },
+      { fields: CART_BASE_FIELDS },
       headers
     )
     cart = cartResp.cart
@@ -102,7 +121,7 @@ export async function updateCart(data: HttpTypes.StoreUpdateCart) {
   }
 
   return sdk.store.cart
-    .update(cartId, data, { fields: CART_FIELDS }, headers)
+    .update(cartId, data, { fields: CART_BASE_FIELDS }, headers)
     .then(async ({ cart }: { cart: HttpTypes.StoreCart }) => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
@@ -142,7 +161,7 @@ export async function addToCart({
     const { cart: updatedCart } = await sdk.store.cart.createLineItem(
       cart.id,
       { variant_id: variantId, quantity },
-      { fields: CART_FIELDS },
+      { fields: CART_BASE_FIELDS },
       headers
     )
 
@@ -184,7 +203,7 @@ export async function updateLineItem({
       cartId,
       lineId,
       { quantity },
-      { fields: CART_FIELDS },
+      { fields: CART_BASE_FIELDS },
       headers
     )
 
@@ -220,7 +239,7 @@ export async function deleteLineItem(lineId: string) {
     const { parent: updatedCart } = await sdk.store.cart.deleteLineItem(
       cartId,
       lineId,
-      { fields: CART_FIELDS },
+      { fields: CART_BASE_FIELDS },
       headers
     )
 
@@ -248,10 +267,16 @@ export async function setShippingMethod({
   }
 
   return sdk.store.cart
-    .addShippingMethod(cartId, { option_id: shippingMethodId }, {}, headers)
-    .then(async () => {
+    .addShippingMethod(
+      cartId,
+      { option_id: shippingMethodId },
+      { fields: CART_BASE_FIELDS },
+      headers
+    )
+    .then(async ({ cart }: { cart: HttpTypes.StoreCart }) => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
+      return cart
     })
     .catch(medusaError)
 }
@@ -265,11 +290,16 @@ export async function initiatePaymentSession(
   }
 
   return sdk.store.payment
-    .initiatePaymentSession(cart, data, {}, headers)
-    .then(async (resp) => {
+    .initiatePaymentSession(
+      cart,
+      data,
+      { fields: CART_PAYMENT_FIELDS },
+      headers
+    )
+    .then(async ({ payment_collection }) => {
       const cartCacheTag = await getCacheTag("carts")
       revalidateTag(cartCacheTag)
-      return resp
+      return payment_collection
     })
     .catch(medusaError)
 }

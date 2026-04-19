@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { listCartOptions, setShippingMethod, selectSavedAddress, retrieveCart, updateCart, initiatePaymentSession } from "@lib/data/cart"
+import { listCartOptions, setShippingMethod, selectSavedAddress, updateCart, initiatePaymentSession } from "@lib/data/cart"
 import { useCurrencyFormatter } from "@lib/currency"
 import { listCartPaymentMethods } from "@lib/data/payment"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -49,6 +49,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
   const [drawerOpen, setDrawerOpen] = useState(false)
   const [showSuccess, setShowSuccess] = useState(false)
   const [authOpen, setAuthOpen] = useState(false)
+  const lastInitialCartSyncRef = useRef<string | null>(null)
   const lastSyncedAddressIdRef = useRef<string | null>(null)
   const shippingRequestRef = useRef(0)
   const [paymentProviders, setPaymentProviders] = useState<HttpTypes.StorePaymentProvider[]>([])
@@ -140,7 +141,21 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
 
   // Sync prop cart with global provider on mount
   useEffect(() => {
-    if (initialCart) {
+    if (!initialCart) {
+      return
+    }
+
+    const syncKey = [
+      initialCart.id,
+      initialCart.updated_at ?? "",
+      initialCart.items?.length ?? 0,
+      initialCart.total ?? 0,
+      initialCart.shipping_total ?? 0,
+      initialCart.payment_collection?.updated_at ?? "",
+    ].join(":")
+
+    if (lastInitialCartSyncRef.current !== syncKey) {
+      lastInitialCartSyncRef.current = syncKey
       setCart(initialCart)
     }
   }, [initialCart, setCart])
@@ -159,13 +174,16 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
       if (selectedShippingOptionId && cart?.id) {
         setIsLoadingShipping(true)
         try {
-          // Sync gifting metadata before proceeding
+          let nextCart = cart
           const currentRecipientName = cart.shipping_address?.metadata?.recipient_name as string || ""
           const currentRecipientPhone = cart.shipping_address?.metadata?.recipient_phone as string || ""
           const metadataChanged = recipientName !== currentRecipientName || recipientPhone !== currentRecipientPhone
 
+          // ✅ 1. Update metadata and shipping method (can be done in parallel or sequence)
+          const updates: Promise<any>[] = []
+          
           if (metadataChanged) {
-            await updateCart({
+            updates.push(updateCart({
               shipping_address: {
                 metadata: {
                   ...cart.shipping_address?.metadata,
@@ -173,21 +191,43 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
                   recipient_phone: recipientPhone
                 }
               }
-            })
+            }))
           }
-          
-          await setShippingMethod({ cartId: cart.id, shippingMethodId: selectedShippingOptionId })
+
+          updates.push(setShippingMethod({
+            cartId: cart.id,
+            shippingMethodId: selectedShippingOptionId,
+          }))
+
+          const results = await Promise.all(updates)
+          const latestCart = results[results.length - 1] // Last one should be the most up-to-date cart
+
+          if (latestCart) {
+            nextCart = latestCart
+            setCart(latestCart)
+          }
 
           if (!stripeProviderId) {
             throw new Error("No payment provider is configured for this region.")
           }
 
-          await initiatePaymentSession(cart, { provider_id: stripeProviderId })
-          const updatedCart = await retrieveCart()
-          if (updatedCart) setCart(updatedCart)
+          // ✅ 2. Initiate payment session
+          const paymentCollection = await initiatePaymentSession(nextCart, {
+            provider_id: stripeProviderId,
+          })
+
+          if (paymentCollection) {
+            const cartWithPaymentSession = {
+              ...nextCart,
+              payment_collection: paymentCollection,
+            }
+            nextCart = cartWithPaymentSession
+            setCart(cartWithPaymentSession)
+          }
+
           goToStep(currentStep + 1)
         } catch (err) {
-          console.error("Error setting shipping method or payment session:", err)
+          console.error("Error transitioning to payment:", err)
         } finally {
           setIsLoadingShipping(false)
         }

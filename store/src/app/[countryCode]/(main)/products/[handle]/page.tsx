@@ -35,6 +35,9 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
       description: `${product.description}`,
       images: product.thumbnail ? [product.thumbnail] : [],
     },
+    alternates: {
+      canonical: `/${params.countryCode}/products/${params.handle}`,
+    },
   }
 }
 
@@ -59,15 +62,43 @@ export default async function ProductPage(props: Props) {
   }
 
   return (
-    <ProductTemplate
-      product={fetchedProduct}
-      region={region}
-      countryCode={params.countryCode}
-      relatedProducts={
-        <Suspense fallback={<SkeletonRelatedProducts />}>
-          <RelatedProducts product={fetchedProduct} countryCode={params.countryCode} />
-        </Suspense>
-      }
-    />
+    <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "Product",
+            "name": fetchedProduct.title,
+            "image": fetchedProduct.thumbnail,
+            "description": fetchedProduct.description,
+            "sku": fetchedProduct.variants?.[0]?.sku,
+            "brand": {
+              "@type": "Brand",
+              "name": "HEALTH & WEALTH CLUB"
+            },
+            "offers": {
+              "@type": "Offer",
+              "url": `${process.env.NEXT_PUBLIC_BASE_URL}/${params.countryCode}/products/${params.handle}`,
+              "priceCurrency": "USD", // Should ideally be dynamic
+              "price": fetchedProduct.variants?.[0]?.calculated_price?.calculated_amount,
+              "availability": fetchedProduct.variants?.some(v => !v.manage_inventory || (v.inventory_quantity || 0) > 0) 
+                ? "https://schema.org/InStock" 
+                : "https://schema.org/OutOfStock",
+            }
+          })
+        }}
+      />
+      <ProductTemplate
+        product={fetchedProduct}
+        region={region}
+        countryCode={params.countryCode}
+        relatedProducts={
+          <Suspense fallback={<SkeletonRelatedProducts />}>
+            <RelatedProducts product={fetchedProduct} countryCode={params.countryCode} />
+          </Suspense>
+        }
+      />
+    </>
   )
 }

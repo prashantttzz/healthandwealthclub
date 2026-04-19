@@ -35,10 +35,14 @@ const CartSidebar = () => {
   const { countryCode } = useParams() as { countryCode: string }
   const router = useRouter()
 
-  // ✅ Reset navigation state when sidebar closes
+  // ✅ Reset navigation state and prefetch checkout when sidebar opens
   useEffect(() => {
-    if (!isCartSidebarOpen) setIsNavigating(false)
-  }, [isCartSidebarOpen])
+    if (isCartSidebarOpen) {
+      router.prefetch(`/${countryCode}/checkout`)
+    } else {
+      setIsNavigating(false)
+    }
+  }, [isCartSidebarOpen, router, countryCode])
 
   // ✅ Navigate instantly if not adding, otherwise wait for adding to finish
   useEffect(() => {
@@ -114,8 +118,9 @@ const CartSidebar = () => {
               {sortedItems.length ? (
                 <div className="flex flex-col">
                   {sortedItems.map((item) => (
-                    <div
-                      key={item.id}
+                    <motion.div
+                      layout
+                      key={item.variant_id}
                       className={clx(
                         "p-5 border-b border-bg/5 flex gap-x-6 transition-opacity duration-300",
                         { "opacity-50": loadingItems[item.id] }
@@ -156,12 +161,6 @@ const CartSidebar = () => {
 
                         <div className="mt-3 flex items-center justify-between">
                           <div className="border border-bg/10 relative">
-                            {/* ✅ Per-item loading overlay */}
-                            {loadingItems[item.id] && (
-                              <div className="absolute inset-0 flex items-center justify-center bg-accent/50 z-10">
-                                <Spinner />
-                              </div>
-                            )}
                             <QuantitySelector
                               quantity={item.quantity}
                               onChange={(val) => handleQuantityChange(item, val)}
@@ -176,7 +175,7 @@ const CartSidebar = () => {
                           </span>
                         </div>
                       </div>
-                    </div>
+                    </motion.div>
                   ))}
                 </div>
               ) : (

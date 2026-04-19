@@ -69,11 +69,16 @@ export const CartProvider: React.FC<{
     }
   }
 
-  // ✅ Only sync when cart ID or item count changes
+  // ✅ Sync when cart comes from server (e.g. from Initializer)
   useEffect(() => {
     if (initialCart) {
       setCart(initialCart)
-      setOptimisticAdditions([])
+      // Only clear additions that are now officially in the cart
+      setOptimisticAdditions(prev => 
+        prev.filter(addition => 
+          !initialCart.items?.some(item => item.variant_id === addition.variant_id)
+        )
+      )
     }
   }, [initialCart?.id, initialCart?.items?.length])
 
@@ -182,9 +187,19 @@ export const CartProvider: React.FC<{
       const updatedCart = await postAddToCart({ variantId, quantity, countryCode })
 
       if (updatedCart) {
-        setCart(updatedCart) // ✅ instant state update, no page re-render
+        if (existingItem) {
+          setOptimisticQuantities(prev => {
+            const newState = { ...prev }
+            delete newState[existingItem.id]
+            return newState
+          })
+        }
+        if (tempId) {
+          setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
+        }
+        setCart(updatedCart)
       } else {
-        router.refresh() // fallback if server action doesn't return cart
+        router.refresh()
       }
     } catch (error: any) {
       // ✅ Rollback on failure
@@ -206,7 +221,6 @@ export const CartProvider: React.FC<{
   const updateQuantity = async (lineId: string, quantity: number) => {
     const previousCart = cart
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: quantity }))
-    setCart(prev => updateLineQuantityInCartState(prev, lineId, quantity))
 
     if (quantity <= 0) {
       setOptimisticRemovedIds(prev => ({ ...prev, [lineId]: true }))
@@ -238,7 +252,12 @@ export const CartProvider: React.FC<{
     try {
       const updatedCart = await postUpdateLineItem({ lineId, quantity })
       if (updatedCart) {
-        setCart(updatedCart) // ✅
+        setOptimisticQuantities(prev => {
+          const newState = { ...prev }
+          delete newState[lineId]
+          return newState
+        })
+        setCart(updatedCart)
       } else {
         router.refresh()
       }
@@ -258,11 +277,20 @@ export const CartProvider: React.FC<{
     setOptimisticQuantities(prev => ({ ...prev, [lineId]: 0 }))
     setOptimisticRemovedIds(prev => ({ ...prev, [lineId]: true }))
     setOptimisticAdditions(prev => prev.filter(item => item.id !== lineId))
-    setCart(prev => removeLineFromCartState(prev, lineId))
     try {
       const updatedCart = await postDeleteLineItem(lineId)
       if (updatedCart) {
-        setCart(updatedCart) // ✅
+        setOptimisticQuantities(prev => {
+          const newState = { ...prev }
+          delete newState[lineId]
+          return newState
+        })
+        setOptimisticRemovedIds(prev => {
+          const newState = { ...prev }
+          delete newState[lineId]
+          return newState
+        })
+        setCart(updatedCart)
       } else {
         router.refresh()
       }

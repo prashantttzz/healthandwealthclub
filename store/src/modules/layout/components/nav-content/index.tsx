@@ -59,6 +59,15 @@ export default function NavContent({
     return () => window.removeEventListener("scroll", handleScroll)
   }, [isScrolled])
 
+  // ✅ Close search on Escape key
+  useEffect(() => {
+    const handleEsc = (e: KeyboardEvent) => {
+      if (e.key === "Escape") setShowSearch(false)
+    }
+    window.addEventListener("keydown", handleEsc)
+    return () => window.removeEventListener("keydown", handleEsc)
+  }, [])
+
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
     if (searchValue.trim()) {

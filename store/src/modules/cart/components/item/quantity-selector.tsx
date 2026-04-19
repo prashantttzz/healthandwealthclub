@@ -2,6 +2,7 @@
 
 import { Minus, Plus } from "lucide-react"
 import Spinner from "@modules/common/icons/spinner"
+import { clx } from "@medusajs/ui"
 
 type QuantitySelectorProps = {
   quantity: number
@@ -19,34 +20,39 @@ const QuantitySelector = ({ quantity, onChange, maxQuantity = 10, loading, class
   }
 
   const handleIncrement = () => {
-    onChange(quantity + 1)
+    if (quantity < maxQuantity) {
+      onChange(quantity + 1)
+    }
   }
 
   return (
     <div className="flex items-center gap-4">
-      <div className="flex items-center border border-black/10 h-8 px-1 group hover:border-accent transition-colors duration-300 bg-transparent rounded-none">
+      <div className="flex items-center border border-bg/10 h-10 px-1 group hover:border-bg/30 transition-colors duration-300 bg-transparent rounded-none relative">
         <button
           onClick={handleDecrement}
-          disabled={loading}
-          className={`w-6 h-6 flex items-center justify-center ${className} text-accent  disabled:opacity-20 transition-colors`}
+          disabled={loading || quantity <= 0}
+          className={`w-8 h-8 flex items-center justify-center ${className} text-bg disabled:opacity-20 transition-all hover:bg-bg/5 active:scale-95`}
         >
-          <Minus className="w-2.5 h-2.5" strokeWidth={3} />
+          <Minus className="w-3 h-3" strokeWidth={2} />
         </button>
         
-        <div className={`w-6 text-center font-manrope text-[11px] font-bold ${className}`}>
-          {loading ? (
-             <div className="flex justify-center"><Spinner className="w-3 h-3 animate-spin" /></div>
-          ) : (
-            quantity
+        <div className={`w-8 text-center font-manrope text-[12px] font-bold ${className} relative`}>
+          <span className={clx("transition-opacity duration-200", { "opacity-0": false })}>
+            {quantity}
+          </span>
+          {loading && (
+            <div className="absolute inset-0 flex items-center justify-center">
+              {/* Subtle loading indicator if needed, but keeping quantity visible is better */}
+            </div>
           )}
         </div>
 
         <button
           onClick={handleIncrement}
-          disabled={loading}
-          className={`w-6 h-6 flex items-center justify-center ${className} text-accent  disabled:opacity-20 transition-colors ${quantity >= maxQuantity ? "opacity-50 hover:opacity-100" : ""}`}
+          disabled={loading || quantity >= maxQuantity}
+          className={`w-8 h-8 flex items-center justify-center ${className} text-bg disabled:opacity-20 transition-all hover:bg-bg/5 active:scale-95`}
         >
-          <Plus className="w-2.5 h-2.5" strokeWidth={3} />
+          <Plus className="w-3 h-3" strokeWidth={2} />
         </button>
       </div>
     </div>
