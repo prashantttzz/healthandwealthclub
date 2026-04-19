@@ -13,6 +13,7 @@ import {
   removeAuthToken,
   removeCartId,
   setAuthToken,
+  setCartId,
 } from "./cookies"
 
 export const retrieveCustomer =
@@ -152,10 +153,18 @@ export async function transferCart() {
 
   const headers = await getAuthHeaders()
 
-  await sdk.store.cart.transferCart(cartId, {}, headers)
+  try {
+    const { cart: updatedCart } = await sdk.store.cart.transferCart(cartId, {}, headers)
 
-  const cartCacheTag = await getCacheTag("carts")
-  revalidateTag(cartCacheTag)
+    if (updatedCart) {
+      await setCartId(updatedCart.id)
+    }
+
+    const cartCacheTag = await getCacheTag("carts")
+    revalidateTag(cartCacheTag)
+  } catch (error) {
+    console.error("Error transferring cart:", error)
+  }
 }
 
 export const addCustomerAddress = async (

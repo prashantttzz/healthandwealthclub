@@ -43,15 +43,43 @@ const CART_FIELDS = [CART_BASE_FIELDS, CART_PAYMENT_FIELDS].join(", ")
  * @returns The cart object if found, or null if not found.
  */
 export async function retrieveCart(cartId?: string, fields?: string) {
-  const id = cartId || (await getCartId())
+  let id = cartId || (await getCartId())
   fields ??= CART_FIELDS
+
+  const authHeaders = await getAuthHeaders()
+
+  // ✅ Auto-heal: If no cart ID in cookies but user is authenticated
+  if (!id && "authorization" in authHeaders) {
+    try {
+      const { carts } = await sdk.client.fetch<{ carts: any[] }>("/store/carts", {
+        headers: authHeaders,
+        next: {
+          revalidate: 0 // Don't cache this lookup
+        }
+      })
+
+      if (carts && carts.length > 0) {
+        // Find the most recently updated cart that hasn't been completed
+        const activeCart = carts
+          .filter((c) => !c.completed_at)
+          .sort((a, b) => new Date(b.updated_at).getTime() - new Date(a.updated_at).getTime())[0]
+
+        if (activeCart?.id) {
+          id = activeCart.id
+          await setCartId(activeCart.id)
+        }
+      }
+    } catch (e) {
+      console.error("Error auto-healing cart ID:", e)
+    }
+  }
 
   if (!id) {
     return null
   }
 
   const headers = {
-    ...(await getAuthHeaders()),
+    ...authHeaders,
   }
 
   const next = {
@@ -388,7 +416,7 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
     if (!formData) {
       throw new Error("No form data found when setting addresses")
     }
-    const cartId = getCartId()
+    const cartId = await getCartId()
     if (!cartId) {
       throw new Error("No existing cart found when setting addresses")
     }
