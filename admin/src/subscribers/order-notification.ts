@@ -1,6 +1,5 @@
 import { SubscriberArgs, type SubscriberConfig } from "@medusajs/framework"
-import { IOrderModuleService } from "@medusajs/framework/types"
-import { Modules } from "@medusajs/framework/utils"
+
 
 /**
  * Subscriber to handle Order Notifications using Resend (Free Tier)
@@ -12,14 +11,14 @@ export default async function orderNotificationHandler({
 }: SubscriberArgs<any>) {
   const { name, data } = event
   const logger = container.resolve("logger")
-  const orderModuleService: IOrderModuleService = container.resolve(Modules.ORDER)
+
+  const remoteQuery = container.resolve("remoteQuery")
 
   // 1. Resolve the Order ID
   let orderId = data.id
   
   // If the event is from fulfillment/shipment/delivery, we need to find the linked order
   if (name.startsWith("fulfillment") || name.startsWith("shipment") || name.startsWith("delivery")) {
-    const remoteQuery = container.resolve("remoteQuery")
     const query = {
       entryPoint: "fulfillment",
       fields: ["order.id"],
@@ -34,9 +33,20 @@ export default async function orderNotificationHandler({
     return
   }
 
-  // 2. Fetch the order with customer and item details
-  const order = await orderModuleService.retrieveOrder(orderId, {
-    relations: ["items", "shipping_address"]
+  // 2. Fetch the order with customer and item details using remoteQuery to ensure totals are included
+  const [order] = await remoteQuery({
+    entryPoint: "order",
+    fields: [
+      "id",
+      "display_id",
+      "email",
+      "currency_code",
+      "total",
+      "summary.*",
+      "items.*",
+      "shipping_address.*",
+    ],
+    variables: { id: orderId },
   })
 
   if (!order || !order.email) {
@@ -51,28 +61,28 @@ export default async function orderNotificationHandler({
 
   switch (name) {
     case "order.placed":
-      subject = `Order Confirmation #${order.display_id}`
+      subject = `Order Confirmation `
       title = "Thank you for your order!"
       subtext = `Welcome to the Health & Wealth Club. We've received your order #${order.display_id} and are preparing it for your curated experience.`
       break
 
     case "fulfillment.created":
       if (data.no_notification) return 
-      subject = `Processing your order #${order.display_id}`
+      subject = `Processing your order`
       title = "Curating your experience..."
       subtext = `We've started preparing your items for order #${order.display_id}. You'll receive another update once it's on the way.`
       break
 
     case "shipment.created":
       if (data.no_notification) return
-      subject = `Your order #${order.display_id} has shipped!`
+      subject = `Your order has shipped!`
       title = "It's on the way!"
       subtext = `Great news! Your order #${order.display_id} has been handed over to our delivery partner. You can now track its journey reaching you soon.`
       break
     
     case "delivery.created":
     case "order.completed":
-      subject = `Order Delivered #${order.display_id}`
+      subject = `Order Delivered!`
       title = "Curated delivered."
       subtext = `Your experience with order #${order.display_id} is now complete. We hope you enjoy your curated items from the Health & Wealth Club.`
       break
@@ -91,16 +101,16 @@ export default async function orderNotificationHandler({
     const itemTotal = Number(item.total || (Number(item.unit_price || 0) * Number(item.quantity || 0)))
     return `
     <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
-      <div style="font-size: 14px;"><strong>${item.product_title}</strong> x ${item.quantity}</div>
+      <div style="font-size: 14px;"><strong>${item.product_title}</strong> x ${item.quantity}  =  </div>
       <div style="font-size: 14px; font-weight: bold;">
-        ${itemTotal} ${currencyCode}
+        ${(itemTotal / decimalFactor).toFixed(decimals)} ${currencyCode}
       </div>
     </div>
     `
   }).join('')
 
   // 5. Grand Total (Check direct field, then summary field, then fallback to 0)
-  const orderTotal = Number(order.total || (order as any).summary?.total || 0)
+  const orderTotal = Number(order.total || order.summary?.total || 0)
 
   // 6. Send via Resend
   try {
