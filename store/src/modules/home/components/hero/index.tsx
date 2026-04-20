@@ -156,7 +156,7 @@ const Hero = () => {
                 preload="metadata"
                 className="w-full h-full object-cover opacity-80"
               >
-                  <source src="/home-video.webm" type="video/webm" />
+                  <source src="/hero.webm" type="video/webm" />
                
                 {/* <source src={slide.src} type="video/mp4" /> */}
               </video>
