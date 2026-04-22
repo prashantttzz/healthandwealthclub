@@ -21,13 +21,3 @@ Handles sending emails via Resend for:
 - Shipment Updates (`shipment.created`)
 - Delivery Notifications (`delivery.created`)
 
-## Development
-
-1. Install dependencies:
-   ```bash
-   npm install
-   ```
-2. Start the development server:
-   ```bash
-   npm run dev
-   ```
