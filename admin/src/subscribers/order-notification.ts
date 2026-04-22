@@ -54,62 +54,26 @@ export default async function orderNotificationHandler({
     return
   }
 
-  // 3. Determine message based on event type
-  let subject = ""
-  let title = ""
-  let subtext = ""
+  // 3. Get notification content based on event type
+  const { subject, title, subtext } = getNotificationContext(name, order, data)
 
-  switch (name) {
-    case "order.placed":
-      subject = `Order Confirmation `
-      title = "Thank you for your order!"
-      subtext = `Welcome to the Health & Wealth Club. We've received your order #${order.display_id} and are preparing it for your curated experience.`
-      break
+  if (!subject) return
 
-    case "fulfillment.created":
-      if (data.no_notification) return 
-      subject = `Processing your order`
-      title = "Curating your experience..."
-      subtext = `We've started preparing your items for order #${order.display_id}. You'll receive another update once it's on the way.`
-      break
 
-    case "shipment.created":
-      if (data.no_notification) return
-      subject = `Your order has shipped!`
-      title = "It's on the way!"
-      subtext = `Great news! Your order #${order.display_id} has been handed over to our delivery partner. You can now track its journey reaching you soon.`
-      break
-    
-    case "delivery.created":
-    case "order.completed":
-      subject = `Order Delivered!`
-      title = "Curated delivered."
-      subtext = `Your experience with order #${order.display_id} is now complete. We hope you enjoy your curated items from the Health & Wealth Club.`
-      break
-
-    default:
-      return
-  }
-
-  // 3. Setup Currency & Pricing Helpers
-  const currencyCode = (order.currency_code || "USD").toUpperCase()
-  const decimalFactor = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 1000 : 100
-  const decimals = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 3 : 2
-
-  // 4. Generate Item Rows (with manual calculation fallback to prevent NaN)
+  // 4. Generate Item Rows
   const itemRows = (order.items || []).map(item => {
     const itemTotal = Number(item.total || (Number(item.unit_price || 0) * Number(item.quantity || 0)))
     return `
     <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
       <div style="font-size: 14px;"><strong>${item.product_title}</strong> x ${item.quantity}  =  </div>
       <div style="font-size: 14px; font-weight: bold;">
-        ${(itemTotal / decimalFactor).toFixed(decimals)} ${currencyCode}
+        ${formatOrderAmount(itemTotal, order.currency_code)}
       </div>
     </div>
     `
   }).join('')
 
-  // 5. Grand Total (Check direct field, then summary field, then fallback to 0)
+  // 5. Grand Total
   const orderTotal = Number(order.total || order.summary?.total || 0)
 
   // 6. Send via Resend
@@ -141,7 +105,7 @@ export default async function orderNotificationHandler({
               <div style="display: flex; justify-content: space-between; padding-top: 15px; font-weight: bold; font-size: 18px;">
                 <span>Total</span>
                 <span>
-                  ${(orderTotal / decimalFactor).toFixed(decimals)} ${currencyCode}
+                  ${formatOrderAmount(orderTotal, order.currency_code)}
                 </span>
               </div>
             </div>
@@ -164,6 +128,54 @@ export default async function orderNotificationHandler({
   } catch (error) {
     logger.error(`Subscriber Error: Failed to send notification for ${name}. Error: ${error}`)
   }
+}
+
+/**
+ * Helper to determine notification content based on event type
+ */
+function getNotificationContext(eventName: string, order: any, data: any) {
+  switch (eventName) {
+    case "order.placed":
+      return {
+        subject: "Order Confirmation",
+        title: "Thank you for your order!",
+        subtext: `Welcome to the Health & Wealth Club. We've received your order #${order.display_id} and are preparing it for your curated experience.`
+      }
+    case "fulfillment.created":
+      if (data.no_notification) return {}
+      return {
+        subject: "Processing your order",
+        title: "Curating your experience...",
+        subtext: `We've started preparing your items for order #${order.display_id}. You'll receive another update once it's on the way.`
+      }
+    case "shipment.created":
+      if (data.no_notification) return {}
+      return {
+        subject: "Your order has shipped!",
+        title: "It's on the way!",
+        subtext: `Great news! Your order #${order.display_id} has been handed over to our delivery partner. You can now track its journey reaching you soon.`
+      }
+    case "delivery.created":
+    case "order.completed":
+      return {
+        subject: "Order Delivered!",
+        title: "Curated delivered.",
+        subtext: `Your experience with order #${order.display_id} is now complete. We hope you enjoy your curated items from the Health & Wealth Club.`
+      }
+    default:
+      return {}
+  }
+}
+
+/**
+ * Helper to format currency amounts based on currency code
+ */
+function formatOrderAmount(amount: number, currency: string = "USD"): string {
+  const currencyCode = currency.toUpperCase()
+  const decimalFactor = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 1000 : 100
+  const decimals = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 3 : 2
+  
+  return `${(amount / decimalFactor).toFixed(decimals)} ${currencyCode}`
 }
 
 export const config: SubscriberConfig = {
