@@ -1,0 +1,15 @@
+/* TEAM */
+Web Developer: Prashant
+Portfolio: https://prashanttzz.in
+Firm: City Reach
+Firm Website: https://cityreach.in
+
+/* SITE */
+Last update: 2026-04-22
+Standards: HTML5, CSS3, Next.js, Medusa
+Components: Framer Motion, Tailwind CSS
+Software: Antigravity AI
+
+/* THANKS */
+Client: City Reach
+Project: Health & Wealth Club

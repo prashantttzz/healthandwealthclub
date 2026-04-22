@@ -70,6 +70,12 @@ export const metadata: Metadata = {
     description: "Premium Lifestyle & Wellness",
     images: ["/twitter-image.jpg"],
   },
+  authors: [
+    { name: "Prashant", url: "https://prashanttzz.in" },
+    { name: "City Reach", url: "https://cityreach.in" }
+  ],
+  creator: "Prashant & City Reach",
+  publisher: "The Health & Wealth Club",
 }
 
 export default function RootLayout(props: { children: React.ReactNode }) {

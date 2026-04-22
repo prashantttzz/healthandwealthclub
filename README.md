@@ -21,3 +21,11 @@ Handles sending emails via Resend for:
 - Shipment Updates (`shipment.created`)
 - Delivery Notifications (`delivery.created`)
 
+
+## Developed By
+
+Developed with care by **Prashant** in collaboration with **City Reach**.
+- **Prashant**: [prashanttzz.in](https://prashanttzz.in)
+- **City Reach**: [cityreach.in](https://cityreach.in)
+- **Portfolio Proof of Work**: [Health & Wealth Club](https://health-wealthclub.com)
+
