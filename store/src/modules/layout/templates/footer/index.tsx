@@ -17,6 +17,19 @@ export default function ClubFooter() {
   const { region, countryCode } = useRegion();
 
   useEffect(() => {
+    console.log(
+      "%c THE HEALTH & WEALTH CLUB %c Developed by City Reach %c https://cityreach.in ",
+      "color: white; background: #000; padding: 5px 10px; border-radius: 5px 0 0 5px; font-weight: bold;",
+      "color: white; background: #333; padding: 5px 10px; font-weight: bold;",
+      "color: #000; background: #eee; padding: 5px 10px; border-radius: 0 5px 5px 0;"
+    );
+    console.log(
+      "%c PORTFOLIO %c Prashant %c https://prashanttzz.in ",
+      "color: white; background: #000; padding: 5px 10px; border-radius: 5px 0 0 5px; font-weight: bold;",
+      "color: white; background: #333; padding: 5px 10px; font-weight: bold;",
+      "color: #000; background: #eee; padding: 5px 10px; border-radius: 0 5px 5px 0;"
+    );
+
     const checkMobile = () => setIsMobile(window.innerWidth < 768);
     checkMobile();
     window.addEventListener("resize", checkMobile);
