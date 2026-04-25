@@ -34,7 +34,7 @@ export default async function Addresses(props: {
         <div className="flex flex-col gap-1">
           <span className="font-manrope text-[11px] uppercase font-bold tracking-[0.4em] text-accent/30">Your Shipping Destinations</span>
           <p className="font-manrope text-[14px] text-accent/60 max-w-xl leading-relaxed">
-            Curate your delivery locations for a seamless movement of artifacts between the Club and your residence.
+            Curate your delivery locations for a seamless movement of artifacts between City Reach and your residence.
           </p>
         </div>
       </div>

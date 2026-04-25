@@ -30,7 +30,7 @@ const SLIDES = [
     id: 2,
     type: "image" as const,
     src: "/about.png",
-    label: "The Club Lifestyle",
+    label: "City Reach Lifestyle",
     heading: ["Luxury Lives", "in the Detail"],
     headingItalic: [false, true],
     cta: "Discover More",
@@ -42,7 +42,7 @@ const SLIDES = [
     label: "Members Only",
     heading: ["Wear Your", "Ambition"],
     headingItalic: [false, true],
-    cta: "Join The Club",
+    cta: "Join City Reach",
   },
   */
 ]

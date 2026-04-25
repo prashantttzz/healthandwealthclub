@@ -274,7 +274,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
       <div className="bg-bg border-b border-accent/5 sticky top-0 z-50">
         <div className="max-w-[1400px] mx-auto px-4 flex items-center h-16">
           <button onClick={() => currentStep > 0 && goToStep(currentStep - 1)} className="mr-4 lg:hidden">{currentStep > 0 && Ico.chevLeft("w-5 h-5 text-accent/40")}</button>
-          <LocalizedClientLink href="/" className="font-newsreader italic text-2xl text-accent tracking-tight mr-auto hidden lg:block">Health & Wealth Club</LocalizedClientLink>
+          <LocalizedClientLink href="/" className="font-newsreader italic text-2xl text-accent tracking-tight mr-auto hidden lg:block">City Reach</LocalizedClientLink>
           <h1 className="font-newsreader italic text-xl text-accent lg:hidden">{["Bag", "Address", "Payment"][currentStep]}</h1>
         </div>
       </div>

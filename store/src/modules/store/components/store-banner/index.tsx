@@ -15,7 +15,7 @@ export default function StoreBanner() {
           Curated Essentials
         </span>
         <h1 className="font-newsreader italic text-4xl mt-5 md:text-7xl text-white tracking-tighter max-w-4xl">
-          Explore the Various Collection of The Club
+          Explore the Various Collection of City Reach
         </h1>
       </div>
     </div>

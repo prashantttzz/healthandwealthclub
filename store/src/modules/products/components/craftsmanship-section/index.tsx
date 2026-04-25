@@ -10,7 +10,7 @@ const points = [
   },
   {
     title: "Bespoke Hardware",
-    description: "Every drawstring tip is mirror-dipped in aged gold plating, etched with the club monogram for a quiet, textile luxury.",
+    description: "Every drawstring tip is mirror-dipped in aged gold plating, etched with City Reach monogram for a quiet, textile luxury.",
   },
   {
     title: "Textural Longevity",

@@ -2,8 +2,8 @@ import { Metadata } from "next"
 import AboutUsTemplate from "@modules/about/templates"
 
 export const metadata: Metadata = {
-  title: "Collaborations | The Health & Wealth Club",
-  description: "Learn more about the vision, ethos, and team behind The Health & Wealth Club.",
+  title: "Collaborations | City Reach",
+  description: "Learn more about the vision, ethos, and team behind City Reach.",
 }
 
 export default function AboutUsPage(props: {

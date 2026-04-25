@@ -301,7 +301,7 @@ export default function NavContent({
                 {hoveredItem === "home" && (
                   <div className="flex gap-20 w-full">
                     <div className="flex-1">
-                      <h4 className="font-newsreader italic text-4xl text-accent mb-4">Welcome to The Club</h4>
+                      <h4 className="font-newsreader italic text-4xl text-accent mb-4">Welcome to City Reach</h4>
                       <p className="font-manrope text-[13px] text-accent/50 max-w-xl leading-relaxed">
                         Explore the inaugural drop and our seasonal edits. Crafted for the intentional. Join our community of like minded individuals.
                       </p>
@@ -356,7 +356,7 @@ export default function NavContent({
                         />
                         <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
                           <span className="font-newsreader italic text-2xl text-white">
-                            <Link href={CONTACT_LINKS.instagram}>Join The Club</Link></span>
+                            <Link href={CONTACT_LINKS.instagram}>Join City Reach</Link></span>
                         </div>
                       </div>
                       <p className="font-manrope text-[11px] text-accent/40 leading-relaxed tracking-wider">

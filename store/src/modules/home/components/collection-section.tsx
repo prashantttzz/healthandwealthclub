@@ -16,24 +16,24 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
     { 
       title: "OUR\nSTORY", 
       sub: "The Mission",
-      description: "Born from an engineer's obsession with precision and quality, The Health & Wealth Club was created to redefine luxury without the luxury price tag. We believe feeling wealthy isn't about status, it's about substance: premium fabrics, timeless design, and the quiet confidence of knowing you belong to something greater. This isn't just clothing. It's a lifestyle.",
+      description: "Born from an engineer's obsession with precision and quality, City Reach was created to redefine luxury without the luxury price tag. We believe feeling wealthy isn't about status, it's about substance: premium fabrics, timeless design, and the quiet confidence of knowing you belong to something greater. This isn't just clothing. It's a lifestyle.",
       id: "about-us",
-      buttonText:"Join the club",
+      buttonText:"Join City Reach",
       link: CONTACT_LINKS.instagram,
       image: "/about-hero-1.png" 
     },
     { 
-      title: "WHO\nAM I?", 
-      sub: "THE FACE BEHIND IT ALL",
-      description: "I'm an engineer refined in London, where modeling with big agencies sharpened my eye for detail and fed my obsession with extraordinary clothing. Knowing the industry's secrets, I set out to deliver high-end finishes and uncompromising quality without the inflated price tags. Now in Abu Dhabi, The Health & Wealth Club is more than fashion, it's a movement, inviting people to wear a mindset of health, wealth, and elegance.",
+      title: "OUR\nPHILOSOPHY", 
+      sub: "THE VISION",
+      description: "At City Reach, we believe that true luxury is a blend of precision and passion. Our collections are born from a commitment to excellence, ensuring that every piece we create tells a story of craftsmanship and intentional living. We are more than just a brand; we are a movement dedicated to redefining elegance for the modern world.",
       id: "founder",
-      buttonText:"follow me",
-      link: CONTACT_LINKS.tiktok,
-      image: "/me.jpeg" 
+      buttonText:"follow our journey",
+      link: CONTACT_LINKS.instagram,
+      image: "/founder.png" 
     },
     { 
       title: "THE\nCONCEPT", 
-      sub: "The Health & Wealth Club",
+      sub: "City Reach",
       description: "Our concept is all about delivering an experience that feels bigger than fashion, a lifestyle that pulls people in. Members are greeted by the touch of premium fabrics, the precision of tailored finishes, and the energy of a community that values elegance and authenticity. We combine striking aesthetics, effortless wearability, and uncompromising craftsmanship to create clothing that doesn't just look good, it feels like belonging to something greater.",
       buttonText:"Explore store",
       link:"/store",
@@ -43,7 +43,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
     { 
       title: "WORKING\nWITH US", 
       sub: "The Movement",
-      description: "It means joining a movement that redefines luxury. At The Health & Wealth Club, we blend engineering precision with fashion artistry to deliver clothing that feels exclusive yet accessible. Working with us means aligning with a brand that values authenticity, cultural nuance, and uncompromising quality, a partnership that elevates both style and mindset. We also offer custom made pieces upon request, whether in large or small quantities.",
+      description: "It means joining a movement that redefines luxury. At City Reach, we blend engineering precision with fashion artistry to deliver clothing that feels exclusive yet accessible. Working with us means aligning with a brand that values authenticity, cultural nuance, and uncompromising quality, a partnership that elevates both style and mindset. We also offer custom made pieces upon request, whether in large or small quantities.",
       buttonText:"connect",
       link:"/collaborations",
       id: "collaborate",
@@ -89,7 +89,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
             </h2>
           </div>
           <p className="font-manrope tracking-widest font-medium text-bg/90 uppercase text-[10px] md:text-[12px] max-w-xl text-center">
-            The foundation of our craft, from the engineer&apos;s desk to the streets of Abu Dhabi.
+            The foundation of our craft, redefining luxury through intentional design and quality.
           </p>
         </motion.div>
       </div>
@@ -187,7 +187,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
 
       <div className="py-5 md:py-24 text-center border-b border-black/5">
         <div className="group text-[12px] font-semibold uppercase tracking-[0.2em] text-bg/80 hover:text-bg transition-colors">
-          health and wealth club
+          City Reach
 </div>
       </div>
     </section>

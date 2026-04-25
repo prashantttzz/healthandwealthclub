@@ -35,7 +35,7 @@ const AboutUsTemplate = () => {
               className="space-y-12"
             >
               <p className="font-newsreader italic text-2xl lg:text-4xl text-[#111111]/90 leading-tight lg:-ml-1">
-                It means joining a movement that redefines luxury. At The Health & Wealth Club, we blend engineering precision with fashion artistry to deliver clothing that feels exclusive yet accessible.
+                It means joining a movement that redefines luxury. At City Reach, we blend engineering precision with fashion artistry to deliver clothing that feels exclusive yet accessible.
               </p>
               <div className="h-px w-20 bg-[#111111]/10" />
               <div className="space-y-8">

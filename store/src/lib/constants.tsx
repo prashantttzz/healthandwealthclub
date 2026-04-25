@@ -75,13 +75,11 @@ export const noDivisionCurrencies = [
 ]
 
 export const CONTACT_LINKS = {
-  tiktok:
-    "https://www.tiktok.com/@thehealthywealthclub",
-  whatsapp: "https://wa.me/971501092119",
-  instagram:
-    "https://www.instagram.com/thehealthywealthclub",
-  email: "mailto:thehealthandwealthclub9@gmail.com",
-  emailAddress: "thehealthandwealthclub9@gmail.com",
+  tiktok: "https://cityreach.in",
+  whatsapp: "https://wa.me/cityreach",
+  instagram: "https://www.instagram.com/cityreach.in",
+  email: "mailto:hello@cityreach.in",
+  emailAddress: "hello@cityreach.in",
 } as const
 
 export const SUPPORT_LINKS = {

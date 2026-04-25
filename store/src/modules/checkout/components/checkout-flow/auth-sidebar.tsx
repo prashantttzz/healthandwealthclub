@@ -32,7 +32,7 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
       <div className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[90] transition-opacity duration-500 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={onClose} />
       <div className={`fixed top-0 right-0 h-full w-full max-w-[460px] bg-bg z-[100] shadow-2xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center justify-between px-8 py-6 border-b border-accent/5">
-          <h2 className="font-newsreader italic text-3xl text-accent">{view === "login" ? "Welcome Back" : "Join the Club"}</h2>
+          <h2 className="font-newsreader italic text-3xl text-accent">{view === "login" ? "Welcome Back" : "Join City Reach"}</h2>
           <button onClick={onClose} className="p-2 text-accent/30 hover:text-accent transition-colors">{Ico.x("w-5 h-5")}</button>
         </div>
 

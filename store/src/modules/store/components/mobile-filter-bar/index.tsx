@@ -72,7 +72,7 @@ const MobileFilterBar = () => {
         
         <HeaderDropdown title="Category">
           <ul className="space-y-4">
-            {["All Products", "Outerwear", "Knitwear", "The Club Set", "Track Assets"].map((cat) => (
+            {["All Products", "Outerwear", "Knitwear", "City Reach Set", "Track Assets"].map((cat) => (
                <li 
                  key={cat} 
                  onClick={() => setCategory(cat)}

@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import SizeGuideTemplate from "@modules/size-guide/templates"
 
 export const metadata: Metadata = {
-  title: "Size Guide | The Health & Wealth Club",
+  title: "Size Guide | City Reach",
   description: "Comprehensive size guide for all Club collections. Precision measurements to ensure your perfect fit.",
 }
 

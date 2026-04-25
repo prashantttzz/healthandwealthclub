@@ -2,7 +2,7 @@ import { Metadata } from "next"
 import CustomerServiceTemplate from "@modules/customer-service/templates"
 
 export const metadata: Metadata = {
-  title: "Customer Service | The Health & Wealth Club",
+  title: "Customer Service | City Reach",
   description: "Get in touch with our concierge team for support, shipping inquiries, and more.",
 }
 

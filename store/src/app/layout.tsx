@@ -38,21 +38,21 @@ const petit = Petit_Formal_Script({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"),
   title: {
-    template: "%s | HEALTH & WEALTH CLUB",
-    default: "HEALTH & WEALTH CLUB - Premium Lifestyle & Wellness",
+    template: "%s | City Reach",
+    default: "City Reach - Premium Lifestyle & Wellness",
   },
   description: "Experience the pinnacle of health and wealth. A curated collection of premium lifestyle, wellness, and investment in self.",
   openGraph: {
     type: "website",
     locale: "en_US",
     url: "https://health-wealthclub.com",
-    siteName: "HEALTH & WEALTH CLUB",
+    siteName: "City Reach",
     images: [
       {
         url: "/opengraph-image.jpg",
         width: 1200,
         height: 630,
-        alt: "HEALTH & WEALTH CLUB",
+        alt: "City Reach",
       },
     ],
   },
@@ -66,7 +66,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: "HEALTH & WEALTH CLUB",
+    title: "City Reach",
     description: "Premium Lifestyle & Wellness",
     images: ["/twitter-image.jpg"],
   },
@@ -75,7 +75,7 @@ export const metadata: Metadata = {
     { name: "City Reach", url: "https://cityreach.in" }
   ],
   creator: "Prashant & City Reach",
-  publisher: "The Health & Wealth Club",
+  publisher: "City Reach",
 }
 
 export default function RootLayout(props: { children: React.ReactNode }) {
@@ -154,7 +154,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
 
               var img = document.createElement('img');
               img.src = '/preloader.jpeg';
-              img.alt = 'The Health & Wealth Club';
+              img.alt = 'City Reach';
 
               content.appendChild(img);
               loader.appendChild(content);
@@ -174,7 +174,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
             __html: JSON.stringify({
               "@context": "https://schema.org",
               "@type": "Organization",
-              "name": "HEALTH & WEALTH CLUB",
+              "name": "City Reach",
               "url": "https://health-wealthclub.com",
               "logo": "https://health-wealthclub.com/logo.png",
               "sameAs": [

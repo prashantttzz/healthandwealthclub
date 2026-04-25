@@ -85,13 +85,13 @@ export default async function orderNotificationHandler({
         Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Health & Wealth Club <orders@healthandwealthclub.com>",
+        from: "City Reach <orders@healthandwealthclub.com>",
         to: order.email,
         subject: subject,
         html: `
           <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #162917; background-color: #ffffff;">
             <div style="text-align: center; margin-bottom: 40px;">
-              <h2 style="font-style: italic; font-weight: 300; font-size: 28px; margin: 0;">HEALTH & WEALTH CLUB</h2>
+              <h2 style="font-style: italic; font-weight: 300; font-size: 28px; margin: 0;">CITY REACH</h2>
             </div>
             
             <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">${title}</h1>
@@ -111,7 +111,7 @@ export default async function orderNotificationHandler({
             </div>
 
             <div style="text-align: center; font-size: 12px; color: #a1a1a1; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
-              <p>Health & Wealth Club | Premium Life & Style</p>
+              <p>City Reach | Premium Life & Style</p>
               <p>This is an automated notification. Please do not reply to this email.</p>
             </div>
           </div>
@@ -139,7 +139,7 @@ function getNotificationContext(eventName: string, order: any, data: any) {
       return {
         subject: "Order Confirmation",
         title: "Thank you for your order!",
-        subtext: `Welcome to the Health & Wealth Club. We've received your order #${order.display_id} and are preparing it for your curated experience.`
+        subtext: `Welcome to the City Reach. We've received your order #${order.display_id} and are preparing it for your curated experience.`
       }
     case "fulfillment.created":
       if (data.no_notification) return {}
@@ -160,7 +160,7 @@ function getNotificationContext(eventName: string, order: any, data: any) {
       return {
         subject: "Order Delivered!",
         title: "Curated delivered.",
-        subtext: `Your experience with order #${order.display_id} is now complete. We hope you enjoy your curated items from the Health & Wealth Club.`
+        subtext: `Your experience with order #${order.display_id} is now complete. We hope you enjoy your curated items from the City Reach.`
       }
     default:
       return {}

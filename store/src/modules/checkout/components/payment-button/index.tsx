@@ -140,12 +140,11 @@ const StripePaymentButton = ({
   return (
     <>
       <button
-        disabled={disabled || notReady}
-        onClick={handlePayment}
-        className="w-full lg:w-fit min-w-[300px] h-14 bg-accent text-bg font-manrope text-[13px] uppercase font-bold tracking-[0.3em] hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+        disabled={true}
+        className="w-full lg:w-fit min-w-[300px] h-14 bg-accent text-bg font-manrope text-[13px] uppercase font-bold tracking-[0.3em] opacity-50 cursor-not-allowed transition-all duration-300"
         data-testid={dataTestId}
       >
-        {submitting ? "Processing..." : "Place order"}
+        Payment Disabled for Demo
       </button>
       <ErrorMessage
         error={errorMessage}
@@ -182,12 +181,11 @@ const ManualTestPaymentButton = ({ notReady }: { notReady: boolean }) => {
   return (
     <>
       <button
-        disabled={notReady}
-        onClick={handlePayment}
-        className="w-full lg:w-fit min-w-[300px] h-14 bg-accent text-bg font-manrope text-[13px] uppercase font-bold tracking-[0.3em] hover:bg-accent/90 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300"
+        disabled={true}
+        className="w-full lg:w-fit min-w-[300px] h-14 bg-accent text-bg font-manrope text-[13px] uppercase font-bold tracking-[0.3em] opacity-50 cursor-not-allowed transition-all duration-300"
         data-testid="submit-order-button"
       >
-        {submitting ? "Processing..." : "Place order"}
+        Payment Disabled for Demo
       </button>
       <ErrorMessage
         error={errorMessage}

@@ -58,7 +58,7 @@ const AccountNav = ({
           </button>
           
           <div className="pt-12 text-bg text-[10px] font-newsreader italic tracking-widest opacity-15">
-            HEALTH & WEALTH CLUB EST. 2024
+            City Reach EST. 2024
           </div>
         </div>
       </div>

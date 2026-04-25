@@ -28,10 +28,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${product.title} | Health and Wealth Club`,
+    title: `${product.title} | City Reach`,
     description: `${product.description}`,
     openGraph: {
-      title: `${product.title} | Health and Wealth Club`,
+      title: `${product.title} | City Reach`,
       description: `${product.description}`,
       images: product.thumbnail ? [product.thumbnail] : [],
     },
@@ -75,7 +75,7 @@ export default async function ProductPage(props: Props) {
             "sku": fetchedProduct.variants?.[0]?.sku,
             "brand": {
               "@type": "Brand",
-              "name": "HEALTH & WEALTH CLUB"
+              "name": "CITY REACH"
             },
             "offers": {
               "@type": "Offer",

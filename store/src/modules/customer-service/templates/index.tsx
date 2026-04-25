@@ -27,7 +27,7 @@ const CustomerServiceTemplate = () => {
         >
           <span className="text-[11px] uppercase font-bold tracking-[0.4em] text-accent/30">Support Center</span>
           <h1 className="font-newsreader italic text-6xl lg:text-8xl text-accent tracking-tighter leading-[0.9]">
-            The Club <br /> Concierge.
+            City Reach <br /> Concierge.
           </h1>
           <p className="text-[15px] text-accent/50 leading-relaxed mt-4 font-medium">
             The Hub for all Club inquiries. From bespoke shipping logistics to our foundational terms, everything you need to navigate the collective is here.
@@ -119,7 +119,7 @@ const CustomerServiceTemplate = () => {
               <Accordion type="single" collapsible>
                 <Accordion.Item title="What are your shipping destinations?" value="shipping">
                   <p className="text-[14px] text-accent/60 leading-relaxed font-medium">
-                    The Club offers premium shipping with tailored logistics. UAE orders enjoy delivery within 1-2 business days, GCC countries within 3-5 business days, and worldwide orders typically arrive within 5-7 business days. Our logistics network is optimized for speed and safety, ensuring your items arrive in pristine condition.
+                    City Reach offers premium shipping with tailored logistics. UAE orders enjoy delivery within 1-2 business days, GCC countries within 3-5 business days, and worldwide orders typically arrive within 5-7 business days. Our logistics network is optimized for speed and safety, ensuring your items arrive in pristine condition.
                   </p>
                 </Accordion.Item>
                 <Accordion.Item title="How do I manage my membership?" value="membership">
@@ -129,7 +129,7 @@ const CustomerServiceTemplate = () => {
                 </Accordion.Item>
                 <Accordion.Item title="What is your return policy?" value="returns">
                   <p className="text-[14px] text-accent/60 leading-relaxed font-medium">
-                    All sales at The Health & Wealth Club are final. We maintain a strict no-refund and no-exchange policy to ensure the exclusivity and pristine condition of our collections. Please ensure all details are correct before finalizing your order.
+                    All sales at City Reach are final. We maintain a strict no-refund and no-exchange policy to ensure the exclusivity and pristine condition of our collections. Please ensure all details are correct before finalizing your order.
                   </p>
                 </Accordion.Item>
                 <Accordion.Item title="Can I change my order after it's placed?" value="orders">
@@ -202,7 +202,7 @@ const CustomerServiceTemplate = () => {
               <div className="lg:w-2/3 space-y-12 text-left">
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">1. The Membership Agreement</h4>
-                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">By accessing The Health & Wealth Club, you agree to be bound by these terms. Our collective is a curated experience designed for intentional living. You are responsible for maintaining the confidentiality of your account and for all activities that occur under your membership.</p>
+                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">By accessing City Reach, you agree to be bound by these terms. Our collective is a curated experience designed for intentional living. You are responsible for maintaining the confidentiality of your account and for all activities that occur under your membership.</p>
                  </div>
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">2. Product Availability & Bespoke Orders</h4>
@@ -210,11 +210,11 @@ const CustomerServiceTemplate = () => {
                  </div>
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">3. Intellectual Property</h4>
-                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">All designs, imagery, and text on this platform are the property of The Health & Wealth Club legacy. Unauthorized reproduction or distribution of our aesthetic assets is strictly prohibited.</p>
+                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">All designs, imagery, and text on this platform are the property of City Reach legacy. Unauthorized reproduction or distribution of our aesthetic assets is strictly prohibited.</p>
                  </div>
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">4. Governing Law</h4>
-                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">These terms are governed by the laws of the jurisdiction in which the Club is headquartered, without regard to conflict of law principles.</p>
+                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">These terms are governed by the laws of the jurisdiction in which City Reach is headquartered, without regard to conflict of law principles.</p>
                  </div>
               </div>
            </motion.div>
@@ -242,7 +242,7 @@ const CustomerServiceTemplate = () => {
                  </div>
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">Cookies & Digital Identity</h4>
-                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">We use cookies to maintain your session and remember your preferences. You may manage your cookie settings through your browser, though some features of the Club may be limited if cookies are disabled.</p>
+                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">We use cookies to maintain your session and remember your preferences. You may manage your cookie settings through your browser, though some features of City Reach may be limited if cookies are disabled.</p>
                  </div>
               </div>
            </motion.div>
@@ -257,7 +257,7 @@ const CustomerServiceTemplate = () => {
         >
           <div className="flex flex-col gap-4 max-w-xs text-left">
             <h4 className="font-newsreader italic text-xl text-accent uppercase tracking-tight">Our Commitment</h4>
-            <p className="text-[12px] leading-relaxed font-medium">We believe that service is an art form. Every detail of your journey with The Club is curated for excellence.</p>
+            <p className="text-[12px] leading-relaxed font-medium">We believe that service is an art form. Every detail of your journey with City Reach is curated for excellence.</p>
           </div>
           <div className="flex flex-col gap-4 max-w-xs text-left">
             <h4 className="font-newsreader italic text-xl text-accent uppercase tracking-tight">Global Presence</h4>

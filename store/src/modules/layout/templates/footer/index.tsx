@@ -18,7 +18,7 @@ export default function ClubFooter() {
 
   useEffect(() => {
     console.log(
-      "%c THE HEALTH & WEALTH CLUB %c Developed by City Reach %c https://cityreach.in ",
+      "%c City Reach %c Developed by City Reach %c https://cityreach.in ",
       "color: white; background: #000; padding: 5px 10px; border-radius: 5px 0 0 5px; font-weight: bold;",
       "color: white; background: #333; padding: 5px 10px; font-weight: bold;",
       "color: #000; background: #eee; padding: 5px 10px; border-radius: 0 5px 5px 0;"
@@ -78,7 +78,7 @@ export default function ClubFooter() {
                 LIFESTYLE COLLECTIVE
               </span>
               <h2 className="font-newsreader italic text-6xl sm:text-9xl md:text-[180px] leading-tight tracking-tighter mb-8 md:mb-12">
-                The Club
+                City Reach
               </h2>
               <motion.div style={{ opacity: buttonOpacity }}>
                 <motion.div whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }}>
@@ -225,7 +225,7 @@ export default function ClubFooter() {
           {/* Bottom Bar */}
           <div className="mt-24 pt-8 border-t border-white/5 flex flex-col items-center gap-8 text-center">
             <div className="flex flex-col items-center gap-4 text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase">
-              <span>© 2026 THE HEALTH & WEALTH CLUB</span>
+              <span>© 2026 City Reach</span>
             </div>
             <div
               className="flex items-center gap-4 px-6 py-3 border border-white/10 rounded-full transition-all"

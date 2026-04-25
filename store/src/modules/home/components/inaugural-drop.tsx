@@ -21,7 +21,7 @@ export const InauguralDrop = ({ products }: { products: HttpTypes.StoreProduct[]
       >
         {/* Overline */}
         <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/70 mb-4">
-          Explore the club
+          Explore City Reach
         </span>
 
         {/* Heading */}

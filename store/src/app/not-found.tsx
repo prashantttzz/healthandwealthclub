@@ -36,7 +36,7 @@ export default function NotFound() {
 
         <div className="pt-16">
           <p className="font-petit text-accent text-2xl md:text-3xl">
-            The Health & Wealth Club
+            City Reach
           </p>
         </div>
       </div>
