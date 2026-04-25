@@ -69,7 +69,7 @@ export default function CraftsmanshipSection() {
             className="relative w-full overflow-hidden aspect-[5/3]"
           >
             <Image
-              src="/about-hero-1.png"
+              src="/about-studio.png"
               alt="Craftsmanship Detail"
               fill
               className="object-cover"

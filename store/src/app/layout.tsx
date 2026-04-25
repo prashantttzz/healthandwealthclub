@@ -39,13 +39,13 @@ export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:8000"),
   title: {
     template: "%s | City Reach",
-    default: "City Reach - Premium Lifestyle & Wellness",
+    default: "City Reach - Premium Clothing & Lifestyle",
   },
-  description: "Experience the pinnacle of health and wealth. A curated collection of premium lifestyle, wellness, and investment in self.",
+  description: "Experience the pinnacle of fashion. A curated collection of premium clothing designed by Cityreach.",
   openGraph: {
     type: "website",
     locale: "en_US",
-    url: "https://health-wealthclub.com",
+    url: "https://cityreach.in",
     siteName: "City Reach",
     images: [
       {
@@ -117,10 +117,14 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               opacity: 0;
               animation: fadeIn 0.35s ease-out 0.05s forwards;
             }
-            #hard-loader img {
-              width: 80%;
-              max-width: 500px;
-              display: block;
+            #hard-loader .text-loader {
+              color: white;
+              font-family: var(--font-manrope), sans-serif;
+              font-size: 14px;
+              letter-spacing: 0.2em;
+              text-transform: uppercase;
+              text-align: center;
+              padding: 0 20px;
             }
             @keyframes fadeIn {
               from { opacity: 0; transform: scale(0.95); }
@@ -152,11 +156,11 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               var content = document.createElement('div');
               content.className = 'loader-content';
 
-              var img = document.createElement('img');
-              img.src = '/preloader.jpeg';
-              img.alt = 'City Reach';
+              var text = document.createElement('div');
+              text.className = 'text-loader';
+              text.textContent = 'sample website designed by cityreach Digital';
 
-              content.appendChild(img);
+              content.appendChild(text);
               loader.appendChild(content);
               
               document.documentElement.appendChild(frame);
@@ -175,11 +179,10 @@ export default function RootLayout(props: { children: React.ReactNode }) {
               "@context": "https://schema.org",
               "@type": "Organization",
               "name": "City Reach",
-              "url": "https://health-wealthclub.com",
-              "logo": "https://health-wealthclub.com/logo.png",
+              "url": "https://cityreach.in",
+              "logo": "https://cityreach.in/logo.png",
               "sameAs": [
-                "https://instagram.com/healthwealthclub",
-                "https://twitter.com/healthwealthclub"
+                "https://www.instagram.com/thekushalchhabra"
               ]
             })
           }}

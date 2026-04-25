@@ -15,6 +15,7 @@ import {
   Cancel01Icon
 } from "@hugeicons/core-free-icons"
 import MobileMenu from "../mobile-menu"
+import Marquee from "../marquee"
 import { clx } from "@medusajs/ui"
 import { CONTACT_LINKS, SUPPORT_LINKS } from "@lib/constants"
 
@@ -81,19 +82,27 @@ export default function NavContent({
 
   return (
     <>
-    <motion.nav 
-      className="fixed top-0 inset-x-0 z-[1000] pointer-events-auto"
-      onMouseLeave={() => setHoveredItem(null)}
-      animate={{ 
-        backgroundColor: showSolid ? "rgba(242, 237, 229, 1)" : "rgba(242, 237, 229, 0)",
-        color: showSolid ? "rgba(38, 55, 35, 1)" : "rgba(255, 255, 255, 1)",
-        boxShadow: showSolid ? "0 10px 15px -3px rgb(0 0 0 / 0.1)" : "0 0 0 0 rgb(0 0 0 / 0)",
-        borderBottomWidth: showSolid ? "1px" : "0px",
-      }}
-      initial={false}
-      transition={{ duration: 0.5 }}
-      style={{ borderColor: "rgba(0,0,0,0.05)" }}
+    <motion.div 
+      className="fixed top-0 inset-x-0 z-[1000] pointer-events-none"
+      animate={{ y: isScrolled ? -45 : 0 }}
+      transition={{ duration: 0.5, ease: "easeInOut" }}
     >
+      <div className="pointer-events-auto">
+        <Marquee />
+      </div>
+      <motion.nav 
+        className="pointer-events-auto"
+        onMouseLeave={() => setHoveredItem(null)}
+        animate={{ 
+          backgroundColor: showSolid ? "rgba(242, 237, 229, 1)" : "rgba(242, 237, 229, 0)",
+          color: showSolid ? "rgba(38, 55, 35, 1)" : "rgba(255, 255, 255, 1)",
+          boxShadow: showSolid ? "0 10px 15px -3px rgb(0 0 0 / 0.1)" : "0 0 0 0 rgb(0 0 0 / 0)",
+          borderBottomWidth: showSolid ? "1px" : "0px",
+        }}
+        initial={false}
+        transition={{ duration: 0.5 }}
+        style={{ borderColor: "rgba(0,0,0,0.05)" }}
+      >
       <div className="relative">
         <div className=" mx-auto flex items-center justify-between w-full h-16 px-6 lg:px-10 font-manrope">
           {/* Left: Hamburger & Search (Mobile/Desktop) */}
@@ -107,21 +116,10 @@ export default function NavContent({
             </button>
 
             {/* Desktop Logo (Left) */}
-            <LocalizedClientLink href="/" className="h-full hidden lg:flex items-center relative w-[150px]">
-              <motion.div
-                animate={{ opacity: showSolid ? 1 : 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute inset-0 flex items-center"
-              >
-                <Image src="/main-logo.png" height={40} width={150} className="h-10 w-auto" alt="main-logo" priority />
-              </motion.div>
-              <motion.div
-                animate={{ opacity: showSolid ? 0 : 1 }}
-                transition={{ duration: 0.5 }}
-                className="absolute inset-0 flex items-center"
-              >
-                <Image src="/main-logo-white.png" height={40} width={150} className="h-10 w-auto" alt="main-logo" priority />
-              </motion.div>
+            <LocalizedClientLink href="/" className="h-full hidden lg:flex items-center relative">
+              <div className="flex items-center font-newsreader text-2xl font-medium tracking-tighter uppercase italic">
+                Cityreach
+              </div>
             </LocalizedClientLink>
 
             {/* Mobile Search Trigger */}
@@ -137,21 +135,10 @@ export default function NavContent({
 
           {/* Center: Mobile Logo / Desktop Navigation */}
           <div className="flex items-center justify-center h-full">
-            <LocalizedClientLink href="/" className="lg:hidden flex items-center relative w-[120px] h-8">
-              <motion.div
-                animate={{ opacity: showSolid ? 1 : 0 }}
-                transition={{ duration: 0.5 }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <Image src="/main-logo.png" height={40} width={120} className="h-8 w-auto" alt="main-logo" priority />
-              </motion.div>
-              <motion.div
-                animate={{ opacity: showSolid ? 0 : 1 }}
-                transition={{ duration: 0.5 }}
-                className="absolute inset-0 flex items-center justify-center"
-              >
-                <Image src="/main-logo-white.png" height={40} width={120} className="h-8 w-auto" alt="main-logo" priority />
-              </motion.div>
+            <LocalizedClientLink href="/" className="lg:hidden flex items-center relative h-8">
+              <div className="flex items-center font-newsreader text-xl font-medium tracking-tighter uppercase italic">
+                Cityreach
+              </div>
             </LocalizedClientLink>
             
             <div className="hidden lg:flex items-center h-full text-[12px] gap-x-10 font-semibold tracking-[0.15em] uppercase lg:ml-10  transition-colors font-manrope duration-500">
@@ -371,7 +358,8 @@ export default function NavContent({
         </AnimatePresence>
       </div>
 
-    </motion.nav>
+      </motion.nav>
+    </motion.div>
     <MobileMenu 
       isOpen={isMenuOpen} 
       onClose={() => setIsMenuOpen(false)} 

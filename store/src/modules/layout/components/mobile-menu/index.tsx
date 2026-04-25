@@ -100,14 +100,9 @@ export default function MobileMenu({
           >
             {/* Header */}
             <div className="flex items-center justify-between px-6 h-16 border-b border-black/5">
-              <a 
-                href={CONTACT_LINKS.instagram}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex-shrink-0"
-              >
-                <Image className="" src={"/main-logo.png"} alt="logo" height={150} width={150}/>
-              </a>
+              <div className="flex items-center font-newsreader text-2xl font-medium tracking-tighter uppercase italic text-accent">
+                Cityreach
+              </div>
               <button 
                 onClick={onClose}
                 className="p-2 -mr-2 text-accent hover:rotate-90 transition-transform duration-300"

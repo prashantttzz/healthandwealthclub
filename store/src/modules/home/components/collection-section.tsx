@@ -20,7 +20,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
       id: "about-us",
       buttonText:"Join City Reach",
       link: CONTACT_LINKS.instagram,
-      image: "/about-hero-1.png" 
+      image: "/about-studio.png" 
     },
     { 
       title: "OUR\nPHILOSOPHY", 

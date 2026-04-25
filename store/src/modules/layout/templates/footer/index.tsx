@@ -118,13 +118,9 @@ export default function ClubFooter() {
             >
               <div className="flex flex-row lg:flex-col items-start lg:items-start gap-5 lg:gap-0 lg:space-y-6 w-full">
                 <LocalizedClientLink href="/" className="flex-shrink-0">
-                  <Image
-                    src="/main-logo-h.png"
-                    alt="logo"
-                    height={150}
-                    width={200}
-                    className="brightness-0 invert object-contain transition-transform duration-500 hover:scale-105 w-[140px] sm:w-[160px] lg:w-[200px]"
-                  />
+                  <div className="font-newsreader text-4xl font-medium tracking-tighter uppercase italic text-white">
+                    Cityreach
+                  </div>
                 </LocalizedClientLink>
 
                 {/* Description + icons stacked vertically, won't overflow */}

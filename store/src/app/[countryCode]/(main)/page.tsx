@@ -14,7 +14,7 @@ const FeaturesSection = dynamic(() => import("@modules/home/components/features-
 
 export const metadata: Metadata = {
   title: "City Reach",
-  description: "Your health and wealth store",
+  description: "Your premium clothing store by Cityreach",
 }
 
 export const revalidate = 3600
@@ -43,6 +43,7 @@ export default async function Home(props: {
      <>
       <Preloader />
       <Hero />
+
       <ParallaxContentWrapper>
         <InauguralDrop products={products.slice(0, 4)} />
         <LuxurySection />

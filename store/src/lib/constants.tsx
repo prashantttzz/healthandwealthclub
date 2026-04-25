@@ -77,7 +77,7 @@ export const noDivisionCurrencies = [
 export const CONTACT_LINKS = {
   tiktok: "https://cityreach.in",
   whatsapp: "https://wa.me/cityreach",
-  instagram: "https://www.instagram.com/cityreach.in",
+  instagram: "https://www.instagram.com/thekushalchhabra",
   email: "mailto:hello@cityreach.in",
   emailAddress: "hello@cityreach.in",
 } as const

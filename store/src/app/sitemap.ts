@@ -3,7 +3,7 @@ import { listProducts } from "@lib/data/products"
 import { listCollections } from "@lib/data/collections"
 import { listCategories } from "@lib/data/categories"
 
-const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://health-wealthclub.com"
+const BASE_URL = process.env.NEXT_PUBLIC_BASE_URL || "https://cityreach.in"
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const countryCode = process.env.NEXT_PUBLIC_DEFAULT_REGION || "in"
