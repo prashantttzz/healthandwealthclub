@@ -24,6 +24,7 @@ type ProductTemplateProps = {
   region: HttpTypes.StoreRegion
   countryCode: string
   relatedProducts: React.ReactNode
+  searchParams: { v_id?: string }
 }
 
 const optionsAsKeymap = (variantOptions: any) => {
@@ -42,12 +43,18 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   product,
   countryCode,
   relatedProducts,
+  searchParams: initialSearchParams,
 }) => {
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
   const actionsRef = useRef<HTMLDivElement>(null)
-  const [options, setOptions] = useState<Record<string, string | undefined>>({})
+  
+  const [options, setOptions] = useState<Record<string, string | undefined>>(() => {
+    const v_id = initialSearchParams.v_id
+    const variant = product.variants?.find(v => v.id === v_id) || product.variants?.[0]
+    return optionsAsKeymap(variant?.options)
+  })
   const { addItem, optimisticItems } = useCart()
   const { openCartSidebar } = useUI()
   const [isAdding, setIsAdding] = useState(false)
@@ -58,9 +65,12 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   useEffect(() => {
     if (product.variants && product.variants.length > 0) {
       const variantIdMatch = searchParams.get("v_id")
+      if (!variantIdMatch) return
+
       const variantFromUrl = product.variants.find(v => v.id === variantIdMatch)
-      const initialVariant = variantFromUrl || product.variants[0]
-      const variantOptions = optionsAsKeymap(initialVariant.options)
+      if (!variantFromUrl) return
+
+      const variantOptions = optionsAsKeymap(variantFromUrl.options)
       
       setOptions(prev => {
         if (isEqual(prev, variantOptions)) return prev
@@ -68,6 +78,20 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
       })
     }
   }, [product.variants, searchParams])
+
+  // Sync state from URL when back/forward button is pressed
+  useEffect(() => {
+    const handlePopState = () => {
+      const urlParams = new URLSearchParams(window.location.search)
+      const v_id = urlParams.get("v_id")
+      const variant = product.variants?.find(v => v.id === v_id) || product.variants?.[0]
+      if (variant) {
+        setOptions(optionsAsKeymap(variant.options))
+      }
+    }
+    window.addEventListener('popstate', handlePopState)
+    return () => window.removeEventListener('popstate', handlePopState)
+  }, [product.variants])
 
   const selectedVariant = useMemo(() => {
     if (!product.variants || !options) return
@@ -170,24 +194,33 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const updateOption = (optionId: string, value: string) => {
     const normalizedValue = value.toLowerCase()
     if (options[optionId] === normalizedValue) return
-    setOptions((prev) => ({ ...prev, [optionId]: normalizedValue }))
-  }
+    
+    // 1. Optimistic UI update
+    const newOptions = { ...options, [optionId]: normalizedValue }
+    setOptions(newOptions)
+    
+    // 2. Find variant and update URL
+    const variant = product.variants?.find((v) => {
+      const vOptions = optionsAsKeymap(v.options)
+      return isEqual(vOptions, newOptions)
+    })
 
-  useEffect(() => {
-    if (isValidVariant && selectedVariant?.id) {
-      const currentId = searchParams.get("v_id")
-      if (currentId === selectedVariant.id) return
-
-      // Debounce URL updates to prevent race conditions during rapid switching
-      const timer = setTimeout(() => {
-        const params = new URLSearchParams(searchParams.toString())
-        params.set("v_id", selectedVariant.id!)
-        router.replace(pathname + "?" + params.toString(), { scroll: false })
-      }, 200)
-
-      return () => clearTimeout(timer)
+    const params = new URLSearchParams(searchParams.toString())
+    if (variant?.id) {
+      if (params.get("v_id") === variant.id) return
+      params.set("v_id", variant.id)
+    } else {
+      if (!params.has("v_id")) return
+      params.delete("v_id")
     }
-  }, [selectedVariant?.id, isValidVariant, pathname, router, searchParams])
+
+    const search = params.toString()
+    const url = search ? `${pathname}?${search}` : pathname
+
+    // Update URL instantly without triggering a server re-render (RSC)
+    // This makes variant switching feel like a local app action
+    window.history.replaceState(null, '', url)
+  }
 
   const handleAddToCart = async () => {
     if (!selectedVariant?.id) return
@@ -205,10 +238,12 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
     try {
       const optimisticData = {
         product_title: product.title || "",
-        thumbnail: product.thumbnail || "",
+        thumbnail: selectedVariant.images?.[0]?.url || product.thumbnail || "",
         unit_price: selectedPrice?.calculated_price_number || 0,
+        product_handle: product.handle,
         variant: {
           title: selectedVariant.title || "",
+          images: selectedVariant.images || [],
           product: {
             images: product.images || []
           }

@@ -53,7 +53,6 @@ const ProductTabs = ({ product }: ProductTabsProps) => {
   product.title?.toLowerCase().includes("pants") ||
   product.title?.toLowerCase().includes("trouser") ||
   product.title?.toLowerCase().includes("short")
-  console.log("pants",product)
   const tabs = [
     {
       label: "Specifications",

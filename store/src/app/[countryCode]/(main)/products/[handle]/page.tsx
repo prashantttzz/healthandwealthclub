@@ -93,6 +93,7 @@ export default async function ProductPage(props: Props) {
         product={fetchedProduct}
         region={region}
         countryCode={params.countryCode}
+        searchParams={searchParams}
         relatedProducts={
           <Suspense fallback={<SkeletonRelatedProducts />}>
             <RelatedProducts product={fetchedProduct} countryCode={params.countryCode} />
