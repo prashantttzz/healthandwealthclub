@@ -32,17 +32,10 @@ const FilterModal = ({
 
   const sizes = ["DX", "S", "M", "L", "XL"]
   const palette = [
-    { name: "Olive", hex: "#3E4437" },
     { name: "Olive Green", hex: "#3E4437" },
-    { name: "Dark Olive", hex: "#2C3A2C" },
-    { name: "Bone", hex: "#F2EDE5" },
-    { name: "Cream", hex: "#E8E4D9" },
-    { name: "Soft Cream", hex: "#F8F6F1" },
     { name: "Cream White", hex: "#F8F6F1" },
     { name: "Black", hex: "#1a1a1a" },
     { name: "White", hex: "#FFFFFF" },
-    { name: "Tan", hex: "#C4A484" },
-    { name: "Navy", hex: "#1a1f2c" },
     { name: "Royal Navy", hex: "#1a1f2c" },
     { name: "Sunshine Yellow", hex: "#F9D71C" },
   ]
@@ -111,9 +104,9 @@ const FilterModal = ({
       </div>
 
       {/* Main Content (Two Columns) */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden min-h-0">
         {/* Left column (Tabs) */}
-        <div className="w-[120px] bg-black/5 flex flex-col shrink-0 h-full overflow-y-auto">
+        <div className="w-[120px] bg-black/5 flex flex-col shrink-0 overflow-y-auto">
           {tabs.map((tab) => (
             <button
               key={tab}
@@ -131,7 +124,7 @@ const FilterModal = ({
         </div>
 
         {/* Right column (Options) */}
-        <div className="flex-1 bg-bg p-8 overflow-y-auto h-full">
+        <div className="flex-1 bg-bg p-8 overflow-y-auto">
           {activeTab === "Category" && (
             <ul className="space-y-6">
               <li 

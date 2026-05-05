@@ -134,8 +134,8 @@ const CartSidebar = () => {
                         rel="noreferrer"
                       >
                         <Thumbnail
-                          thumbnail={item.thumbnail}
-                          images={item.variant?.product?.images}
+                          thumbnail={item.variant?.images?.[0]?.url || item.thumbnail}
+                          images={item.variant?.images?.length ? item.variant.images : item.variant?.product?.images}
                           size="full"
                           className="object-contain group-hover:scale-105 transition-transform duration-700"
                         />

@@ -42,7 +42,7 @@ export default function ProductPreview({
         <div className="flex flex-col gap-1.5 px-1">
           <div className="flex items-start justify-between gap-4">
             <div className="space-y-2 flex-1">
-              <h3 className="font-manrope text-[14px] font-regular text-accent tracking-tight leading-tight">
+              <h3 className="font-manrope text-[12px] md:text-[14px] font-regular text-accent tracking-tight leading-tight">
                 {product.title}
               </h3>
                  <div className="font-manrope text-[13px] font-bold text-accent">
@@ -54,9 +54,9 @@ export default function ProductPreview({
               </div>
              
             </div>
-            </div>
           </div>
         </div>
+      </div>
     </LocalizedClientLink>
   )
 }

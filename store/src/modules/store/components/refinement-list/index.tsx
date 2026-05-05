@@ -165,17 +165,10 @@ const RefinementList = ({
       <FilterAccordion title="Palette">
         <div className="flex flex-wrap gap-4">
           {[
-            { name: "Olive", hex: "#3E4437" },
             { name: "Olive Green", hex: "#3E4437" },
-            { name: "Dark Olive", hex: "#2C3A2C" },
-            { name: "Bone", hex: "#F2EDE5" },
-            { name: "Cream", hex: "#E8E4D9" },
-            { name: "Soft Cream", hex: "#F8F6F1" },
             { name: "Cream White", hex: "#F8F6F1" },
             { name: "Black", hex: "#1a1a1a" },
             { name: "White", hex: "#FFFFFF" },
-            { name: "Tan", hex: "#C4A484" },
-            { name: "Navy", hex: "#1a1f2c" },
             { name: "Royal Navy", hex: "#1a1f2c" },
             { name: "Sunshine Yellow", hex: "#F9D71C" },
           ].map((color) => (

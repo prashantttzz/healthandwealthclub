@@ -161,7 +161,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         }} />
       </head>
 
-      <body className="font-manrope smooth-scroll">
+      <body className="font-manrope smooth-scroll overflow-x-hidden">
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{
@@ -182,7 +182,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           <UIProvider>
             <SmoothScroll>
               <Preloader />
-              <main className="relative">{props.children}</main>
+              <main className="relative overflow-x-hidden w-full">{props.children}</main>
             </SmoothScroll>
           </UIProvider>
         </CartProvider>

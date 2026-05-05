@@ -61,8 +61,8 @@ const Item = ({ item, type = "full" }: ItemProps) => {
           <div className="w-24 shrink-0">
             <LocalizedClientLink href={`/products/${item.product_handle}`}>
               <Thumbnail
-                thumbnail={item.thumbnail}
-                images={item.variant?.product?.images}
+                thumbnail={item.variant?.images?.[0]?.url || item.thumbnail}
+                images={item.variant?.images?.length ? item.variant.images : item.variant?.product?.images}
                 size="square"
               />
             </LocalizedClientLink>
@@ -107,8 +107,8 @@ const Item = ({ item, type = "full" }: ItemProps) => {
             className="flex small:w-24 w-16"
           >
             <Thumbnail
-              thumbnail={item.thumbnail}
-              images={item.variant?.product?.images}
+              thumbnail={item.variant?.images?.[0]?.url || item.thumbnail}
+              images={item.variant?.images?.length ? item.variant.images : item.variant?.product?.images}
               size="square"
             />
           </LocalizedClientLink>

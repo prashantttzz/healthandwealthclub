@@ -32,14 +32,18 @@ export default function Preloader() {
 
     const start = Date.now()
 
-    if (document.readyState === "complete") {
+    const handleHide = () => {
       const elapsed = Date.now() - start
       setTimeout(hide, Math.max(0, MIN_DISPLAY - elapsed))
+    }
+
+    // Listen for custom video load event
+    window.addEventListener("hidePreloader", handleHide, { once: true })
+
+    if (document.readyState === "complete") {
+      handleHide()
     } else {
-      window.addEventListener("load", () => {
-        const elapsed = Date.now() - start
-        setTimeout(hide, Math.max(0, MIN_DISPLAY - elapsed))
-      }, { once: true })
+      window.addEventListener("load", handleHide, { once: true })
     }
   }, [])
 

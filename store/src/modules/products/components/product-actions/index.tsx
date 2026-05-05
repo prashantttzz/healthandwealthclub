@@ -158,6 +158,7 @@ export default function ProductActions({
         product_handle: product.handle,
         variant: {
           title: selectedVariant.title,
+          images: selectedVariant.images,
           product: {
             images: product.images
           }

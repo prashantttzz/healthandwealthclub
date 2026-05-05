@@ -173,6 +173,7 @@ export const CartProvider: React.FC<{
         product_title: optimisticData.title || optimisticData.product_title,
         variant: {
           title: optimisticData.variant?.title,
+          images: optimisticData.variant?.images,
           product: {
             images: optimisticData.variant?.product?.images,
             handle: optimisticData.product_handle

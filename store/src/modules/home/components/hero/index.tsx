@@ -154,6 +154,9 @@ const Hero = () => {
                 disablePictureInPicture
                 disableRemotePlayback
                 preload="metadata"
+                onLoadedData={() => {
+                  window.dispatchEvent(new CustomEvent("hidePreloader"))
+                }}
                 className="w-full h-full object-cover opacity-80"
               >
                   <source src="/hero.webm" type="video/webm" />
