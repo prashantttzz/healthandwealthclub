@@ -51,6 +51,19 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
     },
   ]
 
+  // Use dynamic collections if provided, fallback to hardcoded CATEGORIES
+  const data = collections && collections.length > 0 
+    ? collections.slice(0, 4).map((c, i) => ({
+        title: c.title.toUpperCase().replace(" ", "\n"),
+        sub: "Collection",
+        description: (c.metadata?.description as string) || "A curated selection of our finest pieces designed for quality and longevity.",
+        id: c.id,
+        buttonText: "Explore Collection",
+        link: `/collections/${c.handle}`,
+        image:  CATEGORIES[i % CATEGORIES.length].image 
+      }))
+    : CATEGORIES;
+
   const [activeCard, setActiveCard] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -66,12 +79,17 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
   });
 
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
-    const cardLength = CATEGORIES.length;
-    const closestBreakpointIndex = Math.min(
-      Math.floor(latest * cardLength),
-      cardLength - 1
+    const cardLength = data.length;
+    const closestBreakpointIndex = Math.max(
+      0,
+      Math.min(
+        Math.floor(latest * cardLength),
+        cardLength - 1
+      )
     );
-    setActiveCard(closestBreakpointIndex);
+    if (closestBreakpointIndex !== activeCard) {
+      setActiveCard(closestBreakpointIndex);
+    }
   });
 
   return (
@@ -85,11 +103,13 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
         >
           <div className="space-y-4">
             <h2 className="font-newsreader italic text-5xl lg:text-7xl text-bg leading-[0.85]">
-              About us
+              {collections && collections.length > 0 ? "Categories" : "About us"}
             </h2>
           </div>
           <p className="font-manrope tracking-widest font-medium text-bg/90 uppercase text-[10px] md:text-[12px] max-w-xl text-center">
-            The foundation of our craft, from the engineer&apos;s desk to the streets of Abu Dhabi.
+            {collections && collections.length > 0 
+              ? "A curated selection of seasonal staples designed with an emphasis on silhouette and longevity."
+              : "The foundation of our craft, from the engineer's desk to the streets of Abu Dhabi."}
           </p>
         </motion.div>
       </div>
@@ -104,7 +124,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
 
         <div className="flex flex-col md:flex-row gap-10 lg:gap-24">
           <div className="w-full md:w-1/2">
-            {CATEGORIES.map((item, index) => (
+            {data.map((item, index) => (
               <div 
                 key={item.title + index} 
                 className="min-h-[60vh] border-b border-white/20 md:border-none md:min-h-screen flex flex-col justify-center py-10"
@@ -154,8 +174,8 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
           </div>
 
           <div className="hidden md:block md:w-1/2">
-            <div className="sticky top-[15vh] h-[70vh] w-full overflow-hidden rounded-sm bg-bg shadow-sm">
-              <AnimatePresence mode="wait" initial={false}>
+            <div className="sticky self-start top-[15vh] h-[70vh] w-full overflow-hidden rounded-sm bg-bg shadow-sm">
+              <AnimatePresence initial={false}>
                 <motion.div
                   key={activeCard}
                   initial={{ opacity: 0, scale: 1.05, clipPath: "inset(10% 0% 10% 0%)" }}
@@ -165,8 +185,8 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
                   className="relative w-full h-full"
                 >
                   <Image
-                    src={CATEGORIES[activeCard].image}
-                    alt={CATEGORIES[activeCard].title}
+                    src={data[activeCard]?.image || "/placeholder.png"}
+                    alt={data[activeCard]?.title || "Category"}
                     fill
                     sizes="50vw"
                     priority={activeCard === 0} 
@@ -177,7 +197,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
               </AnimatePresence>
               
               <div className="absolute bottom-8 right-8 mix-blend-difference text-white font-manrope text-[10px] tracking-[.5em]">
-                0{activeCard + 1} / 0{CATEGORIES.length}
+                0{activeCard + 1} / 0{data.length}
               </div>
             </div>
           </div>

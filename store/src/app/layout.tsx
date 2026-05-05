@@ -182,7 +182,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
           <UIProvider>
             <SmoothScroll>
               <Preloader />
-              <main className="relative overflow-x-hidden w-full">{props.children}</main>
+              <main className="relative w-full">{props.children}</main>
             </SmoothScroll>
           </UIProvider>
         </CartProvider>
