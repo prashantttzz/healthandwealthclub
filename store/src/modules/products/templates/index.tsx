@@ -26,13 +26,16 @@ type ProductTemplateProps = {
   relatedProducts: React.ReactNode
 }
 
-const optionsAsKeymap = (variantOptions: HttpTypes.StoreProductVariant["options"]) => {
-  return (
-    variantOptions?.reduce((acc: Record<string, string>, varopt: any) => {
-      acc[varopt.option_id] = varopt.value
-      return acc
-    }, {} as Record<string, string>) || {}
-  )
+const optionsAsKeymap = (variantOptions: any) => {
+  if (!variantOptions) return {}
+  return variantOptions.reduce((acc: Record<string, string>, varopt: any) => {
+    // Standardize the key and value for reliable comparison
+    const key = varopt.option_id || varopt.option?.id
+    if (key) {
+      acc[key] = String(varopt.value).trim().toLowerCase()
+    }
+    return acc
+  }, {} as Record<string, string>)
 }
 
 const ProductTemplate: React.FC<ProductTemplateProps> = ({
@@ -49,6 +52,9 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const { openCartSidebar } = useUI()
   const [isAdding, setIsAdding] = useState(false)
   const [isSuccess, setIsSuccess] = useState(false)
+  const [selectedImageIndex, setSelectedImageIndex] = useState(0)
+
+
   useEffect(() => {
     if (product.variants && product.variants.length > 0) {
       const variantIdMatch = searchParams.get("v_id")
@@ -64,9 +70,34 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [product.variants, searchParams])
 
   const selectedVariant = useMemo(() => {
-    if (!product.variants) return
-    return product.variants.find((v) => isEqual(optionsAsKeymap(v.options), options))
+    if (!product.variants || !options) return
+    
+    // Standardize current selected options for comparison
+    const standardizedOptions = Object.entries(options).reduce((acc, [key, value]) => {
+      if (value) acc[key] = String(value).trim().toLowerCase()
+      return acc
+    }, {} as Record<string, string>)
+
+    const variant = product.variants.find((v) => {
+      const vOptions = optionsAsKeymap(v.options)
+      return isEqual(vOptions, standardizedOptions)
+    })
+    
+    return variant
   }, [product.variants, options])
+
+  // Determine display images (variant-specific vs product fallback)
+  const displayImages = useMemo(() => {
+    if (selectedVariant?.images && selectedVariant.images.length > 0) {
+      return selectedVariant.images
+    }
+    return product.images || []
+  }, [selectedVariant, product.images])
+
+  // Reset selected image when variant changes (and display images change)
+  useEffect(() => {
+    setSelectedImageIndex(0)
+  }, [displayImages])
 
   const isAtMaximumQuantity = useMemo(() => {
     if (!selectedVariant || selectedVariant.manage_inventory === false) return false
@@ -106,21 +137,23 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const isOptionAvailable = (optionId: string, value: string) => {
     if (!product.variants) return false
     
+    const targetValue = String(value).trim().toLowerCase()
+
     // Try to find ANY variant that has this value and is in stock
     const isAvailable = product.variants.some(v => {
-      // Must match the current other selected options
       const variantOptions = optionsAsKeymap(v.options)
       
       // Filter out variants that don't match OTHER currently selected options
       const matchesOtherOptions = Object.entries(options).every(([key, val]) => {
         if (key === optionId) return true // Ignore the option we are testing
-        return variantOptions[key] === val
+        const standardizedVal = val ? String(val).trim().toLowerCase() : ""
+        return variantOptions[key] === standardizedVal
       })
 
       if (!matchesOtherOptions) return false
 
       // Check if this variant has this specific value
-      if (variantOptions[optionId] !== value) return false
+      if (variantOptions[optionId] !== targetValue) return false
 
       // Check stock
       const manageInventory = v.manage_inventory ?? false
@@ -135,17 +168,24 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   const isValidVariant = !!selectedVariant
 
   const updateOption = (optionId: string, value: string) => {
-    setOptions((prev) => ({ ...prev, [optionId]: value }))
+    const normalizedValue = value.toLowerCase()
+    if (options[optionId] === normalizedValue) return
+    setOptions((prev) => ({ ...prev, [optionId]: normalizedValue }))
   }
 
   useEffect(() => {
     if (isValidVariant && selectedVariant?.id) {
-      const currentElement = searchParams.get("v_id")
-      if (currentElement === selectedVariant.id) return
+      const currentId = searchParams.get("v_id")
+      if (currentId === selectedVariant.id) return
 
-      const params = new URLSearchParams(searchParams.toString())
-      params.set("v_id", selectedVariant.id)
-      router.replace(pathname + "?" + params.toString(), { scroll: false })
+      // Debounce URL updates to prevent race conditions during rapid switching
+      const timer = setTimeout(() => {
+        const params = new URLSearchParams(searchParams.toString())
+        params.set("v_id", selectedVariant.id!)
+        router.replace(pathname + "?" + params.toString(), { scroll: false })
+      }, 200)
+
+      return () => clearTimeout(timer)
     }
   }, [selectedVariant?.id, isValidVariant, pathname, router, searchParams])
 
@@ -212,52 +252,75 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
       <div className="bg-bg w-full min-h-screen">
         <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16 py-24 lg:py-32 flex flex-col lg:flex-row items-start relative gap-x-12 lg:gap-x-24">
           {/* PRODUCT IMAGE GALLERY */}
-          <div className="w-full lg:w-[60%]">
+          <div className="w-full lg:w-[55%]">
             {/* Mobile Carousel */}
             <div className="lg:hidden mb-8">
               <ImageCarousel 
-                images={product.images || []} 
+                images={displayImages} 
                 title={product.title || ""} 
               />
             </div>
 
-            {/* Desktop Editorial Grid */}
-            <div className="hidden lg:flex flex-col gap-4">
-              <div 
-                className="relative aspect-[4/5] w-full overflow-hidden bg-secondary/50 group border border-black/5"
-              >
+            {/* Desktop Editorial Gallery */}
+            <div className="hidden lg:flex flex-row gap-6 w-full items-start">
+              {/* Vertical Thumbnails */}
+              <div className="flex flex-col gap-4 w-[80px] max-h-full overflow-y-auto no-scrollbar py-2">
+                <div className="flex flex-col gap-4">
+                  {displayImages.map((image, i) => (
+                    <button
+                      key={image.id}
+                      onClick={() => setSelectedImageIndex(i)}
+                      className={clx(
+                        "relative aspect-square w-full overflow-hidden border transition-all duration-300",
+                        {
+                          "border-accent ring-1 ring-accent": selectedImageIndex === i,
+                          "border-black/5 opacity-60 hover:opacity-100": selectedImageIndex !== i
+                        }
+                      )}
+                    >
+                      <Image
+                        src={image.url || "/placeholder.png"}
+                        alt={`Thumbnail ${i + 1}`}
+                        fill
+                        className="object-cover"
+                      />
+                    </button>
+                  ))}
+                </div>
+              </div>
+
+              {/* Main Feature Image */}
+              <div className="flex-1 relative aspect-[3/4] overflow-hidden bg-secondary/50 group border border-black/5">
                 <Image
-                  src={selectedVariant?.metadata?.image_url as string || product.images?.[0]?.url || "/placeholder.png"}
+                  src={displayImages[selectedImageIndex]?.url || "/placeholder.png"}
                   alt={product.title || "Product main image"}
                   fill
                   priority
                   className="object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                {(product.images || []).slice(1, 4).map((image, i) => (
-                  <div key={image.id} className="relative aspect-square w-full overflow-hidden bg-secondary/50 border border-black/5">
-                    <Image
-                      src={image.url || "/placeholder.png"}
-                      alt={`Product detail ${i + 1}`}
-                      fill
-                      className="object-cover"
-                    />
-                  </div>
-                ))}
+                
+                {/* Image Indicator Overlay */}
+                <div className="absolute bottom-6 right-6 px-3 py-1 bg-black/10 backdrop-blur-md rounded-full text-[10px] font-bold text-accent z-10 tracking-widest">
+                  {selectedImageIndex + 1} / {displayImages.length}
+                </div>
               </div>
             </div>
-          </div>
-          <div className="w-full lg:w-[40%]  flex flex-col  space-y-5 md:space-y-5">
 
+            {/* Product Reviews (50% width below gallery) */}
+            <div className="hidden lg:block   pt-12 border-t border-accent/5">
+               <ProductReviews productId={product.id} />
+            </div>
+          </div>
+          <div className="w-full lg:w-[45%] flex flex-col space-y-5 md:space-y-5 relative">
+            
             <div className="space-y-4">
-              <span className="font-manrope text-xs md:text-[12x] tracking-[0.2em] uppercase font-regular text-accent/80 block">
-                {product.collection?.title || "Limited Edition Collection"}
+              <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-regular text-accent/80 block">
+                {product.subtitle || "Limited Edition Collection"}
               </span>
-              <h1 className="font-newsreader text-4xl lg:text-6xl leading-none text-accent  italic font-medium">
+              <h1 className="font-newsreader text-3xl lg:text-4xl leading-tight text-accent italic font-medium">
                 {product.title}
               </h1>
-              <p className="font-newsreader text-[13px] md:text-[15px] italic text-accent/60 font-regular">
+              <p className="font-newsreader text-[13px] md:text-[14px] italic text-accent/60 font-regular">
                 {showOptions ? (selectedVariant?.title || "Experience Selection") : ""}
               </p>
             </div>
@@ -303,7 +366,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
 
                       <div className="flex flex-wrap gap-3">
                         {optionValues.map((v) => {
-                          const isSelected = v.value === current
+                          const isSelected = v.value.toLowerCase() === current?.toLowerCase()
                           const isAvailable = isOptionAvailable(option.id, v.value)
 
                           if (isColor) {
@@ -386,15 +449,27 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     )}
                   >
                     <span className="relative z-10">
-                      {isSuccess ? "Added to Cart!" : (isAtMaximumQuantity ? "Limit Reached" : (isValidVariant ? "Add to cart →" : "Select Selection"))}
+                      {isSuccess ? "Added to Cart!" : (isAtMaximumQuantity ? "Out of Stock" : (isValidVariant ? "Add to cart →" : "Select Selection"))}
                     </span>
                     <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                   </button>
 
                   {lowStockMessage && (
-                    <p className="font-manrope text-[11px] uppercase tracking-[0.18em] text-accent/60">
-                      {lowStockMessage}
-                    </p>
+                    <div className={clx(
+                      "flex items-center gap-2 py-3 px-4 border rounded-sm transition-all duration-500",
+                      {
+                        "bg-red-50 border-red-100 text-red-600": remainingStock === 1,
+                        "bg-accent/[0.02] border-accent/5 text-accent/60": remainingStock !== 1
+                      }
+                    )}>
+                      <div className={clx("w-1.5 h-1.5 rounded-full animate-pulse", {
+                        "bg-red-500": remainingStock === 1,
+                        "bg-accent/40": remainingStock !== 1
+                      })} />
+                      <p className="font-manrope text-[11px] uppercase tracking-[0.2em] font-bold">
+                        {lowStockMessage}
+                      </p>
+                    </div>
                   )}
                 </div>
               )}
@@ -411,7 +486,9 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
           </div>
 
         </div>
-        <ProductReviews productId={product.id} />
+        <div className="lg:hidden px-6 py-16 border-t border-accent/5">
+          <ProductReviews productId={product.id} />
+        </div>
         <CraftsmanshipSection />
         {relatedProducts}
       </div>
@@ -458,13 +535,13 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                 
                 <button
                   onClick={handleAddToCart}
-                  disabled={!isValidVariant || isAdding || !inStock || isAtMaximumQuantity}
+                    disabled={!isValidVariant || isAdding || !inStock || isAtMaximumQuantity}
                   className={clx(
                     "flex-1 h-14 px-6 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.2em] uppercase transition-all active:scale-95 flex items-center justify-center",
                     { "opacity-50": !isValidVariant || isAdding || !inStock || isAtMaximumQuantity }
                   )}
                 >
-                  {isSuccess ? "Added!" : (isAdding ? "..." : (!inStock ? "Out of Stock" : (isAtMaximumQuantity ? "Limit Reached" : "Add to Cart →")))}
+                  {isSuccess ? "Added!" : (isAdding ? "..." : (!inStock ? "Out of Stock" : (isAtMaximumQuantity ? "Out of Stock" : "Add to Cart →")))}
                 </button>
               </div>
             </div>

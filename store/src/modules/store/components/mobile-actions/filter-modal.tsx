@@ -32,9 +32,19 @@ const FilterModal = ({
 
   const sizes = ["DX", "S", "M", "L", "XL"]
   const palette = [
-    { name: "Olive", class: "bg-[#424B35]" },
-    { name: "Bone", class: "bg-[#F2EDE5]" },
-    { name: "Black", class: "bg-black" },
+    { name: "Olive", hex: "#3E4437" },
+    { name: "Olive Green", hex: "#3E4437" },
+    { name: "Dark Olive", hex: "#2C3A2C" },
+    { name: "Bone", hex: "#F2EDE5" },
+    { name: "Cream", hex: "#E8E4D9" },
+    { name: "Soft Cream", hex: "#F8F6F1" },
+    { name: "Cream White", hex: "#F8F6F1" },
+    { name: "Black", hex: "#1a1a1a" },
+    { name: "White", hex: "#FFFFFF" },
+    { name: "Tan", hex: "#C4A484" },
+    { name: "Navy", hex: "#1a1f2c" },
+    { name: "Royal Navy", hex: "#1a1f2c" },
+    { name: "Sunshine Yellow", hex: "#F9D71C" },
   ]
 
   const selectedSizes = activeSize?.split(",") || []
@@ -179,9 +189,12 @@ const FilterModal = ({
                   onClick={() => handleToggle("color", color.name)}
                   className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium cursor-pointer"
                 >
-                  <div className={`w-8 h-8 rounded-full border transition-all ${color.class} ${
-                    selectedColors.includes(color.name) ? "border-accent ring-2 ring-accent ring-offset-2" : "border-black/10"
-                  }`} />
+                  <div 
+                    className={`w-8 h-8 rounded-full border transition-all ${
+                      selectedColors.includes(color.name) ? "border-accent ring-2 ring-accent ring-offset-2" : "border-black/10"
+                    }`} 
+                    style={{ backgroundColor: color.hex }}
+                  />
                   <span>{color.name}</span>
                 </li>
               ))}

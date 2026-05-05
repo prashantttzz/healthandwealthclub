@@ -12,6 +12,10 @@ export const getColorHex = (color: string): string => {
     navy: "#1a1f2c",
     "dark olive": "#2C3A2C",
     "soft cream": "#F8F6F1",
+    "olive green": "#3E4437",
+    "royal navy": "#1a1f2c",
+    "cream white": "#F8F6F1",
+    "sunshine yellow": "#F9D71C",
     bone: "#F2EDE5",
   }
 

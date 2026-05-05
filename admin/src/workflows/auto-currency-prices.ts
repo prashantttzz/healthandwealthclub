@@ -11,7 +11,7 @@ import { Modules } from "@medusajs/framework/utils"
 // ---------------------------------------------------------------------------
 
 type WorkflowInput = {
-  product_id: string
+  variant_id: string
 }
 
 type ExchangeRates = {
@@ -30,8 +30,6 @@ type VariantPrice = {
 
 // ---------------------------------------------------------------------------
 // Step 1 – Fetch live exchange rates
-// Fetches all Gulf currencies + USD in one API call.
-// Falls back to hardcoded rates if API is down.
 // ---------------------------------------------------------------------------
 
 const fetchExchangeRatesStep = createStep(
@@ -39,7 +37,6 @@ const fetchExchangeRatesStep = createStep(
   async (_, { container }) => {
     const logger = container.resolve("logger")
 
-    // Fallback rates — GCC currencies are pegged so these rarely change much
     const FALLBACK: ExchangeRates = {
       AED_TO_SAR: 1.020,
       AED_TO_KWD: 0.084,
@@ -56,7 +53,6 @@ const fetchExchangeRatesStep = createStep(
         return new StepResponse(FALLBACK)
       }
 
-      // Fetch all needed currencies in one request
       const symbols = "AED,SAR,KWD,QAR,BHD,OMR,USD"
       const res = await fetch(
         `https://openexchangerates.org/api/latest.json?app_id=${APP_ID}&base=USD&symbols=${symbols}`
@@ -67,7 +63,6 @@ const fetchExchangeRatesStep = createStep(
       const json = await res.json()
       const r = json.rates as Record<string, number>
 
-      // API base is USD, so convert everything relative to AED
       const rates: ExchangeRates = {
         AED_TO_SAR: r.SAR / r.AED,
         AED_TO_KWD: r.KWD / r.AED,
@@ -95,53 +90,42 @@ const fetchExchangeRatesStep = createStep(
   }
 )
 
-// ---------------------------------------------------------------------------
-// Step 2 – Load product variants and their AED prices (unchanged)
-// ---------------------------------------------------------------------------
-
 const loadVariantPricesStep = createStep(
   "load-variant-prices",
-  async ({ product_id }: { product_id: string }, { container }) => {
+  async ({ variant_id }: { variant_id: string }, { container }) => {
     const logger = container.resolve("logger")
     const query = container.resolve("query")
 
-    const { data: products } = await query.graph({
-      entity: "product",
+    const { data: variants } = await query.graph({
+      entity: "variant",
       fields: [
         "id",
-        "variants.id",
-        "variants.price_set.*",
-        "variants.price_set.prices.*",
+        "price_set.prices.*",
       ],
-      filters: { id: product_id },
+      filters: { id: variant_id },
     })
 
-    const product = products[0]
-    if (!product) {
-      logger.warn(`[auto-currency] product ${product_id} not found`)
+    const variant = variants[0] as any
+    if (!variant) {
+      logger.warn(`[auto-currency] variant ${variant_id} not found`)
       return new StepResponse([] as VariantPrice[])
     }
 
-    const variantPrices: VariantPrice[] = []
+    const prices = variant?.price_set?.prices ?? []
+    const aedPrice = prices.find(
+      (p: any) => p.currency_code === "aed" && !p.price_list_id
+    )
 
-    for (const variant of product.variants ?? []) {
-      const prices = variant?.price_set?.prices ?? []
-      const aedPrice = prices.find(
-        (p: any) => p.currency_code === "aed" && !p.price_list_id
-      )
-
-      if (!aedPrice) {
-        logger.warn(`[auto-currency] variant ${variant.id} has no AED price, skipping`)
-        continue
-      }
-
-      variantPrices.push({
-        variant_id: variant.id,
-        aed_amount: aedPrice.amount,
-      })
+    if (!aedPrice) {
+      logger.warn(`[auto-currency] variant ${variant.id} has no AED price, skipping`)
+      return new StepResponse([] as VariantPrice[])
     }
 
-    logger.info(`[auto-currency] found ${variantPrices.length} variant(s) with AED prices`)
+    const variantPrices: VariantPrice[] = [{
+      variant_id: variant.id,
+      aed_amount: aedPrice.amount,
+    }]
+
     return new StepResponse(variantPrices)
   }
 )
@@ -203,11 +187,31 @@ const upsertConvertedPricesStep = createStep(
         amount: aed_amount * rate,
       }))
 
+      // 1. Fetch ALL current non-AED prices for this price set
+      const { data: currentPrices } = await query.graph({
+        entity: "price",
+        fields: ["id", "currency_code"],
+        filters: { 
+          price_set_id: priceSetId,
+          price_list_id: null, // Only base prices
+        },
+      })
+
+      // Identify all prices that are NOT AED to clear them out
+      const pricesToRemove = (currentPrices as any[])
+        .filter(p => p.currency_code !== "aed")
+        .map(p => p.id)
+
       logger.info(
-        `[auto-currency] variant ${variant_id}: AED ${aed_amount} → ` +
-        convertedPrices.map(p => `${p.currency_code.toUpperCase()} ${p.amount}`).join(", ")
+        `[auto-currency] variant ${variant_id}: clearing ${pricesToRemove.length} existing prices and re-adding ${convertedPrices.length} new ones`
       )
 
+      // 2. Remove old prices
+      if (pricesToRemove.length > 0) {
+        await pricingModuleService.removePrices(pricesToRemove)
+      }
+
+      // 3. Add fresh calculated prices
       await pricingModuleService.addPrices([
         {
           priceSetId,
@@ -231,7 +235,7 @@ export const autoCurrencyPricesWorkflow = createWorkflow(
   "auto-currency-prices",
   (input: WorkflowInput) => {
     const rates = fetchExchangeRatesStep()
-    const variantPrices = loadVariantPricesStep({ product_id: input.product_id })
+    const variantPrices = loadVariantPricesStep({ variant_id: input.variant_id })
 
     const result = upsertConvertedPricesStep({
       rates,

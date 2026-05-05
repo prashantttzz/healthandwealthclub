@@ -165,14 +165,25 @@ const RefinementList = ({
       <FilterAccordion title="Palette">
         <div className="flex flex-wrap gap-4">
           {[
-            { name: "Olive", class: "bg-[#424B35]" },
-            { name: "Bone", class: "bg-[#F2EDE5]" },
-            { name: "Black", class: "bg-black" },
+            { name: "Olive", hex: "#3E4437" },
+            { name: "Olive Green", hex: "#3E4437" },
+            { name: "Dark Olive", hex: "#2C3A2C" },
+            { name: "Bone", hex: "#F2EDE5" },
+            { name: "Cream", hex: "#E8E4D9" },
+            { name: "Soft Cream", hex: "#F8F6F1" },
+            { name: "Cream White", hex: "#F8F6F1" },
+            { name: "Black", hex: "#1a1a1a" },
+            { name: "White", hex: "#FFFFFF" },
+            { name: "Tan", hex: "#C4A484" },
+            { name: "Navy", hex: "#1a1f2c" },
+            { name: "Royal Navy", hex: "#1a1f2c" },
+            { name: "Sunshine Yellow", hex: "#F9D71C" },
           ].map((color) => (
             <div 
               key={color.name} 
               onClick={() => handleToggle("color", color.name)}
-              className={`w-8 h-8 rounded-md border cursor-pointer hover:scale-110 transition-transform ${color.class} ${selectedColors.includes(color.name) ? "border-2 border-accent/80 scale-110 shadow-sm" : "border-black/10"}`} 
+              className={`w-8 h-8 rounded-md border cursor-pointer hover:scale-110 transition-transform ${selectedColors.includes(color.name) ? "border-2 border-accent/80 scale-110 shadow-sm" : "border-black/10"}`} 
+              style={{ backgroundColor: color.hex }}
               title={color.name}
             />
           ))}

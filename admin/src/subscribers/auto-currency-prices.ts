@@ -8,43 +8,42 @@ export default async function autoCurrencyPricesHandler({
   const logger = container.resolve("logger")
   const query = container.resolve("query")
 
-  let productId = event.data.id
+  let variantId: string | null = null
 
   if (event.name.startsWith("pricing.price")) {
-    // Event is price.updated, price.created, etc.
-    // The ID provided is a Price or PriceSet ID. We need the Product ID.
     const { data } = await query.graph({
       entity: event.name.includes("price-set") ? "price_set" : "price",
-      fields: ["id", "price_set.variant.product.id", "variant.product.id"],
+      fields: ["id", "currency_code", "variant.id", "price_set.variant.id"],
       filters: { id: event.data.id },
     })
     
-    // Resolve productId safely depending on entity (price or price_set)
     const record = data[0] as any
-    productId = record?.variant?.product?.id 
-             || record?.price_set?.variant?.product?.id 
-             || null
-
-    if (!productId) {
-      logger.warn(`[auto-currency] could not resolve product_id from price event ${event.data.id}`)
+    if (record?.currency_code && record.currency_code !== "aed") {
       return
     }
+
+    variantId = record?.variant?.id || record?.price_set?.variant?.id || null
+  } else if (event.name.startsWith("product")) {
+    // For product events, we'd need to sync ALL variants. 
+    // To keep it simple and avoid loops, we'll let the individual price events handle it
+    // since price.created is fired when a product is created with prices.
+    return
   }
 
-  logger.info(`[auto-currency] triggering price sync for product ${productId} (via ${event.name})`)
+  if (!variantId) {
+    return
+  }
+
+  logger.info(`[auto-currency] triggering price sync for variant ${variantId} (via ${event.name})`)
 
   await autoCurrencyPricesWorkflow(container).run({
-    input: { product_id: productId },
+    input: { variant_id: variantId },
   })
 }
 
 export const config: SubscriberConfig = {
   event: [
-    "product.created", 
-    "product.updated",
     "pricing.price.created",
-    "pricing.price.updated",
-    "pricing.price-set.created",
-    "pricing.price-set.updated"
+    "pricing.price.updated"
   ],
-}
+}

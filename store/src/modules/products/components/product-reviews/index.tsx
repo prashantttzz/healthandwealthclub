@@ -113,44 +113,48 @@ const ProductReviews = ({ productId }: { productId: string }) => {
     : "0.0"
 
   return (
-    <div className="bg-bg py-8 lg:py-16 border-t border-black/5">
-      <div className="max-w-[1440px] mx-auto px-6 md:px-12 lg:px-16">
-        <div className="flex flex-col lg:flex-row gap-20">
+    <div className="py-8 border-t border-black/5">
+      <div className="mx-auto">
+        <div className="flex flex-col gap-12">
           
-          {/* LEFT: SUMMARY */}
-          <div className="lg:w-1/3 space-y-6">
-            <div className="space-y-2">
-              <span className="font-manrope text-[9px] tracking-[0.3em] uppercase font-bold text-accent/30 block">
-                Social Proof
-              </span>
-              <h2 className="font-newsreader italic text-3xl lg:text-4xl leading-tight text-accent tracking-tight">
-                Customer Stories
-              </h2>
-            </div>
+          {/* TOP: SUMMARY */}
+          <div className="w-full space-y-6">
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-8 items-center text-center md:items-start md:text-left">
+              <div className="space-y-2 flex flex-col items-center md:items-start">
+                <span className="font-manrope text-[9px] tracking-[0.3em] uppercase font-bold text-accent/30 block">
+                  Social Proof
+                </span>
+                <h2 className="font-newsreader italic text-2xl lg:text-4xl leading-tight text-accent tracking-tight">
+                  Customer Stories
+                </h2>
+              </div>
 
-            <div className="flex items-center gap-4">
-              <div className="font-newsreader italic text-4xl text-accent">{averageRating}</div>
-              <div className="space-y-0.5">
-                <StarRating rating={Math.round(Number(averageRating))} size={12} />
-                <p className="font-manrope text-[9px] tracking-widest uppercase text-accent/40 font-bold">
-                  {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
-                </p>
+              <div className="flex items-center gap-4">
+                <div className="font-newsreader italic text-4xl text-accent">{averageRating}</div>
+                <div className="space-y-0.5">
+                  <StarRating rating={Math.round(Number(averageRating))} size={12} />
+                  <p className="font-manrope text-[9px] tracking-widest uppercase text-accent/40 font-bold">
+                    {reviews.length} Review{reviews.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
               </div>
             </div>
 
-            <button 
-              onClick={handleShareExperience}
-              disabled={isCheckingAuth}
-              className="group flex items-center justify-center bg-accent text-bg px-6 py-3 rounded-md transition-all hover:opacity-90 disabled:opacity-75 disabled:cursor-wait min-w-[180px]"
-            >
-              <span className="font-manrope text-[9px] font-bold tracking-widest uppercase">
-                {isCheckingAuth ? "Authenticating..." : showForm ? "Close Form" : "Share a Review"}
-              </span>
-            </button>
+            <div className="flex justify-center md:justify-start">
+              <button 
+                onClick={handleShareExperience}
+                disabled={isCheckingAuth}
+                className="group flex items-center justify-center bg-accent text-bg px-8 py-3.5 rounded-md transition-all hover:opacity-90 disabled:opacity-75 disabled:cursor-wait min-w-[200px]"
+              >
+                <span className="font-manrope text-[10px] font-bold tracking-widest uppercase">
+                  {isCheckingAuth ? "Authenticating..." : showForm ? "Close Form" : "Share a Review"}
+                </span>
+              </button>
+            </div>
           </div>
 
-          {/* RIGHT: REVIEWS & FORM */}
-          <div className="lg:w-2/3">
+          {/* BOTTOM: REVIEWS & FORM */}
+          <div className="w-full">
             <AnimatePresence mode="wait">
               {showForm ? (
                 <motion.div
@@ -158,7 +162,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   exit={{ opacity: 0, y: -20 }}
-                  className="bg-secondary/50 border border-black/5 p-8 lg:p-12 space-y-10"
+                  className="bg-secondary/50 border border-black/5 p-6 lg:p-8 space-y-10"
                 >
                   <form onSubmit={handleSubmit} className="space-y-8">
                     <div className="space-y-1">
@@ -190,7 +194,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                      <div className="grid grid-cols-1 gap-6">
                         <div className="space-y-2">
                           <label className="font-manrope text-[10px] tracking-widest uppercase font-bold text-accent/60">Your Name</label>
                           <input 
@@ -201,10 +205,6 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                             placeholder="e.g. Alexander R." 
                             className="w-full bg-transparent border-b border-black/10 py-3 text-sm focus:border-accent outline-none transition-all" 
                           />
-                        </div>
-                        <div className="space-y-2">
-                          <label className="font-manrope text-[10px] tracking-widest uppercase font-bold text-accent/60">Subject</label>
-                          <input type="text" placeholder="e.g. Exceptional Quality" className="w-full bg-transparent border-b border-black/10 py-3 text-sm focus:border-accent outline-none transition-all" />
                         </div>
                       </div>
 
@@ -236,7 +236,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
-                  className="space-y-12"
+                  className="space-y-8"
                 >
                   {isLoading ? (
                     <p className="font-manrope text-[11px] uppercase tracking-widest text-accent/30 italic">Loading reviews...</p>
@@ -245,7 +245,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                       <p className="font-manrope text-[13px] text-accent/40 italic">No reviews yet for this piece. Be the first to share your experience.</p>
                     </div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-1 gap-4">
+                    <div className="grid grid-cols-1 gap-6">
                       {reviews.slice(0, showAll ? undefined : 5).map((review) => (
                         <div key={review.id} className="bg-secondary/30 border border-black/5 rounded-xl p-4 lg:p-5 space-y-3 shadow-sm hover:shadow-md hover:bg-secondary/50 transition-all duration-300">
                           <div className="flex items-start justify-between">
