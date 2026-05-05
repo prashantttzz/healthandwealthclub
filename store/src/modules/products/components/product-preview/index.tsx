@@ -54,47 +54,9 @@ export default function ProductPreview({
               </div>
              
             </div>
-            <div className="flex flex-col items-end shrink-0">
-           
-                       {product.options?.find(o => o.title?.toLowerCase() === "color")?.values && (
-                  <div className="flex items-center gap-2">
-                    <div className="flex gap-2">
-                      {product.options
-                        .find(o => o.title?.toLowerCase() === "color")!
-                        .values!.map((v, i) => (
-                           <div 
-                             key={i} 
-                             className="w-4 h-4 rounded-sm border border-black/10" 
-                             style={{ 
-                               backgroundColor: getColorHex(v.value || "")
-                             }}
-                             title={v.value}
-                           />
-                        ))}
-                    </div>
-                  </div>
-                )}
-                 <div className="flex gap-2">
-                {/* Size Indicators */}
-                {product.options?.find(o => o.title?.toLowerCase() === "size")?.values && (
-                  <div className="flex gap-1.5 flex-wrap">
-                    {product.options
-                      .find(o => o.title?.toLowerCase() === "size")!
-                      .values!.map((v, i) => (
-                        <span key={i} className="text-[9px] font-bold text-accent/30 uppercase tracking-tighter">
-                          {v.value}
-                        </span>
-                      ))}
-                  </div>
-                )}
-                
-                {/* Color Indicators */}
-       
-              </div>
             </div>
           </div>
         </div>
-      </div>
     </LocalizedClientLink>
   )
 }
