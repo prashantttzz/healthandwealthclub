@@ -43,7 +43,11 @@ const OrderCard = ({ order }: OrderCardProps) => {
                 index > 0 ? "hidden sm:block" : "block sm:z-0 z-[1] ring-2 ring-bg sm:ring-0"
               }`}
             >
-              <Thumbnail thumbnail={item.thumbnail} size="square" />
+              <Thumbnail 
+                thumbnail={item.variant?.images?.[0]?.url || item.thumbnail} 
+                images={item.variant?.images?.length ? item.variant.images : item.variant?.product?.images}
+                size="square" 
+              />
             </div>
           ))}
           {extraCount > 0 && (

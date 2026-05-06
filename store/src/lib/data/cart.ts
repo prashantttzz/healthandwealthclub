@@ -25,7 +25,9 @@ const CART_BASE_FIELDS = [
   "*shipping_methods",
   "+shipping_methods.name",
   "*items.variant",
+  "*items.variant.images",
   "*items.variant.product",
+  "*items.variant.product.images",
   "+items.thumbnail",
   "+items.total",
 ].join(",")

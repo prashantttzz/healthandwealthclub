@@ -50,7 +50,11 @@ const OrderSummary = ({
         {items.map((item) => (
           <div key={item.id} className="flex items-center bg-secondaryAccent gap-5 pb-4 border p-2 border-secondaryAccent">
             <div className="w-16 h-20 overflow-hidden flex-shrink-0">
-              <Thumbnail thumbnail={item.thumbnail} size="square" />
+              <Thumbnail 
+                thumbnail={item.variant?.images?.[0]?.url || item.thumbnail} 
+                images={item.variant?.images?.length ? item.variant.images : item.variant?.product?.images}
+                size="square" 
+              />
             </div>
             <div className="min-w-0">
               <p className="font-manrope text-[14px] font-bold text-bg truncate">{item.product_title}</p>

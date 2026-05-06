@@ -222,7 +222,7 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
   return (
     <>
       <div className={`fixed inset-0 bg-black/30 z-[100] transition-opacity duration-500 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={onClose} />
-      <div className={`fixed top-0 right-0 h-full w-full max-w-[460px] bg-bg z-[110] shadow-2xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
+      <div className={`fixed top-0 right-0 h-full w-full max-w-[460px] bg-bg z-[110] shadow-2xl flex flex-col overflow-hidden transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center justify-between px-8 py-6 border-b border-accent/5">
           <h2 className="font-newsreader italic text-2xl text-accent">
             {view === "list" ? "Select From Saved Addresses" : addressToEdit ? "Edit Address" : "Add New Address"}

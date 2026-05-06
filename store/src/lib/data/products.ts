@@ -6,12 +6,7 @@ import { HttpTypes } from "@medusajs/types"
 import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-dropdown"
-
-export const PRODUCT_LIST_FIELDS =
-  "id,title,handle,thumbnail,variants.calculated_price,variants.options"
-
-export const PRODUCT_DETAIL_FIELDS =
-  "*images,*variants.calculated_price,+variants.inventory_quantity,+variants.manage_inventory,*variants.images,*variants.options,*options,*options.values,+metadata,+tags,*categories,*collection"
+import { PRODUCT_LIST_FIELDS } from "@lib/constants"
 
 export const listProducts = async ({
   pageParam = 1,
@@ -128,20 +123,24 @@ export const listProductsWithSort = async ({
   })
 
   // Local Variant Filtering (Size and Color)
-  let filteredProducts = products;
+  let filteredProducts = products || []
+  
   if (sizes && sizes.length > 0) {
+    const lowerSizes = sizes.map(s => s.toLowerCase())
     filteredProducts = filteredProducts.filter(p => 
       p.variants?.some(v => 
-        v.options?.some(opt => sizes.includes(opt.value))
+        v.options?.some(opt => lowerSizes.includes(String(opt.value || "").toLowerCase()))
       )
-    );
+    )
   }
+  
   if (colors && colors.length > 0) {
+    const lowerColors = colors.map(c => c.toLowerCase())
     filteredProducts = filteredProducts.filter(p => 
       p.variants?.some(v => 
-        v.options?.some(opt => colors.includes(opt.value))
+        v.options?.some(opt => lowerColors.includes(String(opt.value || "").toLowerCase()))
       )
-    );
+    )
   }
 
 

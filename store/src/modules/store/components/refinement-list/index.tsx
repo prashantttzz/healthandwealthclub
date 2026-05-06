@@ -149,12 +149,12 @@ const RefinementList = ({
 
       {/* Size Accordion */}
       <FilterAccordion title="Size">
-        <div className="grid grid-cols-5 gap-2">
-          {["DX", "S", "M", "L", "XL"].map((size) => (
+        <div className="grid grid-cols-3 gap-2">
+          {["XS", "S", "M", "L", "XL", "2XL"].map((size) => (
             <button 
               key={size} 
               onClick={() => handleToggle("size", size)}
-              className={`flex items-center justify-center border aspect-square text-[10px] font-bold tracking-tighter transition-all ${selectedSizes.includes(size) ? "bg-accent border-accent text-bg" : "border-black/10 text-accent/60 hover:border-accent hover:text-accent"}`}
+              className={`flex items-center justify-center border h-10 text-[10px] font-bold tracking-tighter transition-all ${selectedSizes.includes(size) ? "bg-accent border-accent text-bg" : "border-black/10 text-accent/60 hover:border-accent hover:text-accent"}`}
             >
               {size}
             </button>

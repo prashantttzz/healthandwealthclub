@@ -15,7 +15,11 @@ const Item = ({ item }: ItemProps) => {
     <Table.Row className="w-full" data-testid="product-row">
       <Table.Cell className="!pl-0 p-4 w-24">
         <div className="flex w-16">
-          <Thumbnail thumbnail={item.thumbnail} size="square" />
+          <Thumbnail 
+            thumbnail={item.variant?.images?.[0]?.url || item.thumbnail} 
+            images={item.variant?.images?.length ? item.variant.images : item.variant?.product?.images}
+            size="square" 
+          />
         </div>
       </Table.Cell>
 

@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { X } from "lucide-react"
+import { useState, useTransition } from "react"
+import { motion, AnimatePresence } from "framer-motion"
+import { X, Loader2 } from "lucide-react"
 
 import { usePathname, useRouter, useSearchParams } from "next/navigation"
 
@@ -24,13 +24,20 @@ const FilterModal = ({
   onClose 
 }: FilterModalProps) => {
   const [activeTab, setActiveTab] = useState("Category")
+  const [isPending, startTransition] = useTransition()
+  
+  // Local state for "staged" filters
+  const [localCategory, setLocalCategory] = useState<string | undefined>(activeCategory)
+  const [localSizes, setLocalSizes] = useState<string[]>(activeSize?.split(",").filter(Boolean) || [])
+  const [localColors, setLocalColors] = useState<string[]>(activeColor?.split(",").filter(Boolean) || [])
+
   const router = useRouter()
   const pathname = usePathname()
   const searchParams = useSearchParams()
 
   const tabs = ["Category", "Size", "Palette"]
 
-  const sizes = ["DX", "S", "M", "L", "XL"]
+  const sizes = ["XS", "S", "M", "L", "XL", "2XL"]
   const palette = [
     { name: "Olive Green", hex: "#3E4437" },
     { name: "Cream White", hex: "#F8F6F1" },
@@ -40,48 +47,63 @@ const FilterModal = ({
     { name: "Sunshine Yellow", hex: "#F9D71C" },
   ]
 
-  const selectedSizes = activeSize?.split(",") || []
-  const selectedColors = activeColor?.split(",") || []
-
   const handleToggle = (name: string, value: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    const currentValues = params.get(name)?.split(",") || []
-
-    if (currentValues.includes(value)) {
-      const newValues = currentValues.filter((v) => v !== value)
-      if (newValues.length > 0) {
-        params.set(name, newValues.join(","))
-      } else {
-        params.delete(name)
-      }
-    } else {
-      currentValues.push(value)
-      params.set(name, currentValues.join(","))
+    if (name === "size") {
+      setLocalSizes(prev => 
+        prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+      )
+    } else if (name === "color") {
+      setLocalColors(prev => 
+        prev.includes(value) ? prev.filter(v => v !== value) : [...prev, value]
+      )
     }
-    params.delete("page")
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
   }
 
   const handleCategorySelect = (categoryId: string) => {
-    const params = new URLSearchParams(searchParams.toString())
-    if (params.get("category") === categoryId) {
-       params.delete("category")
-    } else {
-       params.set("category", categoryId)
-    }
-    params.delete("page")
-    router.push(`${pathname}?${params.toString()}`, { scroll: false })
+    setLocalCategory(prev => prev === categoryId ? undefined : categoryId)
   }
-
 
   const handleApply = () => {
-    // Logic to apply all accumulated filters from a local state if implemented, 
-    // or just close since current components (PriceRange) might update URL directly.
-    onClose()
+    const params = new URLSearchParams(searchParams.toString())
+    
+    // Apply local category
+    if (localCategory) {
+      params.set("category", localCategory)
+    } else {
+      params.delete("category")
+    }
+
+    // Apply local sizes
+    if (localSizes.length > 0) {
+      params.set("size", localSizes.join(","))
+    } else {
+      params.delete("size")
+    }
+
+    // Apply local colors
+    if (localColors.length > 0) {
+      params.set("color", localColors.join(","))
+    } else {
+      params.delete("color")
+    }
+
+    params.delete("page")
+    
+    startTransition(() => {
+      router.push(`${pathname}?${params.toString()}`, { scroll: false })
+      onClose()
+    })
   }
 
-  const handleClearAll = () => {
-    router.push(pathname)
+  // Close modal when transition finishes
+  if (!isPending && isPending !== undefined && activeCategory === localCategory) {
+     // This logic is a bit tricky, let's just close inside handleApply or use an effect.
+  }
+
+  const handleClearAllLocal = () => {
+    setLocalCategory(undefined)
+    setLocalSizes([])
+    setLocalColors([])
   }
 
   return (
@@ -93,11 +115,25 @@ const FilterModal = ({
       className="fixed inset-0 bg-bg z-[200] flex flex-col pt-safe"
     >
       {/* Header */}
-      <div className="flex items-center justify-between px-6 py-4 border-b border-black/5 shrink-0">
+      <div className="flex items-center justify-between px-6 py-4 border-b border-black/5 shrink-0 relative">
         <h3 className="text-[11px] uppercase tracking-[0.3em] font-bold text-accent">Filters</h3>
+        
+        <AnimatePresence>
+          {isPending && (
+            <motion.div 
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="absolute inset-0 bg-bg/60 backdrop-blur-[2px] flex items-center justify-center z-50"
+            >
+              <Loader2 className="w-5 h-5 text-accent animate-spin" />
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         <button 
-          onClick={handleClearAll}
-          className="text-[10px] uppercase font-bold tracking-widest text-[#FF3F6C]" // Myntra-like accent color for Clear All
+          onClick={handleClearAllLocal}
+          className="text-[10px] uppercase font-bold tracking-widest text-[#FF3F6C]"
         >
           Clear All
         </button>
@@ -128,16 +164,11 @@ const FilterModal = ({
           {activeTab === "Category" && (
             <ul className="space-y-6">
               <li 
-                onClick={() => {
-                  const params = new URLSearchParams(searchParams.toString())
-                  params.delete("category")
-                  params.delete("page")
-                  router.push(`${pathname}?${params.toString()}`, { scroll: false })
-                }}
+                onClick={() => setLocalCategory(undefined)}
                 className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium cursor-pointer"
               >
                 <div className="w-4 h-4 border border-black/10 rounded-sm flex items-center justify-center">
-                  <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${!activeCategory ? "opacity-100" : "opacity-0"}`} />
+                  <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${!localCategory ? "opacity-100" : "opacity-0"}`} />
                 </div>
                 <span>All Products</span>
               </li>
@@ -148,15 +179,13 @@ const FilterModal = ({
                   className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium cursor-pointer"
                 >
                   <div className="w-4 h-4 border border-black/10 rounded-sm flex items-center justify-center">
-                    <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${activeCategory === cat.id ? "opacity-100" : "opacity-0"}`} />
+                    <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${localCategory === cat.id ? "opacity-100" : "opacity-0"}`} />
                   </div>
                   <span>{cat.name}</span>
                 </li>
               ))}
             </ul>
           )}
-
-
 
           {activeTab === "Size" && (
             <div className="grid grid-cols-2 gap-3">
@@ -165,7 +194,7 @@ const FilterModal = ({
                   key={size} 
                   onClick={() => handleToggle("size", size)}
                   className={`flex items-center justify-center border aspect-square text-[12px] font-bold transition-all rounded-md ${
-                    selectedSizes.includes(size) ? "bg-accent border-accent text-bg" : "border-black/10 text-accent opacity-60"
+                    localSizes.includes(size) ? "bg-accent border-accent text-bg" : "border-black/10 text-accent opacity-60"
                   }`}
                 >
                   {size}
@@ -184,7 +213,7 @@ const FilterModal = ({
                 >
                   <div 
                     className={`w-8 h-8 rounded-full border transition-all ${
-                      selectedColors.includes(color.name) ? "border-accent ring-2 ring-accent ring-offset-2" : "border-black/10"
+                      localColors.includes(color.name) ? "border-accent ring-2 ring-accent ring-offset-2" : "border-black/10"
                     }`} 
                     style={{ backgroundColor: color.hex }}
                   />
@@ -206,9 +235,10 @@ const FilterModal = ({
         </button>
         <button 
           onClick={handleApply}
-          className="flex-1 flex items-center justify-center text-[12px] uppercase tracking-[0.2em] font-bold text-[#FF3F6C] hover:bg-black/5"
+          disabled={isPending}
+          className="flex-1 flex items-center justify-center text-[12px] uppercase tracking-[0.2em] font-bold text-[#FF3F6C] hover:bg-black/5 disabled:opacity-50"
         >
-          Apply
+          {isPending ? "Applying..." : "Apply"}
         </button>
       </div>
     </motion.div>

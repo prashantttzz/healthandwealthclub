@@ -192,7 +192,7 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
       <AddressSidebar 
         isOpen={sidebarOpen} 
         onClose={() => setSidebarOpen(false)} 
-        addresses={addressesInRegion} 
+        addresses={customer?.addresses || []} 
         onSelect={setSelectedAddress} 
         onDelete={async (id) => { try { await deleteCustomerAddress(id) } catch {} }} 
       />

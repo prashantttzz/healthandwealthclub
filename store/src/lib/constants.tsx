@@ -93,3 +93,9 @@ export const SUPPORT_LINKS = {
   privacy: "/customer-service#privacy",
   sizeguide: "/size-guide",
 } as const
+
+export const PRODUCT_LIST_FIELDS =
+  "id,title,handle,thumbnail,*variants,*variants.calculated_price,*variants.options"
+
+export const PRODUCT_DETAIL_FIELDS =
+  "*images,*variants.calculated_price,+variants.inventory_quantity,+variants.manage_inventory,*variants.images,*variants.options,*options,*options.values,+metadata,+tags,*categories,*collection"

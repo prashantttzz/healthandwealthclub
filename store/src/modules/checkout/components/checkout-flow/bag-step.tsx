@@ -58,7 +58,11 @@ const BagStep = ({ onContinue }: { onContinue: () => void }) => {
           {items.map((item) => (
             <div key={item.id} className={`flex gap-6 p-4 bg-secondary border border-accent/10 lg:py-8 transition-opacity duration-300 ${updatingId === item.id ? "opacity-30 pointer-events-none" : ""}`}>
               <div className="w-[90px] h-[95px] bg-accent/[0.04] flex-shrink-0 overflow-hidden">
-                <Thumbnail thumbnail={item.thumbnail} images={item.variant?.product?.images} size="square" />
+                <Thumbnail 
+                  thumbnail={item.variant?.images?.[0]?.url || item.thumbnail} 
+                  images={item.variant?.images?.length ? item.variant.images : item.variant?.product?.images}
+                  size="square" 
+                />
               </div>
               <div className="flex-1 flex flex-col justify-between min-w-0">
                 <div className="flex items-start justify-between gap-3">
