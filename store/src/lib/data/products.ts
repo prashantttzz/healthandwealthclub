@@ -7,6 +7,12 @@ import { getAuthHeaders, getCacheOptions } from "./cookies"
 import { getRegion, retrieveRegion } from "./regions"
 import { SortOptions } from "@modules/store/components/refinement-list/sort-dropdown"
 
+export const PRODUCT_LIST_FIELDS =
+  "id,title,handle,thumbnail,variants.calculated_price,variants.options"
+
+export const PRODUCT_DETAIL_FIELDS =
+  "*images,*variants.calculated_price,+variants.inventory_quantity,+variants.manage_inventory,*variants.images,*variants.options,*options,*options.values,+metadata,+tags,*categories,*collection"
+
 export const listProducts = async ({
   pageParam = 1,
   queryParams,
@@ -62,8 +68,7 @@ export const listProducts = async ({
           limit,
           offset,
           region_id: region?.id,
-          fields:
-            "*images,*variants.calculated_price,+variants.inventory_quantity,+variants.manage_inventory,*variants.images,*variants.options,*options,*options.values,+metadata,+tags,*categories,*collection",
+          fields: queryParams?.fields || PRODUCT_LIST_FIELDS,
           ...queryParams,
         },
         headers,

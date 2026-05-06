@@ -210,18 +210,24 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
             throw new Error("No payment provider is configured for this region.")
           }
 
-          // ✅ 2. Initiate payment session
-          const paymentCollection = await initiatePaymentSession(nextCart, {
-            provider_id: stripeProviderId,
-          })
+          // ✅ 2. Initiate payment session only if needed
+          const existingSession = nextCart.payment_collection?.payment_sessions?.find(
+            (s) => s.provider_id === stripeProviderId
+          )
 
-          if (paymentCollection) {
-            const cartWithPaymentSession = {
-              ...nextCart,
-              payment_collection: paymentCollection,
+          if (!existingSession) {
+            const paymentCollection = await initiatePaymentSession(nextCart, {
+              provider_id: stripeProviderId,
+            })
+
+            if (paymentCollection) {
+              const cartWithPaymentSession = {
+                ...nextCart,
+                payment_collection: paymentCollection,
+              }
+              nextCart = cartWithPaymentSession
+              setCart(cartWithPaymentSession)
             }
-            nextCart = cartWithPaymentSession
-            setCart(cartWithPaymentSession)
           }
 
           goToStep(currentStep + 1)

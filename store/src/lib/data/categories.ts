@@ -15,7 +15,7 @@ export const listCategories = async (query?: Record<string, any>) => {
       {
         query: {
           fields:
-            "*category_children, *products, *parent_category, *parent_category.parent_category",
+            query?.fields || "*category_children, *parent_category, *parent_category.parent_category",
           limit,
           ...query,
         },
@@ -29,7 +29,7 @@ export const listCategories = async (query?: Record<string, any>) => {
     .then(({ product_categories }) => product_categories)
 }
 
-export const getCategoryByHandle = async (categoryHandle: string[]) => {
+export const getCategoryByHandle = async (categoryHandle: string[], query?: Record<string, any>) => {
   const handle = `${categoryHandle.join("/")}`
 
   const next = {
@@ -41,7 +41,7 @@ export const getCategoryByHandle = async (categoryHandle: string[]) => {
       `/store/product-categories`,
       {
         query: {
-          fields: "*category_children, *products",
+          fields: query?.fields || "*category_children",
           handle,
         },
         next: {

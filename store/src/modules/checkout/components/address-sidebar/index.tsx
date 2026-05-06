@@ -5,7 +5,7 @@ import { HttpTypes } from "@medusajs/types"
 import { addCustomerAddress, updateCustomerAddress } from "@lib/data/customer"
 import { Check, X, Plus, ChevronRight, ChevronLeft, Home, MoreHorizontal, ChevronDown } from "lucide-react"
 import { motion, AnimatePresence } from "framer-motion"
-import { clx } from "@medusajs/ui"
+import { clx, toast } from "@medusajs/ui"
 
 /* ─── SHARED ICONS (subset for sidebar) ─── */
 const Ico = {
@@ -201,12 +201,19 @@ const AddressSidebar: React.FC<AddressSidebarProps> = ({
       }
       
       if (res.success || (res as any).id) {
+        toast.success(addressToEdit ? "Address updated" : "Address added")
+        
+        // If it was a new address and we have an onSelect, pick it immediately
+        if (!addressToEdit && res.address && onSelect) {
+          onSelect(res.address)
+        }
+        
         onClose()
       } else {
-        console.error(res.error)
+        toast.error(res.error || "Failed to save address")
       }
-    } catch (err) {
-      console.error("Failed to save address:", err)
+    } catch (err: any) {
+      toast.error(err.message || "An unexpected error occurred")
     } finally {
       setIsSaving(false)
     }

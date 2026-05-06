@@ -1,7 +1,7 @@
 import { Metadata } from "next"
 import { notFound } from "next/navigation"
 
-import { listProducts } from "@lib/data/products"
+import { listProducts, PRODUCT_DETAIL_FIELDS } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
 import ProductTemplate from "@modules/products/templates"
 
@@ -18,7 +18,7 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   const params = await props.params
   const { response } = await listProducts({
     countryCode: params.countryCode,
-    queryParams: { handle: params.handle },
+    queryParams: { handle: params.handle, fields: "title,description,thumbnail" },
   })
 
   const product = response.products[0]
@@ -51,7 +51,7 @@ export default async function ProductPage(props: Props) {
     getRegion(params.countryCode),
     listProducts({
       countryCode: params.countryCode,
-      queryParams: { handle: params.handle },
+      queryParams: { handle: params.handle, fields: PRODUCT_DETAIL_FIELDS },
     })
   ])
 

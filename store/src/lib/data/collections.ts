@@ -49,7 +49,8 @@ export const listCollections = async (
 }
 
 export const getCollectionByHandle = async (
-  handle: string
+  handle: string,
+  queryParams: Record<string, any> = {}
 ): Promise<HttpTypes.StoreCollection> => {
   const next = {
     ...(await getCacheOptions("collections")),
@@ -57,7 +58,7 @@ export const getCollectionByHandle = async (
 
   return sdk.client
     .fetch<HttpTypes.StoreCollectionListResponse>(`/store/collections`, {
-      query: { handle, fields: "*products" },
+      query: { handle, ...queryParams },
       next: {
         ...next,
         revalidate: 3600,
