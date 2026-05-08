@@ -3,6 +3,7 @@ import { forwardRef, useImperativeHandle, useMemo, useRef } from "react"
 import NativeSelect, {
   NativeSelectProps,
 } from "@modules/common/components/native-select"
+import { Country } from "country-state-city"
 import { HttpTypes } from "@medusajs/types"
 
 const CountrySelect = forwardRef<
@@ -19,26 +20,11 @@ const CountrySelect = forwardRef<
   )
 
   const countryOptions = useMemo(() => {
-    if (!region) {
-      return []
-    }
-
-    const gccCodes = ["ae", "sa", "qa", "kw", "bh", "om"]
-    
-    const options = region.countries?.map((country) => ({
-      value: country.iso_2,
-      label: country.display_name,
-    })) || []
-
-    // Sort options to put GCC first
-    return [...options].sort((a, b) => {
-      const aGcc = gccCodes.includes(a.value || "")
-      const bGcc = gccCodes.includes(b.value || "")
-      if (aGcc && !bGcc) return -1
-      if (!aGcc && bGcc) return 1
-      return 0
-    })
-  }, [region])
+    return Country.getAllCountries().map((country) => ({
+      value: country.isoCode.toLowerCase(),
+      label: country.name,
+    }))
+  }, [])
 
   return (
     <NativeSelect

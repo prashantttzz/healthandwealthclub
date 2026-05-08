@@ -8,6 +8,10 @@ import NativeSelect from "@modules/common/components/native-select"
 import AccountInfo from "../account-info"
 import { HttpTypes } from "@medusajs/types"
 import { addCustomerAddress, updateCustomerAddress } from "@lib/data/customer"
+import { Country, City } from "country-state-city"
+import PhoneInput from "react-phone-number-input"
+import "react-phone-number-input/style.css"
+import SearchableSelect from "@modules/common/components/searchable-select"
 
 type MyInformationProps = {
   customer: HttpTypes.StoreCustomer
@@ -18,18 +22,16 @@ const ProfileBillingAddress: React.FC<MyInformationProps> = ({
   customer,
   regions,
 }) => {
-  const regionOptions = useMemo(() => {
-    return (
-      regions
-        ?.map((region) => {
-          return region.countries?.map((country) => ({
-            value: country.iso_2,
-            label: country.display_name,
-          }))
-        })
-        .flat() || []
-    )
-  }, [regions])
+  const [phone, setPhone] = React.useState("")
+  const [countryCode, setCountryCode] = React.useState("")
+  const [city, setCity] = React.useState("")
+
+  const countryOptions = useMemo(() => {
+    return Country.getAllCountries().map((c) => ({
+      value: c.isoCode.toLowerCase(),
+      label: c.name,
+    }))
+  }, [])
 
   const [successState, setSuccessState] = React.useState(false)
 
@@ -61,13 +63,21 @@ const ProfileBillingAddress: React.FC<MyInformationProps> = ({
     setSuccessState(state.success)
   }, [state])
 
+  useEffect(() => {
+    if (billingAddress) {
+      setPhone(billingAddress.phone || "")
+      setCountryCode(billingAddress.country_code || "")
+      setCity(billingAddress.city || "")
+    }
+  }, [billingAddress])
+
   const currentInfo = useMemo(() => {
     if (!billingAddress) {
       return "No billing address"
     }
 
     const country =
-      regionOptions?.find(
+      countryOptions?.find(
         (country) => country?.value === billingAddress.country_code
       )?.label || billingAddress.country_code?.toUpperCase()
 
@@ -87,7 +97,7 @@ const ProfileBillingAddress: React.FC<MyInformationProps> = ({
         <span>{country}</span>
       </div>
     )
-  }, [billingAddress, regionOptions])
+  }, [billingAddress, countryOptions])
 
   return (
     <form action={formAction} onReset={() => clearState()} className="w-full">
@@ -123,15 +133,18 @@ const ProfileBillingAddress: React.FC<MyInformationProps> = ({
             defaultValue={billingAddress?.company || undefined}
             data-testid="billing-company-input"
           />
-          <Input
-            label="Phone"
-            name="phone"
-            type="phone"
-            autoComplete="phone"
-            required
-            defaultValue={billingAddress?.phone ?? customer?.phone ?? ""}
-            data-testid="billing-phone-input"
-          />
+          <div className="flex flex-col gap-2">
+            <label className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-accent/60">Phone</label>
+            <PhoneInput 
+              value={phone}
+              onChange={(v) => setPhone(v || "")}
+              placeholder="Enter phone number"
+              defaultCountry={(countryCode?.toUpperCase() as any) || "AE"}
+              className="custom-phone-input"
+              data-testid="billing-phone-input"
+            />
+            <input type="hidden" name="phone" value={phone} />
+          </div>
           <Input
             label="Address"
             name="address_1"
@@ -153,13 +166,16 @@ const ProfileBillingAddress: React.FC<MyInformationProps> = ({
               required
               data-testid="billing-postcal-code-input"
             />
-            <Input
-              label="City"
-              name="city"
-              defaultValue={billingAddress?.city || undefined}
-              required
-              data-testid="billing-city-input"
-            />
+              <div className="flex flex-col gap-2">
+              <SearchableSelect
+                label="City"
+                value={city}
+                options={countryCode ? (City.getCitiesOfCountry(countryCode.toUpperCase())?.map((c) => ({ value: c.name, label: c.name })) || []) : []}
+                onChange={(v) => setCity(v)}
+                placeholder={countryCode ? "Select City..." : "Select Country First"}
+                name="city"
+              />
+            </div>
           </div>
           <Input
             label="Province"
@@ -167,21 +183,16 @@ const ProfileBillingAddress: React.FC<MyInformationProps> = ({
             defaultValue={billingAddress?.province || undefined}
             data-testid="billing-province-input"
           />
-          <NativeSelect
+          <SearchableSelect
+            label="Country"
             name="country_code"
-            defaultValue={billingAddress?.country_code || undefined}
-            required
-            data-testid="billing-country-code-select"
-          >
-            <option value="">-</option>
-            {regionOptions.map((option, i) => {
-              return (
-                <option key={i} value={option?.value}>
-                  {option?.label}
-                </option>
-              )
-            })}
-          </NativeSelect>
+            value={countryCode}
+            options={countryOptions}
+            onChange={(v) => {
+              setCountryCode(v)
+              setCity("") // Reset city when country changes
+            }}
+          />
         </div>
       </AccountInfo>
     </form>

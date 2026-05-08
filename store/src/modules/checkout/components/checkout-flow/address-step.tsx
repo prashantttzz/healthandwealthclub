@@ -8,6 +8,8 @@ import AddressSidebar from "../address-sidebar"
 import { deleteCustomerAddress } from "@lib/data/customer"
 import LocalizedPrice from "@modules/common/components/localized-price"
 import { getDeliveryEstimate } from "@lib/util/delivery-estimate"
+import PhoneInput from "react-phone-number-input"
+import "react-phone-number-input/style.css"
 
 const Ico = {
   plus: (c = "") => <Plus className={c} strokeWidth={2.5}  />,
@@ -117,11 +119,12 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
                 </div>
                 <div className="flex flex-col gap-3">
                   <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Recipient Phone</label>
-                  <input 
+                  <PhoneInput 
                     value={recipientPhone} 
-                    onChange={(e) => setRecipientPhone(e.target.value)}
-                    placeholder="+971 00 000 0000"
-                    className="w-full h-12 px-4 bg-bg border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" 
+                    onChange={(v) => setRecipientPhone(v || "")}
+                    placeholder="Enter recipient phone"
+                    defaultCountry="AE"
+                    className="custom-phone-input"
                   />
                 </div>
               </div>

@@ -2,6 +2,11 @@ import { HttpTypes } from "@medusajs/types"
 import Input from "@modules/common/components/input"
 import React, { useState } from "react"
 import CountrySelect from "../country-select"
+import { City, Country } from "country-state-city"
+import PhoneInput from "react-phone-number-input"
+import "react-phone-number-input/style.css"
+import NativeSelect from "@modules/common/components/native-select"
+import SearchableSelect from "@modules/common/components/searchable-select"
 
 const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
   const [formData, setFormData] = useState<any>({
@@ -15,6 +20,22 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
     "billing_address.province": cart?.billing_address?.province || "",
     "billing_address.phone": cart?.billing_address?.phone || "",
   })
+
+  const countryOptions = React.useMemo(() => {
+    return Country.getAllCountries().map((country) => ({
+      value: country.isoCode.toLowerCase(),
+      label: country.name,
+    }))
+  }, [])
+
+  const cityOptions = React.useMemo(() => {
+    const cc = formData["billing_address.country_code"]
+    if (!cc) return []
+    return City.getCitiesOfCountry(cc.toUpperCase())?.map((c) => ({
+      value: c.name,
+      label: c.name,
+    })) || []
+  }, [formData["billing_address.country_code"]])
 
   const handleChange = (
     e: React.ChangeEvent<
@@ -74,21 +95,28 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           required
           data-testid="billing-postal-input"
         />
-        <Input
-          label="City"
-          name="billing_address.city"
-          autoComplete="address-level2"
-          value={formData["billing_address.city"]}
-          onChange={handleChange}
-        />
-        <CountrySelect
+        <div className="flex flex-col gap-2">
+          <SearchableSelect
+            label="City"
+            name="billing_address.city"
+            value={formData["billing_address.city"]}
+            options={cityOptions}
+            onChange={(v) => setFormData((p: any) => ({ ...p, "billing_address.city": v }))}
+            placeholder={formData["billing_address.country_code"] ? "Select City..." : "Select Country First"}
+          />
+        </div>
+        <SearchableSelect
+          label="Country"
           name="billing_address.country_code"
-          autoComplete="country"
-          region={cart?.region}
           value={formData["billing_address.country_code"]}
-          onChange={handleChange}
-          required
-          data-testid="billing-country-select"
+          options={countryOptions}
+          onChange={(v) => {
+            setFormData((p: any) => ({ 
+              ...p, 
+              "billing_address.country_code": v,
+              "billing_address.city": "" 
+            }))
+          }}
         />
         <Input
           label="State / Province"
@@ -98,14 +126,17 @@ const BillingAddress = ({ cart }: { cart: HttpTypes.StoreCart | null }) => {
           onChange={handleChange}
           data-testid="billing-province-input"
         />
-        <Input
-          label="Phone"
-          name="billing_address.phone"
-          autoComplete="tel"
-          value={formData["billing_address.phone"]}
-          onChange={handleChange}
-          data-testid="billing-phone-input"
-        />
+        <div className="flex flex-col gap-2">
+          <label className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-accent/60">Phone</label>
+          <PhoneInput 
+            value={formData["billing_address.phone"]}
+            onChange={(v) => setFormData((p: any) => ({ ...p, "billing_address.phone": v || "" }))}
+            placeholder="Enter phone number"
+            defaultCountry={(formData["billing_address.country_code"]?.toUpperCase() as any) || "AE"}
+            className="custom-phone-input"
+            data-testid="billing-phone-input"
+          />
+        </div>
       </div>
     </>
   )

@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useActionState } from "react"
 import { login, signup } from "@lib/data/customer"
 import { X, Smartphone } from "lucide-react"
+import PhoneInput from "react-phone-number-input"
+import "react-phone-number-input/style.css"
 
 const Ico = {
   x: (c = "") => <X className={c} strokeWidth={2} />,
@@ -12,6 +14,7 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
   const [view, setView] = useState<"login" | "signup">("login")
   const [loginMessage, loginAction, pendingLogin] = useActionState(login, null)
   const [signupMessage, signupAction, pendingSignup] = useActionState(signup, null)
+  const [signupPhone, setSignupPhone] = useState("")
 
   // Listen to successful login (message is undefined on success)
   useEffect(() => {
@@ -79,7 +82,16 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
               
               <div className="flex flex-col gap-2">
                 <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Phone</label>
-                <input name="phone" type="tel" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors" />
+                <div className="phone-input-container">
+                  <PhoneInput 
+                    value={signupPhone} 
+                    onChange={(v) => setSignupPhone(v || "")}
+                    placeholder="Enter phone number"
+                    defaultCountry="AE"
+                    className="custom-phone-input"
+                  />
+                  <input type="hidden" name="phone" value={signupPhone} />
+                </div>
               </div>
 
               <div className="flex flex-col gap-2">

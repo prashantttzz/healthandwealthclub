@@ -140,3 +140,32 @@ background: linear-gradient(
   );
   pointer-events: none;
 }
+
+/* ─── PHONE INPUT STYLES ─── */
+.custom-phone-input {
+  @apply flex items-center gap-3 w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent transition-all duration-300;
+}
+
+.custom-phone-input:focus-within {
+  @apply border-accent/30 bg-accent/[0.04];
+}
+
+.custom-phone-input input {
+  @apply bg-transparent outline-none flex-1 border-none focus:ring-0 p-0 text-[14px] text-accent placeholder:text-accent/15 !important;
+}
+
+.custom-phone-input .PhoneInputCountry {
+  @apply flex items-center gap-1;
+}
+
+.custom-phone-input .PhoneInputCountrySelect {
+  @apply cursor-pointer;
+}
+
+.PhoneInputCountrySelectArrow {
+  @apply text-accent/20 !important;
+}
+
+.PhoneInputCountryIcon--border {
+  @apply rounded-sm shadow-none !important;
+}

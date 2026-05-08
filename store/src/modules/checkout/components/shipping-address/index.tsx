@@ -6,6 +6,12 @@ import { mapKeys } from "lodash"
 import React, { useEffect, useMemo, useState } from "react"
 import AddressSelect from "../address-select"
 import CountrySelect from "../country-select"
+import { City } from "country-state-city"
+import PhoneInput from "react-phone-number-input"
+import "react-phone-number-input/style.css"
+import NativeSelect from "@modules/common/components/native-select"
+import SearchableSelect from "@modules/common/components/searchable-select"
+import { Country } from "country-state-city"
 
 const ShippingAddress = ({
   customer,
@@ -31,18 +37,25 @@ const ShippingAddress = ({
     email: cart?.email || "",
   })
 
-  const countriesInRegion = useMemo(
-    () => cart?.region?.countries?.map((c) => c.iso_2),
-    [cart?.region]
-  )
+  const countryOptions = useMemo(() => {
+    return Country.getAllCountries().map((country) => ({
+      value: country.isoCode.toLowerCase(),
+      label: country.name,
+    }))
+  }, [])
 
-  // check if customer has saved addresses that are in the current region
+  const cityOptions = useMemo(() => {
+    const cc = formData["shipping_address.country_code"]
+    if (!cc) return []
+    return City.getCitiesOfCountry(cc.toUpperCase())?.map((c) => ({
+      value: c.name,
+      label: c.name,
+    })) || []
+  }, [formData["shipping_address.country_code"]])
+
   const addressesInRegion = useMemo(
-    () =>
-      customer?.addresses.filter(
-        (a) => a.country_code && countriesInRegion?.includes(a.country_code)
-      ),
-    [customer?.addresses, countriesInRegion]
+    () => customer?.addresses || [],
+    [customer?.addresses]
   )
 
   const setFormAddress = (
@@ -157,23 +170,28 @@ const ShippingAddress = ({
           required
           data-testid="shipping-postal-code-input"
         />
-        <Input
-          label="City"
-          name="shipping_address.city"
-          autoComplete="address-level2"
-          value={formData["shipping_address.city"]}
-          onChange={handleChange}
-          required
-          data-testid="shipping-city-input"
-        />
-        <CountrySelect
+        <div className="flex flex-col gap-2">
+          <SearchableSelect
+            label="City"
+            name="shipping_address.city"
+            value={formData["shipping_address.city"]}
+            options={cityOptions}
+            onChange={(v) => setFormData(p => ({ ...p, "shipping_address.city": v }))}
+            placeholder={formData["shipping_address.country_code"] ? "Select City..." : "Select Country First"}
+          />
+        </div>
+        <SearchableSelect
+          label="Country"
           name="shipping_address.country_code"
-          autoComplete="country"
-          region={cart?.region}
           value={formData["shipping_address.country_code"]}
-          onChange={handleChange}
-          required
-          data-testid="shipping-country-select"
+          options={countryOptions}
+          onChange={(v) => {
+            setFormData(p => ({ 
+              ...p, 
+              "shipping_address.country_code": v,
+              "shipping_address.city": "" 
+            }))
+          }}
         />
         <div className="col-span-2 grid grid-cols-2 gap-x-8 gap-y-10 mt-4 border-t border-black/5 pt-10">
           <Input
@@ -187,14 +205,17 @@ const ShippingAddress = ({
             required
             data-testid="shipping-email-input"
           />
-          <Input
-            label="Phone Number"
-            name="shipping_address.phone"
-            autoComplete="tel"
-            value={formData["shipping_address.phone"]}
-            onChange={handleChange}
-            data-testid="shipping-phone-input"
-          />
+          <div className="flex flex-col gap-2">
+            <label className="font-manrope text-[10px] uppercase font-bold tracking-[0.2em] text-accent/60">Phone Number</label>
+            <PhoneInput 
+              value={formData["shipping_address.phone"]}
+              onChange={(v) => setFormData((p: any) => ({ ...p, "shipping_address.phone": v || "" }))}
+              placeholder="Enter phone number"
+              defaultCountry={(formData["shipping_address.country_code"]?.toUpperCase() as any) || "AE"}
+              className="custom-phone-input"
+              data-testid="shipping-phone-input"
+            />
+          </div>
         </div>
       </div>
       <div className="my-10">
