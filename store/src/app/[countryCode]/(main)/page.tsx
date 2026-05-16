@@ -3,7 +3,7 @@ import Hero from "@modules/home/components/hero"
 import ParallaxContentWrapper from "@modules/home/components/parallax-content-wrapper"
 import { listProducts } from "@lib/data/products"
 import { getRegion } from "@lib/data/regions"
-import { listCollections } from "@lib/data/collections"
+import { listCollections, getCollectionByHandle } from "@lib/data/collections"
 import Preloader from "@modules/common/components/preloader"
 import dynamic from "next/dynamic"
 import CategoryStickyScroll from "@modules/home/components/collection-section"
@@ -24,19 +24,37 @@ export default async function Home(props: {
 }) {
   const { countryCode } = await props.params
 
-  const [region, { response }, { collections }] = await Promise.all([
+  const [region, { collections }] = await Promise.all([
     getRegion(countryCode),
-    listProducts({
-      countryCode,
-      queryParams: { limit: 9 },
-    }),
     listCollections({ limit: "4" }),
   ])
 
-  const products = response.products
-
   if (!region) {
     return null
+  }
+
+  // Get products for the home-page-collection
+  let products: any[] = []
+  try {
+    const collection = await getCollectionByHandle("home-page-collection")
+    if (collection) {
+      const { response } = await listProducts({
+        countryCode,
+        queryParams: { collection_id: [collection.id], limit: 9 },
+      })
+      products = response.products
+    }
+  } catch (error) {
+    console.error("Error fetching home-page-collection:", error)
+  }
+
+  // Fallback to general products if collection is empty or not found
+  if (products.length === 0) {
+    const { response } = await listProducts({
+      countryCode,
+      queryParams: { limit: 9 },
+    })
+    products = response.products
   }
 
   return (

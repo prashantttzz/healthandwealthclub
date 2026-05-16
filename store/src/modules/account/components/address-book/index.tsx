@@ -2,28 +2,22 @@
 
 import React, { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { Home, Pencil, Trash2, Plus, ChevronRight } from "lucide-react"
+import { Home, Trash2, Plus, ChevronRight } from "lucide-react"
 import AddressSidebar from "@modules/checkout/components/address-sidebar"
 import { deleteCustomerAddress } from "@lib/data/customer"
 
 type AddressBookProps = {
   customer: HttpTypes.StoreCustomer
   region: HttpTypes.StoreRegion
+  countryCode: string
 }
 
-const AddressBook: React.FC<AddressBookProps> = ({ customer, region }) => {
+const AddressBook: React.FC<AddressBookProps> = ({ customer, region, countryCode }) => {
   const { addresses } = customer
   const [sidebarOpen, setSidebarOpen] = useState(false)
-  const [addressToEdit, setAddressToEdit] = useState<HttpTypes.StoreCustomerAddress | null>(null)
   const [isDeleting, setIsDeleting] = useState<string | null>(null)
 
-  const handleEdit = (address: HttpTypes.StoreCustomerAddress) => {
-    setAddressToEdit(address)
-    setSidebarOpen(true)
-  }
-
   const handleAdd = () => {
-    setAddressToEdit(null)
     setSidebarOpen(true)
   }
 
@@ -89,13 +83,6 @@ const AddressBook: React.FC<AddressBookProps> = ({ customer, region }) => {
                 </div>
                 <div className="flex flex-col gap-2">
                   <button
-                    onClick={() => handleEdit(address)}
-                    className="p-2 text-accent/30 hover:text-accent transition-colors"
-                    title="Edit Address"
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </button>
-                  <button
                     onClick={() => handleDelete(address.id)}
                     className="p-2 text-accent/30 hover:text-red-500 transition-colors"
                     title="Remove Address"
@@ -123,7 +110,7 @@ const AddressBook: React.FC<AddressBookProps> = ({ customer, region }) => {
         isOpen={sidebarOpen}
         onClose={() => setSidebarOpen(false)}
         addresses={addresses}
-        addressToEdit={addressToEdit}
+        countryCode={countryCode}
       />
     </div>
   )

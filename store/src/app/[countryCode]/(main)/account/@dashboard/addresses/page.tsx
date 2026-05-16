@@ -38,7 +38,7 @@ export default async function Addresses(props: {
           </p>
         </div>
       </div>
-      <AddressBook customer={customer} region={region} />
+      <AddressBook customer={customer} region={region} countryCode={countryCode} />
     </div>
   )
 }

@@ -26,7 +26,7 @@ const Ico = {
   chevRight: (c = "") => <ChevronRight className={c} strokeWidth={2} />,
 }
 
-const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCart; customer: HttpTypes.StoreCustomer | null }) => {
+const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: HttpTypes.StoreCart; customer: HttpTypes.StoreCustomer | null; countryCode: string }) => {
   const { cart, setCart, optimisticItems } = useCart()
   const { formatPrice } = useCurrencyFormatter()
   const [currentStep, setCurrentStep] = useState(0)
@@ -310,6 +310,7 @@ const CheckoutFlow = ({ cart: initialCart, customer }: { cart: HttpTypes.StoreCa
                   setRecipientName={setRecipientName}
                   recipientPhone={recipientPhone}
                   setRecipientPhone={setRecipientPhone}
+                  countryCode={countryCode}
                 />
               )}
               {currentStep === 2 && (

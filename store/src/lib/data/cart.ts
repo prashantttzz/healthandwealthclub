@@ -458,6 +458,15 @@ export async function setAddresses(currentState: unknown, formData: FormData) {
       await addCustomerAddress({}, formData)
     }
 
+    const targetRegion = await getRegion(formData.get("shipping_address.country_code") as string)
+    if (targetRegion && cartId) {
+      // Get current cart to check region
+      const currentCart = await retrieveCart(cartId)
+      if (currentCart && currentCart.region_id !== targetRegion.id) {
+        data.region_id = targetRegion.id
+      }
+    }
+
     await updateCart(data)
   } catch (e: any) {
     return e.message
@@ -479,7 +488,10 @@ export async function selectSavedAddress(address: HttpTypes.StoreCustomerAddress
       throw new Error("Address must have a country code to fetch shipping options")
     }
 
-    const data = {
+    const targetRegion = await getRegion(address.country_code)
+    const currentCart = await retrieveCart(cartId)
+
+    const data: any = {
       shipping_address: {
         first_name: address.first_name ?? undefined,
         last_name: address.last_name ?? undefined,
@@ -504,6 +516,10 @@ export async function selectSavedAddress(address: HttpTypes.StoreCustomerAddress
         province: address.province ?? undefined,
         phone: address.phone ?? undefined,
       },
+    }
+
+    if (targetRegion && currentCart && currentCart.region_id !== targetRegion.id) {
+      data.region_id = targetRegion.id
     }
 
     const cart = await updateCart(data)
@@ -597,14 +613,53 @@ export async function listCartOptions() {
   }
 
   try {
-    return await sdk.client.fetch<{
-      shipping_options: HttpTypes.StoreCartShippingOption[]
-    }>("/store/shipping-options", {
-      query: { cart_id: cartId },
-      next,
-      headers,
-      cache: "no-store",
-    })
+    const [cart, { shipping_options }] = await Promise.all([
+      retrieveCart(cartId),
+      sdk.client.fetch<{
+        shipping_options: HttpTypes.StoreCartShippingOption[]
+      }>("/store/shipping-options", {
+        query: { cart_id: cartId },
+        next,
+        headers,
+        cache: "no-store",
+      })
+    ])
+
+    // City-specific logic for UAE
+    if (cart?.shipping_address?.country_code?.toLowerCase() === "ae") {
+      const majorCities = [
+        "abu dhabi", 
+        "al-ain", 
+        "al ain",
+        "dubai", 
+        "sharjah", 
+        "ras al khaimah", 
+        "umm al quwain", 
+        "um al quwain", 
+        "ajman", 
+        "fujairah"
+      ]
+      
+      const city = cart.shipping_address.city?.toLowerCase().trim() || ""
+      const isMajorCity = majorCities.includes(city)
+
+      if (isMajorCity) {
+        // Show only Express Shipping for major cities
+        const filtered = shipping_options.filter(opt => 
+          opt.name.toLowerCase().includes("express")
+        )
+        // Only return filtered if we actually found matches, otherwise fallback to all
+        if (filtered.length > 0) return { shipping_options: filtered }
+      } else {
+        // Show only Standard Shipping for outer areas
+        const filtered = shipping_options.filter(opt => 
+          opt.name.toLowerCase().includes("standard")
+        )
+        if (filtered.length > 0) return { shipping_options: filtered }
+      }
+    }
+
+    return { shipping_options }
   } catch (error) {
     console.error("Error fetching shipping options:", error)
     return { shipping_options: [] }

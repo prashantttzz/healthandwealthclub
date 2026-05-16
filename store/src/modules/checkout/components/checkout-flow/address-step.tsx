@@ -18,7 +18,7 @@ const Ico = {
   truck: (c = "") => <Truck className={c} strokeWidth={1.5} />,
 }
 
-const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, shippingOptions, selectedShippingOptionId, setSelectedShippingOptionId, isLoadingShipping, recipientName, setRecipientName, recipientPhone, setRecipientPhone }: {
+const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, shippingOptions, selectedShippingOptionId, setSelectedShippingOptionId, isLoadingShipping, recipientName, setRecipientName, recipientPhone, setRecipientPhone, countryCode }: {
   cart: HttpTypes.StoreCart; 
   customer: HttpTypes.StoreCustomer | null
   selectedAddress: HttpTypes.StoreCustomerAddress | null; 
@@ -32,6 +32,7 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
   setRecipientName: (val: string) => void;
   recipientPhone: string;
   setRecipientPhone: (val: string) => void;
+  countryCode: string;
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isGift, setIsGift] = useState(!!recipientName || !!recipientPhone)
@@ -144,7 +145,11 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
              </div>
           ) : deliveryOptions.length === 0 ? (
             <div className="p-6 border border-accent/10 bg-black/[0.02] text-center">
-               <p className="font-newsreader italic text-lg text-accent/30">Please provide a valid address to see shipping options</p>
+               <p className="font-newsreader italic text-lg text-accent/30">
+                 {!selectedAddress 
+                   ? "Please select a delivery address to see shipping options" 
+                   : "No shipping methods available for this address"}
+               </p>
             </div>
           ) : (
             deliveryOptions.map((opt) => {
@@ -198,6 +203,7 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
         addresses={customer?.addresses || []} 
         onSelect={setSelectedAddress} 
         onDelete={async (id) => { try { await deleteCustomerAddress(id) } catch {} }} 
+        countryCode={countryCode}
       />
     </div>
   )
