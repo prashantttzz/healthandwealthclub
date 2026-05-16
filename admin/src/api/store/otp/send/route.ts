@@ -12,6 +12,13 @@ export const POST = async (
     return res.status(400).json({ message: "Email is required" })
   }
 
+  const customerService = req.scope.resolve(Modules.CUSTOMER)
+  const customers = await customerService.listCustomers({ email })
+
+  if (customers && customers.length > 0) {
+    return res.status(400).json({ message: "An account with this email already exists" })
+  }
+
   // Generate 6-digit OTP
   const otp = Math.floor(100000 + Math.random() * 900000).toString()
 

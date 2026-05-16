@@ -1,5 +1,4 @@
 import { retrieveCustomer } from "@lib/data/customer"
-import { Toaster } from "@medusajs/ui"
 import AccountLayout from "@modules/account/templates/account-layout"
 
 export const dynamic = "force-dynamic"
@@ -15,7 +14,6 @@ export default async function AccountPageLayout(props: {
   return (
     <AccountLayout customer={customer}>
       {customer ? dashboard : login}
-      <Toaster />
     </AccountLayout>
   )
 }

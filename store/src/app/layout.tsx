@@ -2,6 +2,7 @@ import { Metadata } from "next"
 import "styles/globals.css"
 import { UIProvider } from "@lib/context/ui-context"
 import { CartProvider } from "@lib/context/cart-context"
+import { Toaster } from "@medusajs/ui"
 import { Newsreader, Gilda_Display, Petit_Formal_Script, Poppins } from "next/font/google"
 import Preloader from "@modules/common/components/preloader"
 import SmoothScroll from "@modules/common/components/smooth-scroll"
@@ -180,6 +181,7 @@ export default function RootLayout(props: { children: React.ReactNode }) {
         />
         <CartProvider>
           <UIProvider>
+            <Toaster />
             <SmoothScroll>
               <Preloader />
               <main className="relative w-full">{props.children}</main>

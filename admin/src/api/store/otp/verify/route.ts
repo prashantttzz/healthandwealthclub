@@ -24,7 +24,7 @@ export const POST = async (
   }
 
   // Clear OTP
-  await cacheService.set(`otp:${email}`, "", 1) // Invalidate cache by overwriting with short TTL
+  await cacheService.invalidate(`otp:${email}`)
 
   res.status(200).json({ success: true })
 }

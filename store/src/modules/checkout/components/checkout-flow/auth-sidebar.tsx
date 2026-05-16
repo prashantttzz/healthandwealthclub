@@ -1,7 +1,7 @@
 "use client"
 
 import React, { useState, useEffect, useActionState, useRef } from "react"
-import { login, signup, sendOtp } from "@lib/data/customer"
+import { login, signup, sendOtp, sendPasswordResetEmail } from "@lib/data/customer"
 import { X, Smartphone } from "lucide-react"
 import PhoneInput from "react-phone-number-input"
 import "react-phone-number-input/style.css"
@@ -12,7 +12,7 @@ const Ico = {
 }
 
 const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void }) => {
-  const [view, setView] = useState<"login" | "signup">("login")
+  const [view, setView] = useState<"login" | "signup" | "forgot-password">("login")
   const [signupStep, setSignupStep] = useState<"details" | "otp">("details")
 
   const [loginMessage, loginAction, pendingLogin] = useActionState(login, null)
@@ -26,6 +26,8 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
   })
   const [signupPhone, setSignupPhone] = useState("")
   const [isSendingOtp, setIsSendingOtp] = useState(false)
+  const [resetEmail, setResetEmail] = useState("")
+  const [isSendingReset, setIsSendingReset] = useState(false)
   
   const formRef = useRef<HTMLFormElement>(null)
 
@@ -65,12 +67,25 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
     setView("login")
   }
 
+  const handleResetPasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    setIsSendingReset(true)
+    const res = await sendPasswordResetEmail(resetEmail)
+    setIsSendingReset(false)
+    if (res.success) {
+      toast.success("Password reset link sent to your email")
+      setView("login")
+    } else {
+      toast.error(res.error || "Failed to send reset link")
+    }
+  }
+
   return (
     <>
       <div className={`fixed inset-0 bg-black/40 backdrop-blur-sm z-[90] transition-opacity duration-500 ${isOpen ? "opacity-100" : "opacity-0 pointer-events-none"}`} onClick={onClose} />
       <div className={`fixed top-0 right-0 h-full w-full max-w-[460px] bg-bg z-[100] shadow-2xl flex flex-col transition-transform duration-500 ease-[cubic-bezier(0.16,1,0.3,1)] ${isOpen ? "translate-x-0" : "translate-x-full"}`}>
         <div className="flex items-center justify-between px-8 py-6 border-b border-accent/5">
-          <h2 className="font-newsreader italic text-3xl text-accent">{view === "login" ? "Welcome Back" : "Join the Club"}</h2>
+          <h2 className="font-newsreader italic text-3xl text-accent">{view === "login" ? "Welcome Back" : view === "forgot-password" ? "Reset Password" : "Join the Club"}</h2>
           <button onClick={onClose} className="p-2 text-accent/30 hover:text-accent transition-colors">{Ico.x("w-5 h-5")}</button>
         </div>
 
@@ -92,12 +107,35 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                 <p className="text-red-500 font-manrope text-[11px] font-bold mt-2">{loginMessage}</p>
               )}
 
+              <div className="flex justify-end -mt-3 mb-2">
+                <button type="button" onClick={() => setView("forgot-password")} className="font-manrope text-[11px] text-accent/50 hover:text-accent transition-colors">
+                  Forgot password?
+                </button>
+              </div>
+
               <button disabled={pendingLogin} className="w-full py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase mt-4 hover:bg-accent/90 transition-all disabled:opacity-50">
                 {pendingLogin ? "Authenticating..." : "Sign In"}
               </button>
 
               <button type="button" onClick={() => setView("signup")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
                 New here? create an account
+              </button>
+            </form>
+          ) : view === "forgot-password" ? (
+            <form onSubmit={handleResetPasswordSubmit} className="flex flex-col gap-5">
+              <p className="font-manrope text-[13px] text-accent/50 mb-4 leading-relaxed">Enter your email address and we'll send you a link to reset your password.</p>
+              
+              <div className="flex flex-col gap-2">
+                <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Email Address</label>
+                <input name="email" type="email" value={resetEmail} onChange={e => setResetEmail(e.target.value)} required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
+              </div>
+
+              <button type="submit" disabled={isSendingReset} className="w-full py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase mt-4 hover:bg-accent/90 transition-all disabled:opacity-50">
+                {isSendingReset ? "Sending..." : "Send Reset Link"}
+              </button>
+
+              <button type="button" onClick={() => setView("login")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
+                Back to Sign in
               </button>
             </form>
           ) : (

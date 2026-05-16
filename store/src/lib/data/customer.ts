@@ -62,14 +62,24 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
 
 export async function sendOtp(email: string) {
   try {
-    const res= await sdk.client.fetch("/store/otp/send", {
+    const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+    const res = await fetch(`${backendUrl}/store/otp/send`, {
       method: "POST",
-      body: { email },
+      headers: {
+        "Content-Type": "application/json",
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!
+      },
+      body: JSON.stringify({ email }),
+      cache: "no-store"
     })
-    console.log("res",res)
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}))
+      throw new Error(errorData.message || "Failed to send OTP via backend")
+    }
+
     return { success: true }
   } catch (err: any) {
-    console.log("res",err)
     return { success: false, error: err.message || "Failed to send OTP" }
   }
 }
@@ -92,10 +102,20 @@ export async function signup(_currentState: unknown, formData: FormData) {
     }
 
     try {
-      await sdk.client.fetch("/store/otp/verify", {
+      const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+      const verifyRes = await fetch(`${backendUrl}/store/otp/verify`, {
         method: "POST",
-        body: { email: customerForm.email, otp },
+        headers: {
+          "Content-Type": "application/json",
+          "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!
+        },
+        body: JSON.stringify({ email: customerForm.email, otp }),
+        cache: "no-store"
       })
+      
+      if (!verifyRes.ok) {
+        throw new Error("Verification failed")
+      }
     } catch (err: any) {
       return "Invalid or expired verification code"
     }
@@ -105,16 +125,13 @@ export async function signup(_currentState: unknown, formData: FormData) {
       password: password,
     })
 
-    await setAuthToken(token as string)
-
-    const headers = {
-      ...(await getAuthHeaders()),
-    }
+    const jwt = typeof token === "string" ? token : (token as any).token
+    await setAuthToken(jwt)
 
     const { customer: createdCustomer } = await sdk.store.customer.create(
       customerForm,
       {},
-      headers
+      { authorization: `Bearer ${jwt}` }
     )
 
     const loginToken = await sdk.auth.login("customer", "emailpass", {
@@ -122,13 +139,15 @@ export async function signup(_currentState: unknown, formData: FormData) {
       password,
     })
 
-    await setAuthToken(loginToken as string)
+    const loginJwt = typeof loginToken === "string" ? loginToken : (loginToken as any).token
+    await setAuthToken(loginJwt)
 
     const customerCacheTag = await getCacheTag("customers")
     revalidateTag(customerCacheTag)
 
     await transferCart()
-
+    
+    redirect("/")
     return createdCustomer
   } catch (error: any) {
     return error.toString()
@@ -143,19 +162,23 @@ export async function login(_currentState: unknown, formData: FormData) {
     await sdk.auth
       .login("customer", "emailpass", { email, password })
       .then(async (token) => {
-        await setAuthToken(token as string)
+        const jwt = typeof token === "string" ? token : (token as any).token
+        await setAuthToken(jwt)
         const customerCacheTag = await getCacheTag("customers")
         revalidateTag(customerCacheTag)
       })
   } catch (error: any) {
+    if (error.message === "NEXT_REDIRECT") throw error
     return error.toString()
   }
 
   try {
     await transferCart()
   } catch (error: any) {
-    return error.toString()
+    console.error("Error transferring cart:", error)
   }
+
+  redirect("/")
 }
 
 export async function signout(countryCode: string) {
@@ -304,4 +327,52 @@ export const updateCustomerAddress = async (
     .catch((err) => {
       return { success: false, error: err.toString() }
     })
+}
+
+export async function sendPasswordResetEmail(email: string) {
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+    const res = await fetch(`${backendUrl}/store/password-reset/send`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!
+      },
+      body: JSON.stringify({ email }),
+      cache: "no-store"
+    })
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}))
+      throw new Error(errorData.message || "Failed to send reset email")
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to send reset email" }
+  }
+}
+
+export async function verifyAndResetPassword(email: string, token: string, new_password: string) {
+  try {
+    const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+    const res = await fetch(`${backendUrl}/store/password-reset/verify`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        "x-publishable-api-key": process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY!
+      },
+      body: JSON.stringify({ email, token, new_password }),
+      cache: "no-store"
+    })
+    
+    if (!res.ok) {
+      const errorData = await res.json().catch(() => ({}))
+      throw new Error(errorData.message || "Failed to reset password")
+    }
+
+    return { success: true }
+  } catch (err: any) {
+    return { success: false, error: err.message || "Failed to reset password" }
+  }
 }
