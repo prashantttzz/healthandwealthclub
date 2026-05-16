@@ -34,6 +34,7 @@ sdk.client.fetch = async <T>(
   const newHeaders = {
     ...localeHeader,
     ...(publishableKey ? { "x-publishable-key": publishableKey } : {}),
+    ...(publishableKey ? { "x-publishable-api-key": publishableKey } : {}),
     ...headers,
   }
   init = {

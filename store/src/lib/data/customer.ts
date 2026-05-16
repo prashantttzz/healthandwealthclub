@@ -60,6 +60,20 @@ export const updateCustomer = async (body: HttpTypes.StoreUpdateCustomer) => {
   return updateRes
 }
 
+export async function sendOtp(email: string) {
+  try {
+    const res= await sdk.client.fetch("/store/otp/send", {
+      method: "POST",
+      body: { email },
+    })
+    console.log("res",res)
+    return { success: true }
+  } catch (err: any) {
+    console.log("res",err)
+    return { success: false, error: err.message || "Failed to send OTP" }
+  }
+}
+
 export async function signup(_currentState: unknown, formData: FormData) {
   const password = formData.get("password") as string
   const customerForm = {
@@ -69,7 +83,23 @@ export async function signup(_currentState: unknown, formData: FormData) {
     phone: formData.get("phone") as string,
   }
 
+  const otp = formData.get("otp") as string
+
   try {
+    // Verify OTP first
+    if (!otp) {
+      return "Verification code is required"
+    }
+
+    try {
+      await sdk.client.fetch("/store/otp/verify", {
+        method: "POST",
+        body: { email: customerForm.email, otp },
+      })
+    } catch (err: any) {
+      return "Invalid or expired verification code"
+    }
+
     const token = await sdk.auth.register("customer", "emailpass", {
       email: customerForm.email,
       password: password,
