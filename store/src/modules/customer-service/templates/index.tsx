@@ -119,7 +119,7 @@ const CustomerServiceTemplate = () => {
               <Accordion type="single" collapsible>
                 <Accordion.Item title="What are your shipping destinations?" value="shipping">
                   <p className="text-[14px] text-accent/60 leading-relaxed font-medium">
-                    The Club offers premium shipping with tailored logistics. UAE orders enjoy delivery within 1-2 business days, GCC countries within 3-5 business days, and worldwide orders typically arrive within 5-7 business days. Our logistics network is optimized for speed and safety, ensuring your items arrive in pristine condition.
+                    The Club offers premium shipping with tailored logistics. UAE orders enjoy delivery within 1-2 business days, other GCC countries within 5-7 business days, and international orders typically arrive within 7-10 business days. Our logistics network is optimized for speed and safety, ensuring your items arrive in pristine condition.
                   </p>
                 </Accordion.Item>
                 <Accordion.Item title="How do I manage my membership?" value="membership">
@@ -154,7 +154,7 @@ const CustomerServiceTemplate = () => {
               <div className="space-y-8 text-[14px] text-accent/60 leading-relaxed font-medium">
                  <div className="space-y-3 text-left">
                     <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Bespoke Logistics</h4>
-                    <p>Every Club order is handled with extreme care. We partner with DHL Express and FedEx Priority to ensure that your curated pieces are delivered with the speed and security they deserve. UAE delivery: 1-2 days. GCC delivery: 3-5 days. Worldwide delivery: 5-7 days.</p>
+                    <p>Every Club order is handled with extreme care. We partner with DHL Express and FedEx Priority to ensure that your curated pieces are delivered with the speed and security they deserve. UAE delivery: 1-2 days. Other GCC countries: 5-7 days. International delivery: 7-10 days.</p>
                  </div>
                  <div className="space-y-3 text-left">
                     <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Tracking Your Order</h4>

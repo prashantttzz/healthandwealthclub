@@ -246,7 +246,7 @@ const ShippingInfoTab = () => {
         <div className="space-y-1">
           <span className="font-manrope text-[11px] tracking-widest uppercase font-semibold text-accent/80  leading-none">Global Logistics</span>
           <p className="font-manrope text-[13px] leading-relaxed text-accent/60 max-w-sm">
-            Complimentary shipping on all Experience orders. GCC delivery: 3 to 5 business days. Worldwide delivery: 5 to 7 business days.
+            UAE delivery: 1-2 business days. Other GCC countries: 5-7 business days. International delivery: 7-10 business days.
           </p>
         </div>
       </div>

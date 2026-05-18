@@ -15,6 +15,14 @@ type Review = {
   created_at: string
 }
 
+const stripWrappingQuotes = (value: string) =>
+  value.replace(/^[\s"'“”‘’]+|[\s"'“”‘’]+$/g, "")
+
+const normalizeReviewComment = (value: string) =>
+  value
+    .trim()
+    .replace(/^(?:["'\u201C\u201D\u2018\u2019]+\s*)+|(?:\s*["'\u201C\u201D\u2018\u2019]+)+$/g, "")
+
 const ProductReviews = ({ productId }: { productId: string }) => {
   const [reviews, setReviews] = useState<Review[]>([])
   const [showForm, setShowForm] = useState(false)
@@ -256,7 +264,7 @@ const ProductReviews = ({ productId }: { productId: string }) => {
                             <StarRating rating={review.rating} size={11} />
                           </div>
                           <p className="font-manrope text-[12px] xl:text-[13px] leading-relaxed text-accent/70 max-w-xl">
-                            "{review.comment}"
+                            {normalizeReviewComment(stripWrappingQuotes(review.comment))}
                           </p>
                           <div className="flex items-center gap-1 pt-0.5 text-accent/40">
                             <HugeiconsIcon icon={CheckmarkCircle01Icon} size={11} className="text-accent/60" />

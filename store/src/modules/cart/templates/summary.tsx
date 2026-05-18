@@ -53,7 +53,7 @@ const Summary = ({ cart }: SummaryProps) => {
 
       <div className="flex flex-col gap-2 pt-4 border-t border-black/5">
         <span className="font-manrope text-[10px] uppercase font-bold text-accent/30 tracking-widest text-center">
-          Complimentary shipping on all collections
+          Delivery charges calculated at checkout
         </span>
       </div>
     </div>

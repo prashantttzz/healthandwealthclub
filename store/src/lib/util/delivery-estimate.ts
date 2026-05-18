@@ -18,24 +18,24 @@ export const getDeliveryEstimateDays = (countryCode?: string | null) => {
   }
 
   if (GCC_COUNTRY_CODES.has(normalizedCountryCode)) {
-    return 5
+    return 7
   }
 
-  return 8
+  return 10
 }
 
 export const getDeliveryEstimateLabel = (countryCode?: string | null) => {
   const normalizedCountryCode = normalizeCountryCode(countryCode)
 
   if (normalizedCountryCode === "ae") {
-    return "UAE delivery in 2 days"
+    return "UAE delivery in 1-2 days"
   }
 
   if (GCC_COUNTRY_CODES.has(normalizedCountryCode)) {
-    return "GCC delivery in 5 days"
+    return "GCC delivery in 5-7 days"
   }
 
-  return "International delivery in 8 days"
+  return "International delivery in 7-10 days"
 }
 
 export const getDeliveryEstimate = ({
