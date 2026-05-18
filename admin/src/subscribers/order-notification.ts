@@ -63,7 +63,7 @@ export default async function orderNotificationHandler({
     case "order.placed":
       subject = `Order Confirmation `
       title = "Thank you for your order!"
-      subtext = `Welcome to the Health & Wealth Club. We've received your order #${order.display_id} and are preparing it for your curated experience.`
+      subtext = `Welcome to The Health & Wealth Club. We've received your order #${order.display_id} and are preparing it for your curated experience.`
       break
 
     case "fulfillment.created":
@@ -84,7 +84,7 @@ export default async function orderNotificationHandler({
     case "order.completed":
       subject = `Order Delivered!`
       title = "Curated delivered."
-      subtext = `Your experience with order #${order.display_id} is now complete. We hope you enjoy your curated items from the Health & Wealth Club.`
+      subtext = `Your experience with order #${order.display_id} is now complete. We hope you enjoy your curated items from The Health & Wealth Club.`
       break
 
     default:
@@ -95,6 +95,8 @@ export default async function orderNotificationHandler({
   const currencyCode = (order.currency_code || "USD").toUpperCase()
   const decimalFactor = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 1000 : 100
   const decimals = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 3 : 2
+  const formatMoney = (amount: number) =>
+    `${(amount / decimalFactor).toFixed(decimals)} ${currencyCode}`
 
   // 4. Generate Item Rows (with manual calculation fallback to prevent NaN)
   const itemRows = (order.items || []).map(item => {
@@ -103,14 +105,36 @@ export default async function orderNotificationHandler({
     <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
       <div style="font-size: 14px;"><strong>${item.product_title}</strong> x ${item.quantity}  =  </div>
       <div style="font-size: 14px; font-weight: bold;">
-        ${(itemTotal / decimalFactor).toFixed(decimals)} ${currencyCode}
+        ${formatMoney(itemTotal)}
       </div>
     </div>
     `
   }).join('')
 
-  // 5. Grand Total (Check direct field, then summary field, then fallback to 0)
+  // 5. Cost breakdown
+  const subtotal = Number(order.summary?.subtotal || 0)
+  const shippingTotal = Number(order.summary?.shipping_total || 0)
+  const taxTotal = Number(order.summary?.tax_total || 0)
+  const discountTotal = Number(order.summary?.discount_total || 0)
   const orderTotal = Number(order.total || order.summary?.total || 0)
+
+  const summaryRows = [
+    { label: "Subtotal", value: formatMoney(subtotal) },
+    { label: "Shipping", value: formatMoney(shippingTotal) },
+    { label: "Tax", value: formatMoney(taxTotal) },
+    ...(discountTotal > 0
+      ? [{ label: "Discount", value: `- ${formatMoney(discountTotal)}` }]
+      : []),
+  ]
+    .map(
+      (row) => `
+        <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: #4a4a4a;">
+          <span>${row.label}</span>
+          <span style="font-weight: 600;">${row.value}</span>
+        </div>
+      `
+    )
+    .join("")
 
   // 6. Send via Resend
   try {
@@ -121,7 +145,7 @@ export default async function orderNotificationHandler({
         Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
       },
       body: JSON.stringify({
-        from: "Health & Wealth Club <orders@healthandwealthclub.com>",
+        from: "The Health & Wealth Club <orders@healthandwealthclub.com>",
         to: order.email,
         subject: subject,
         html: `
@@ -138,16 +162,19 @@ export default async function orderNotificationHandler({
             <div style="background-color: #f9f9f9; padding: 25px; border-radius: 4px; margin-bottom: 30px;">
               <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #a1a1a1; margin-bottom: 15px;">Order Summary</h3>
               ${itemRows}
-              <div style="display: flex; justify-content: space-between; padding-top: 15px; font-weight: bold; font-size: 18px;">
+              <div style="padding-top: 12px; margin-top: 12px; border-top: 1px solid #e8e8e8;">
+                ${summaryRows}
+              </div>
+              <div style="display: flex; justify-content: space-between; padding-top: 15px; margin-top: 12px; border-top: 1px solid #e0e0e0; font-weight: bold; font-size: 18px;">
                 <span>Total</span>
                 <span>
-                  ${(orderTotal / decimalFactor).toFixed(decimals)} ${currencyCode}
+                  ${formatMoney(orderTotal)}
                 </span>
               </div>
             </div>
 
             <div style="text-align: center; font-size: 12px; color: #a1a1a1; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
-              <p>Health & Wealth Club | Premium Life & Style</p>
+              <p>The Health & Wealth Club | Premium Life & Style</p>
               <p>This is an automated notification. Please do not reply to this email.</p>
             </div>
           </div>

@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, Suspense } from "react"
+import { useEffect, useRef, useState, Suspense } from "react"
 import { motion, AnimatePresence } from "framer-motion"
 import { usePathname, useRouter } from "next/navigation"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -17,26 +17,31 @@ import {
 import MobileMenu from "../mobile-menu"
 import { clx } from "@medusajs/ui"
 import { CONTACT_LINKS, SUPPORT_LINKS } from "@lib/constants"
+import { signout } from "@lib/data/customer"
 
 import { HttpTypes } from "@medusajs/types"
 
 export default function NavContent({ 
   cartButton,
   categories,
-  collections
+  collections,
+  customer,
 }: { 
   cartButton: React.ReactNode,
   categories: HttpTypes.StoreProductCategory[],
-  collections: HttpTypes.StoreCollection[]
+  collections: HttpTypes.StoreCollection[],
+  customer: HttpTypes.StoreCustomer | null
 }) {
   const [isScrolled, setIsScrolled] = useState(false)
   const [isMenuOpen, setIsMenuOpen] = useState(false)
   const [showSearch, setShowSearch] = useState(false)
   const [searchValue, setSearchValue] = useState("")
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
+  const [isAccountOpen, setIsAccountOpen] = useState(false)
   
   const pathname = usePathname()
   const router = useRouter()
+  const accountMenuRef = useRef<HTMLDivElement>(null)
 
   // Extract country code from pathname for redirects
   const countryCode = pathname.split('/')[1] || "us"
@@ -62,11 +67,33 @@ export default function NavContent({
   // ✅ Close search on Escape key
   useEffect(() => {
     const handleEsc = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setShowSearch(false)
+      if (e.key === "Escape") {
+        setShowSearch(false)
+        setIsAccountOpen(false)
+      }
     }
     window.addEventListener("keydown", handleEsc)
     return () => window.removeEventListener("keydown", handleEsc)
   }, [])
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        accountMenuRef.current &&
+        !accountMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsAccountOpen(false)
+      }
+    }
+
+    document.addEventListener("mousedown", handleClickOutside)
+    return () => document.removeEventListener("mousedown", handleClickOutside)
+  }, [])
+
+  useEffect(() => {
+    setIsAccountOpen(false)
+    setShowSearch(false)
+  }, [pathname])
 
   const handleSearchSubmit = (e: React.FormEvent) => {
     e.preventDefault()
@@ -75,6 +102,11 @@ export default function NavContent({
       setShowSearch(false)
       setSearchValue("")
     }
+  }
+
+  const handleLogout = async () => {
+    setIsAccountOpen(false)
+    await signout(countryCode)
   }
 
   const showSolid = isScrolled || !isHome || !!hoveredItem
@@ -247,9 +279,88 @@ export default function NavContent({
             </Suspense>
 
             {/* Account */}
-            <LocalizedClientLink href="/account" className="p-2 hover:opacity-60 transition-opacity">
-              <HugeiconsIcon icon={User02Icon} size={20} />
-            </LocalizedClientLink>
+            <div ref={accountMenuRef} className="relative">
+              <button
+                type="button"
+                onClick={() => {
+                  setIsAccountOpen((prev) => !prev)
+                  setShowSearch(false)
+                }}
+                className="p-2 hover:opacity-60 transition-opacity"
+                aria-label="Open account menu"
+                aria-expanded={isAccountOpen}
+              >
+                <HugeiconsIcon icon={User02Icon} size={20} />
+              </button>
+
+              <AnimatePresence>
+                {isAccountOpen && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: 8, scale: 0.98 }}
+                    transition={{ duration: 0.2, ease: [0.22, 1, 0.36, 1] }}
+                    className="absolute right-0 top-full mt-3 w-56 overflow-hidden border border-black/5 bg-bg text-accent shadow-[0_18px_50px_rgba(0,0,0,0.12)]"
+                  >
+                    <div className="border-b border-black/5 bg-black/[0.02] px-5 py-4 text-left">
+                      <p className="font-manrope text-[9px] font-bold uppercase tracking-[0.35em] text-accent/40">
+                        {customer ? "Member Access" : "Welcome"}
+                      </p>
+                      <p className="mt-2 font-newsreader text-xl italic text-accent">
+                        {customer?.first_name || "The Club"}
+                      </p>
+                    </div>
+
+                    <div className="flex flex-col py-2">
+                      {customer ? (
+                        <>
+                          <LocalizedClientLink
+                            href="/account/profile"
+                            className="px-5 py-3 font-manrope text-[11px] font-bold uppercase tracking-[0.22em] text-accent/70 transition-colors hover:bg-black/[0.03] hover:text-accent"
+                          >
+                            Profile
+                          </LocalizedClientLink>
+                          <LocalizedClientLink
+                            href="/account/orders"
+                            className="px-5 py-3 font-manrope text-[11px] font-bold uppercase tracking-[0.22em] text-accent/70 transition-colors hover:bg-black/[0.03] hover:text-accent"
+                          >
+                            Recent Orders
+                          </LocalizedClientLink>
+                          <LocalizedClientLink
+                            href="/account"
+                            className="px-5 py-3 font-manrope text-[11px] font-bold uppercase tracking-[0.22em] text-accent/70 transition-colors hover:bg-black/[0.03] hover:text-accent"
+                          >
+                            Account Overview
+                          </LocalizedClientLink>
+                          <button
+                            type="button"
+                            onClick={handleLogout}
+                            className="px-5 py-3 text-left font-manrope text-[11px] font-bold uppercase tracking-[0.22em] text-accent/70 transition-colors hover:bg-black/[0.03] hover:text-accent"
+                          >
+                            Logout
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <LocalizedClientLink
+                            href="/account"
+                            className="px-5 py-3 font-manrope text-[11px] font-bold uppercase tracking-[0.22em] text-accent/70 transition-colors hover:bg-black/[0.03] hover:text-accent"
+                          >
+                            Sign In
+                          </LocalizedClientLink>
+                          <LocalizedClientLink
+                            href="/account"
+                            className="px-5 py-3 font-manrope text-[11px] font-bold uppercase tracking-[0.22em] text-accent/70 transition-colors hover:bg-black/[0.03] hover:text-accent"
+                          >
+                            Create Account
+                          </LocalizedClientLink>
+                        </>
+                      )}
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
 

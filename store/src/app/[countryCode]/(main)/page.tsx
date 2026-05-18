@@ -13,7 +13,7 @@ const LuxurySection = dynamic(() => import("@modules/home/components/luxury-sect
 const FeaturesSection = dynamic(() => import("@modules/home/components/features-section"))
 
 export const metadata: Metadata = {
-  title: "Health and Wealth Club",
+  title: "The Health & Wealth Club",
   description: "Your health and wealth store",
 }
 

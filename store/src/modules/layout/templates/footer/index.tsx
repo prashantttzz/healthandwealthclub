@@ -212,7 +212,7 @@ export default function ClubFooter() {
           {/* Bottom Bar */}
           <div className="mt-24 pt-8 border-t border-white/5 flex flex-col items-center gap-8 text-center">
             <div className="flex flex-col items-center gap-4 text-[9px] font-bold tracking-[0.2em] text-white/30 uppercase">
-              <span>© 2026 THE HEALTH & WEALTH CLUB</span>
+              <span>© 2025 THE HEALTH & WEALTH CLUB</span>
             </div>
             <div
               className="flex items-center gap-4 px-6 py-3 border border-white/10 rounded-full transition-all"
@@ -227,7 +227,7 @@ export default function ClubFooter() {
               />
               <div className="flex flex-col items-start leading-none gap-1">
                 <span className="text-[10px] font-bold tracking-[0.2em] text-white uppercase italic">
-                  {region?.countries?.find(c => c.iso_2 === countryCode)?.display_name || "Region"} — {region?.currency_code?.toUpperCase()}
+                  {region?.countries?.find(c => c.iso_2 === countryCode)?.display_name || "Region"} {region?.currency_code?.toUpperCase()}
                 </span>
               </div>
             </div>

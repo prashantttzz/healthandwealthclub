@@ -156,7 +156,7 @@ const AboutUsTemplate = () => {
 
           {/* Bottom Support Link */}
           <div className="mt-40 pt-12 border-t border-black/5 flex flex-col md:flex-row justify-between items-center gap-8 opacity-40">
-             <span className="font-manrope text-[10px] uppercase font-bold tracking-[0.4em]">Est. 2026</span>
+             <span className="font-manrope text-[10px] uppercase font-bold tracking-[0.4em]">Est. 2025</span>
              <LocalizedClientLink href="/customer-service" className="group flex items-center gap-3 font-manrope text-[10px] uppercase font-bold tracking-[0.4em] hover:opacity-100 transition-all">
                 Customer Support Hub <HugeiconsIcon icon={ArrowUpRight01Icon} size={14} className="group-hover:translate-x-1 group-hover:-translate-y-1 transition-transform" />
              </LocalizedClientLink>

@@ -162,7 +162,7 @@ const Register = ({ setCurrentView }: Props) => {
         ) : (
           <>
             <p className="text-center text-[14px] text-accent/80 mb-6 font-medium">
-              Enter the 6-digit verification code sent to {formData.email}.
+              Enter the 6 digit verification code sent to {formData.email}.
             </p>
             
             <input type="hidden" name="first_name" value={formData.first_name} />

@@ -70,7 +70,7 @@ const SizeGuideTemplate = () => {
           </div>
           <div className="flex flex-col gap-4 max-w-xs text-left">
             <h4 className="font-newsreader italic text-xl text-accent uppercase tracking-tight">Artisanal Variations</h4>
-            <p className="text-[12px] leading-relaxed font-medium">Due to the hand-finished nature of our collections, a tolerance of +/- 0.5 inches is considered standard.</p>
+            <p className="text-[12px] leading-relaxed font-medium">Due to the hand finished nature of our collections, a tolerance of plus or minus 0.5 inches is considered standard.</p>
           </div>
           <div className="flex flex-col gap-4 max-w-xs text-left">
             <h4 className="font-newsreader italic text-xl text-accent uppercase tracking-tight">Concierge Advice</h4>

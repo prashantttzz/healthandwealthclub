@@ -40,7 +40,7 @@ export const POST = async (
       Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
     },
     body: JSON.stringify({
-      from: "Health & Wealth Club <orders@healthandwealthclub.com>",
+      from: "The Health & Wealth Club <orders@healthandwealthclub.com>",
       to: email,
       subject: "Password Reset Request",
       html: `

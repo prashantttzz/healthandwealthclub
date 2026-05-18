@@ -29,10 +29,10 @@ export async function generateMetadata(props: Props): Promise<Metadata> {
   }
 
   return {
-    title: `${product.title} | Health and Wealth Club`,
+    title: `${product.title} | The Health & Wealth Club`,
     description: `${product.description}`,
     openGraph: {
-      title: `${product.title} | Health and Wealth Club`,
+      title: `${product.title} | The Health & Wealth Club`,
       description: `${product.description}`,
       images: product.thumbnail ? [product.thumbnail] : [],
     },

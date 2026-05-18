@@ -21,7 +21,7 @@ const SLIDES = [
     id: 1,
     type: "image" as const,
     src: "/about-hero.png",
-    label: "Autumn / Winter 2026",
+    label: "Autumn / Winter 2025",
     heading: ["Crafted for", "The Intentional"],
     headingItalic: [true, false],
     cta: "Explore the Edit",

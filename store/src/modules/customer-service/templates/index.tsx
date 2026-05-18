@@ -119,17 +119,17 @@ const CustomerServiceTemplate = () => {
               <Accordion type="single" collapsible>
                 <Accordion.Item title="What are your shipping destinations?" value="shipping">
                   <p className="text-[14px] text-accent/60 leading-relaxed font-medium">
-                    The Club offers premium shipping with tailored logistics. UAE orders enjoy delivery within 1-2 business days, other GCC countries within 5-7 business days, and international orders typically arrive within 7-10 business days. Our logistics network is optimized for speed and safety, ensuring your items arrive in pristine condition.
+                    The Club offers premium shipping with tailored logistics. UAE orders enjoy delivery within 1 to 2 business days, other GCC countries within 5 to 7 business days, and international orders typically arrive within 7 to 10 business days. Our logistics network is optimized for speed and safety, ensuring your items arrive in pristine condition.
                   </p>
                 </Accordion.Item>
                 <Accordion.Item title="How do I manage my membership?" value="membership">
                   <p className="text-[14px] text-accent/60 leading-relaxed font-medium">
-                    Membership settings can be managed directly through your Account Dashboard. Here you can update your personal information, view your order history, and access exclusive member-only collection drops.
+                    Membership settings can be managed directly through your Account Dashboard. Here you can update your personal information, view your order history, and access exclusive member only collection drops.
                   </p>
                 </Accordion.Item>
                 <Accordion.Item title="What is your return policy?" value="returns">
                   <p className="text-[14px] text-accent/60 leading-relaxed font-medium">
-                    All sales at The Health & Wealth Club are final. We maintain a strict no-refund and no-exchange policy to ensure the exclusivity and pristine condition of our collections. Please ensure all details are correct before finalizing your order.
+                    All sales at The Health & Wealth Club are final. We maintain a strict no refund and no exchange policy to ensure the exclusivity and pristine condition of our collections. Please ensure all details are correct before finalizing your order.
                   </p>
                 </Accordion.Item>
                 <Accordion.Item title="Can I change my order after it's placed?" value="orders">
@@ -154,11 +154,11 @@ const CustomerServiceTemplate = () => {
               <div className="space-y-8 text-[14px] text-accent/60 leading-relaxed font-medium">
                  <div className="space-y-3 text-left">
                     <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Bespoke Logistics</h4>
-                    <p>Every Club order is handled with extreme care. We partner with DHL Express and FedEx Priority to ensure that your curated pieces are delivered with the speed and security they deserve. UAE delivery: 1-2 days. Other GCC countries: 5-7 days. International delivery: 7-10 days.</p>
+                    <p>Every Club order is handled with extreme care. We partner with DHL Express and FedEx Priority to ensure that your curated pieces are delivered with the speed and security they deserve. UAE delivery: 1 to 2 days. Other GCC countries: 5 to 7 days. International delivery: 7 to 10 days.</p>
                  </div>
                  <div className="space-y-3 text-left">
                     <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Tracking Your Order</h4>
-                    <p>Once your order is processed (typically within 24-48 hours), you will receive a digital tracking dossier via email. You can also monitor real-time updates through your Member Dashboard.</p>
+                    <p>Once your order is processed (typically within 24 to 48 hours), you will receive a digital tracking dossier via email. You can also monitor real time updates through your Member Dashboard.</p>
                  </div>
                  <div className="space-y-3 text-left">
                     <h4 className="text-accent font-bold uppercase tracking-widest text-[11px]">Duties & Taxes</h4>
@@ -197,7 +197,7 @@ const CustomerServiceTemplate = () => {
            >
               <div className="lg:w-1/3 text-left">
                  <h3 className="font-newsreader italic text-4xl text-accent sticky top-32 tracking-tighter">Terms of Service</h3>
-                 <p className="text-[12px] text-accent/40 mt-4 uppercase tracking-widest font-bold">Last Updated: April 2026</p>
+                 <p className="text-[12px] text-accent/40 mt-4 uppercase tracking-widest font-bold">Last Updated: April 2025</p>
               </div>
               <div className="lg:w-2/3 space-y-12 text-left">
                  <div className="space-y-4">
@@ -206,7 +206,7 @@ const CustomerServiceTemplate = () => {
                  </div>
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">2. Product Availability & Bespoke Orders</h4>
-                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">Many of our pieces are produced in limited quantities or made-to-order. We reserve the right to limit quantities or cancel orders if artisanal materials become unavailable. Pricing is subject to change based on market fluctuations in luxury raw materials.</p>
+                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">Many of our pieces are produced in limited quantities or made to order. We reserve the right to limit quantities or cancel orders if artisanal materials become unavailable. Pricing is subject to change based on market fluctuations in luxury raw materials.</p>
                  </div>
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">3. Intellectual Property</h4>
@@ -238,7 +238,7 @@ const CustomerServiceTemplate = () => {
                  </div>
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">Safe Guarding Your Assets</h4>
-                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">Your data is encrypted using industry-standard protocols. We do not sell your personal information to third parties. We only share data with essential logistics partners required to fulfill your orders.</p>
+                    <p className="text-[15px] text-accent/60 leading-relaxed font-medium">Your data is encrypted using industry standard protocols. We do not sell your personal information to third parties. We only share data with essential logistics partners required to fulfill your orders.</p>
                  </div>
                  <div className="space-y-4">
                     <h4 className="font-bold text-accent uppercase tracking-widest text-[13px]">Cookies & Digital Identity</h4>

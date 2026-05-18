@@ -189,7 +189,7 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                 </>
               ) : (
                 <>
-                  <p className="font-manrope text-[13px] text-accent/50 mb-4 leading-relaxed">Enter the 6-digit verification code sent to {signupFormData.email}.</p>
+                  <p className="font-manrope text-[13px] text-accent/50 mb-4 leading-relaxed">Enter the 6 digit verification code sent to {signupFormData.email}.</p>
                   
                   {/* Keep hidden inputs for original fields so they are sent to the action */}
                   <input type="hidden" name="first_name" value={signupFormData.first_name} />
