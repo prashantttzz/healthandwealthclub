@@ -59,8 +59,8 @@ const FilterModal = ({
     }
   }
 
-  const handleCategorySelect = (categoryId: string) => {
-    setLocalCategory(prev => prev === categoryId ? undefined : categoryId)
+  const handleCategorySelect = (categoryHandle: string) => {
+    setLocalCategory(prev => prev === categoryHandle ? undefined : categoryHandle)
   }
 
   const handleApply = () => {
@@ -175,11 +175,11 @@ const FilterModal = ({
               {medusaCategories?.map((cat) => (
                 <li 
                   key={cat.id} 
-                  onClick={() => handleCategorySelect(cat.id)}
+                  onClick={() => handleCategorySelect(cat.handle)}
                   className="flex items-center gap-4 text-[12px] uppercase tracking-widest text-accent/80 font-medium cursor-pointer"
                 >
                   <div className="w-4 h-4 border border-black/10 rounded-sm flex items-center justify-center">
-                    <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${localCategory === cat.id ? "opacity-100" : "opacity-0"}`} />
+                    <div className={`w-2 h-2 rounded-[1px] bg-accent transition-opacity ${localCategory === cat.handle ? "opacity-100" : "opacity-0"}`} />
                   </div>
                   <span>{cat.name}</span>
                 </li>
