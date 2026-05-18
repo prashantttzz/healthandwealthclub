@@ -91,7 +91,7 @@ const ProductInfoTab = ({ product }: ProductTabsProps) => {
         </div>
         <div className="space-y-2">
           <span className="font-manrope text-[10px] tracking-[0.2em] uppercase font-bold text-accent/30">Origin</span>
-          <p className="font-manrope text-[13px] text-accent/80 font-medium">{product.origin_country ? product.origin_country : "Designed in Dubai"}</p>
+          <p className="font-manrope text-[13px] text-accent/80 font-medium">{product.origin_country ? product.origin_country : "Designed in Abu Dhabi"}</p>
         </div>
       </div>
     </div>
