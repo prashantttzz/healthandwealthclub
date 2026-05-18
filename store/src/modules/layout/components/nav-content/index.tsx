@@ -392,7 +392,7 @@ export default function NavContent({
                           ))}
                         </div>
                       </div>
-                      <div>
+                      {/* <div>
                         <h4 className="font-newsreader italic text-3xl text-accent mb-6">Collections</h4>
                         <div className="flex flex-col gap-4">
                           {collections.slice(0, 6).map((col) => (
@@ -405,7 +405,7 @@ export default function NavContent({
                             </LocalizedClientLink>
                           ))}
                         </div>
-                      </div>
+                      </div> */}
                     </div>
                   </>
                 )}
