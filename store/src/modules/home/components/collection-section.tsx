@@ -50,7 +50,7 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
       image: "/p-2.png" 
     },
   ];
-  
+
   const [activeCard, setActiveCard] = useState(0);
   const containerRef = useRef<HTMLDivElement>(null);
   
@@ -90,13 +90,11 @@ export default function CategoryStickyScroll({ collections = [] }: CategoryStick
         >
           <div className="space-y-4">
             <h2 className="font-newsreader italic text-5xl lg:text-7xl text-bg leading-[0.85]">
-              {collections && collections.length > 0 ? "Categories" : "About us"}
+              {"About us"}
             </h2>
           </div>
           <p className="font-manrope tracking-widest font-medium text-bg/90 uppercase text-[10px] md:text-[12px] max-w-xl text-center">
-            {collections && collections.length > 0 
-              ? "A curated selection of seasonal staples designed with an emphasis on silhouette and longevity."
-              : "The foundation of our craft, from the engineer's desk to the streets of Abu Dhabi."}
+            {"The foundation of our craft, from the engineer's desk to the streets of Abu Dhabi."}
           </p>
         </motion.div>
       </div>
