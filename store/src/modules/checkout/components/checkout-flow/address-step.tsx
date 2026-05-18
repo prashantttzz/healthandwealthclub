@@ -18,7 +18,7 @@ const Ico = {
   truck: (c = "") => <Truck className={c} strokeWidth={1.5} />,
 }
 
-const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, shippingOptions, selectedShippingOptionId, setSelectedShippingOptionId, isLoadingShipping, recipientName, setRecipientName, recipientPhone, setRecipientPhone, countryCode }: {
+const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, shippingOptions, selectedShippingOptionId, setSelectedShippingOptionId, isLoadingShipping, recipientName, setRecipientName, recipientPhone, setRecipientPhone, countryCode, isInternational }: {
   cart: HttpTypes.StoreCart; 
   customer: HttpTypes.StoreCustomer | null
   selectedAddress: HttpTypes.StoreCustomerAddress | null; 
@@ -33,6 +33,7 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
   recipientPhone: string;
   setRecipientPhone: (val: string) => void;
   countryCode: string;
+  isInternational: boolean;
 }) => {
   const [sidebarOpen, setSidebarOpen] = useState(false)
   const [isGift, setIsGift] = useState(!!recipientName || !!recipientPhone)
@@ -143,6 +144,16 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
                 <div className="w-6 h-6 border-2 border-accent border-t-transparent animate-spin rounded-full mb-3" />
                 <span className="font-manrope text-[10px] uppercase font-bold tracking-widest text-accent/30">Fetching Options...</span>
              </div>
+          ) : isInternational ? (
+            <div className="border border-accent/10 bg-secondary/20 p-8 text-center shadow-sm">
+              <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-accent/10 bg-black/[0.03] text-accent/40">
+                {Ico.truck("w-6 h-6")}
+              </div>
+              <p className="font-newsreader text-2xl italic text-accent">International Shipping Coming Soon</p>
+              <p className="mx-auto mt-3 max-w-md font-manrope text-[12px] uppercase tracking-[0.18em] text-accent/40">
+                Shipping for this destination is not available yet. The Health & Wealth Club will open international delivery soon.
+              </p>
+            </div>
           ) : deliveryOptions.length === 0 ? (
             <div className="p-6 border border-accent/10 bg-black/[0.02] text-center">
                <p className="font-newsreader italic text-lg text-accent/30">

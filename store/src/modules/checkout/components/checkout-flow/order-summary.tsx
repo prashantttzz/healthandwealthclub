@@ -21,6 +21,7 @@ const OrderSummary = ({
   selectedShippingOptionId,
   shippingOptions,
   isPlacingOrder,
+  isInternational,
 }: {
   currentStep: number
   onContinue: () => void
@@ -30,6 +31,7 @@ const OrderSummary = ({
   selectedShippingOptionId?: string | null
   shippingOptions?: HttpTypes.StoreCartShippingOption[]
   isPlacingOrder?: boolean
+  isInternational?: boolean
 }) => {
   const { cart, optimisticItems: items, subtotal } = useCart()
   const label = currentStep === 0 ? "PROCEED TO ADDRESS" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"
@@ -83,8 +85,10 @@ const OrderSummary = ({
 
         <div className="flex justify-between">
           <span className="text-bg">Delivery Fee</span>
-          <span className={(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 ? "text-bg italic" : "text-bg font-semibold"}>
-            {(selectedShippingPrice ?? cart.shipping_total ?? 0) === 0
+          <span className={isInternational || (selectedShippingPrice ?? cart.shipping_total ?? 0) === 0 ? "text-bg italic" : "text-bg font-semibold"}>
+            {isInternational
+              ? "Coming Soon"
+              : (selectedShippingPrice ?? cart.shipping_total ?? 0) === 0
               ? currentStep === 0 ? "Calculated at next step" : "Free"
               : <LocalizedPrice amount={selectedShippingPrice ?? cart.shipping_total ?? 0} />}
           </span>
@@ -111,7 +115,7 @@ const OrderSummary = ({
       <button
         onClick={onContinue}
         disabled={
-          (currentStep === 1 && (!selectedAddress || (shippingOptions?.length || 0) === 0 || !selectedShippingOptionId || isLoadingShipping)) ||
+          (currentStep === 1 && (isInternational || !selectedAddress || (shippingOptions?.length || 0) === 0 || !selectedShippingOptionId || isLoadingShipping)) ||
           isPlacingOrder
         }
         className="w-full py-5 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase hover:bg-bg/90 transition-all duration-300 flex items-center justify-center gap-3 group disabled:opacity-30 disabled:cursor-not-allowed"
@@ -119,7 +123,10 @@ const OrderSummary = ({
         {(currentStep === 1 && isLoadingShipping) || isPlacingOrder ? "Processing..." : label} {Ico.arrowRight("w-4 h-4 group-hover:translate-x-1 transition-transform")}
       </button>
       <p className="font-manrope text-[10px] text-bg/80 text-center tracking-widest leading-relaxed">
-        No refunds, no exchange. <br />
+        {isInternational
+          ? "International shipping is coming soon for this destination."
+          : "No refunds, no exchange."}
+        <br />
         By continuing, you agree to our Terms of Use and Privacy Policy.
       </p>
     </div>

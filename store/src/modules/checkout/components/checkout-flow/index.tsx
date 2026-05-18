@@ -26,6 +26,8 @@ const Ico = {
   chevRight: (c = "") => <ChevronRight className={c} strokeWidth={2} />,
 }
 
+const GCC_COUNTRIES = ["AE", "SA", "KW", "QA", "BH", "OM"]
+
 const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: HttpTypes.StoreCart; customer: HttpTypes.StoreCustomer | null; countryCode: string }) => {
   const { cart, setCart, optimisticItems } = useCart()
   const { formatPrice } = useCurrencyFormatter()
@@ -54,9 +56,16 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
   const shippingRequestRef = useRef(0)
   const [paymentProviders, setPaymentProviders] = useState<HttpTypes.StorePaymentProvider[]>([])
 
+  const selectedCountryCode = (selectedAddress?.country_code || cart?.shipping_address?.country_code || "").toUpperCase()
+  const isInternationalShippingBlocked = !!selectedCountryCode && !GCC_COUNTRIES.includes(selectedCountryCode)
+
   const selectedShippingPrice = useMemo(() => {
+    if (isInternationalShippingBlocked) {
+      return 0
+    }
+
     return shippingOptions.find(o => o.id === selectedShippingOptionId)?.amount || cart?.shipping_total || 0
-  }, [selectedShippingOptionId, shippingOptions, cart?.shipping_total])
+  }, [isInternationalShippingBlocked, selectedShippingOptionId, shippingOptions, cart?.shipping_total])
 
   const stripeProviderId = useMemo(() => {
     const activeSessionProviderId = cart?.payment_collection?.payment_sessions?.find(
@@ -104,6 +113,15 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
           setCart(res.cart)
         }
 
+        const normalizedCountryCode = address.country_code?.toUpperCase() || ""
+
+        if (!GCC_COUNTRIES.includes(normalizedCountryCode)) {
+          setShippingOptions([])
+          setSelectedShippingOptionId(null)
+          lastSyncedAddressIdRef.current = address.id
+          return
+        }
+
         const opts = await listCartOptions()
         if (requestId !== shippingRequestRef.current) {
           return
@@ -134,10 +152,15 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
   // Fetch shipping options when address changes or as early as possible to prefetch
   useEffect(() => {
     if (!selectedAddress || !cart?.id) return
-    if (lastSyncedAddressIdRef.current === selectedAddress.id && shippingOptions.length > 0) return
+    if (
+      lastSyncedAddressIdRef.current === selectedAddress.id &&
+      (shippingOptions.length > 0 || isInternationalShippingBlocked)
+    ) {
+      return
+    }
 
     syncAddressAndShippingOptions(selectedAddress)
-  }, [selectedAddress, cart?.id, shippingOptions.length, syncAddressAndShippingOptions])
+  }, [selectedAddress, cart?.id, shippingOptions.length, isInternationalShippingBlocked, syncAddressAndShippingOptions])
 
   // Sync prop cart with global provider on mount
   useEffect(() => {
@@ -171,6 +194,10 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
       }
       goToStep(1)
     } else if (currentStep === 1) {
+      if (isInternationalShippingBlocked) {
+        return
+      }
+
       if (selectedShippingOptionId && cart?.id) {
         setIsLoadingShipping(true)
         try {
@@ -311,6 +338,7 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
                   recipientPhone={recipientPhone}
                   setRecipientPhone={setRecipientPhone}
                   countryCode={countryCode}
+                  isInternational={isInternationalShippingBlocked}
                 />
               )}
               {currentStep === 2 && (
@@ -335,6 +363,7 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
                 selectedShippingOptionId={selectedShippingOptionId}
                 shippingOptions={shippingOptions}
                 isPlacingOrder={isPlacingOrder}
+                isInternational={isInternationalShippingBlocked}
               />
             </div>
           </div>
@@ -347,14 +376,16 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
           <p className="font-newsreader italic text-xl text-accent">{formatPrice(payableAmount)}</p>
           {shippingOptions.length === 0 && currentStep === 1 ? (
             <div className="text-[10px] text-red-500 font-bold uppercase tracking-widest">
-               {selectedAddress 
+               {isInternationalShippingBlocked
+                 ? "International shipping coming soon"
+                 : selectedAddress 
                  ? "No shipping methods available" 
                  : "Select an address"}
             </div>
           ) : (<button className="font-manrope text-[10px] uppercase font-bold tracking-widest text-accent/40 flex items-center gap-1 mt-0.5">View Details {Ico.chevRight("w-3 h-3 -rotate-90")}</button>
           )}
         </div>
-        <button onClick={handleProceed} disabled={(currentStep === 1 && (!selectedAddress || shippingOptions.length === 0 || !selectedShippingOptionId || isLoadingShipping)) || isPlacingOrder}
+        <button onClick={handleProceed} disabled={(currentStep === 1 && (isInternationalShippingBlocked || !selectedAddress || shippingOptions.length === 0 || !selectedShippingOptionId || isLoadingShipping)) || isPlacingOrder}
           className="px-8 py-4 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.3em] uppercase hover:bg-accent/90 transition-all disabled:opacity-30 disabled:cursor-not-allowed">
           {(currentStep === 1 && isLoadingShipping) || isPlacingOrder ? "Processing..." : currentStep === 0 ? "PROCEED" : currentStep === 1 ? "CONTINUE" : "PLACE ORDER"}
         </button>
