@@ -26,6 +26,7 @@ type ExchangeRates = {
 type VariantPrice = {
   variant_id: string
   aed_amount: number
+  price_list_id: string | null
 }
 
 // ---------------------------------------------------------------------------
@@ -112,19 +113,22 @@ const loadVariantPricesStep = createStep(
     }
 
     const prices = variant?.price_set?.prices ?? []
-    const aedPrice = prices.find(
-      (p: any) => p.currency_code === "aed" && !p.price_list_id
+    
+    // Grab all AED prices, including base prices (price_list_id is null) AND price lists (sales)
+    const aedPrices = prices.filter(
+      (p: any) => p.currency_code === "aed"
     )
 
-    if (!aedPrice) {
+    if (aedPrices.length === 0) {
       logger.warn(`[auto-currency] variant ${variant.id} has no AED price, skipping`)
       return new StepResponse([] as VariantPrice[])
     }
 
-    const variantPrices: VariantPrice[] = [{
+    const variantPrices: VariantPrice[] = aedPrices.map((p: any) => ({
       variant_id: variant.id,
-      aed_amount: aedPrice.amount,
-    }]
+      aed_amount: p.amount,
+      price_list_id: p.price_list_id || null,
+    }))
 
     return new StepResponse(variantPrices)
   }
@@ -132,9 +136,6 @@ const loadVariantPricesStep = createStep(
 
 // ---------------------------------------------------------------------------
 // Step 3 – Upsert all converted prices
-// Gulf: SAR, KWD, QAR, BHD, OMR — real checkout currencies per region
-// International: USD — checkout currency (frontend shows local display only)
-// UAE: AED — already stored, skip
 // ---------------------------------------------------------------------------
 
 const upsertConvertedPricesStep = createStep(
@@ -159,17 +160,17 @@ const upsertConvertedPricesStep = createStep(
 
     // All currencies to write, mapped from AED
     const CONVERSIONS = [
-      { currency_code: "sar", rate: rates.AED_TO_SAR }, // Saudi Arabia
-      { currency_code: "kwd", rate: rates.AED_TO_KWD }, // Kuwait
-      { currency_code: "qar", rate: rates.AED_TO_QAR }, // Qatar
-      { currency_code: "bhd", rate: rates.AED_TO_BHD }, // Bahrain
-      { currency_code: "omr", rate: rates.AED_TO_OMR }, // Oman
-      { currency_code: "usd", rate: rates.AED_TO_USD }, // International
+      { currency_code: "sar", rate: rates.AED_TO_SAR },
+      { currency_code: "kwd", rate: rates.AED_TO_KWD },
+      { currency_code: "qar", rate: rates.AED_TO_QAR },
+      { currency_code: "bhd", rate: rates.AED_TO_BHD },
+      { currency_code: "omr", rate: rates.AED_TO_OMR },
+      { currency_code: "usd", rate: rates.AED_TO_USD },
     ]
 
     let updated = 0
 
-    for (const { variant_id, aed_amount } of variantPrices) {
+    for (const { variant_id, aed_amount, price_list_id } of variantPrices) {
       const { data: variants } = await query.graph({
         entity: "variant",
         fields: ["id", "price_set.id"],
@@ -182,28 +183,35 @@ const upsertConvertedPricesStep = createStep(
         continue
       }
 
-      const convertedPrices = CONVERSIONS.map(({ currency_code, rate }) => ({
-        currency_code,
-        amount: aed_amount * rate,
-      }))
+      // Prepare payload - include price_list_id if we are syncing a sale!
+      const convertedPrices = CONVERSIONS.map(({ currency_code, rate }) => {
+        const payload: any = {
+          currency_code,
+          amount: Number((aed_amount * rate).toFixed(2)),
+        }
+        if (price_list_id) {
+          payload.price_list_id = price_list_id
+        }
+        return payload
+      })
 
-      // 1. Fetch ALL current non-AED prices for this price set
+      // 1. Fetch ALL current non-AED prices for this price set AND specifically this price_list_id tier
       const { data: currentPrices } = await query.graph({
         entity: "price",
         fields: ["id", "currency_code"],
         filters: { 
           price_set_id: priceSetId,
-          price_list_id: null, // Only base prices
+          price_list_id: price_list_id,
         },
       })
 
-      // Identify all prices that are NOT AED to clear them out
+      // Identify all prices that are NOT AED to clear them out and replace with fresh calc
       const pricesToRemove = (currentPrices as any[])
         .filter(p => p.currency_code !== "aed")
         .map(p => p.id)
 
       logger.info(
-        `[auto-currency] variant ${variant_id}: clearing ${pricesToRemove.length} existing prices and re-adding ${convertedPrices.length} new ones`
+        `[auto-currency] variant ${variant_id} (PriceList: ${price_list_id}): clearing ${pricesToRemove.length} existing prices and re-adding ${convertedPrices.length} new ones`
       )
 
       // 2. Remove old prices
@@ -222,7 +230,7 @@ const upsertConvertedPricesStep = createStep(
       updated++
     }
 
-    logger.info(`[auto-currency] updated prices for ${updated} variant(s)`)
+    logger.info(`[auto-currency] updated prices for ${updated} base/sale variant tiers`)
     return new StepResponse({ updated })
   }
 )
