@@ -34,8 +34,13 @@ export default function ProductPreview({
             loading="lazy"
             className="object-cover transition-transform duration-700 group-hover:scale-105"
           />
-      
           <div className="absolute inset-0 bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          
+          {cheapestPrice && cheapestPrice.price_type === "sale" && (
+            <div className="absolute top-2 left-2 bg-rose-500 text-white text-[10px] font-bold tracking-wider uppercase px-2 py-1 rounded-sm z-10 shadow-sm">
+              Sale
+            </div>
+          )}
         </div>
 
         {/* Product Details */}
@@ -45,9 +50,18 @@ export default function ProductPreview({
               <h3 className="font-manrope text-[12px] md:text-[14px] font-regular text-accent tracking-tight leading-tight">
                 {product.title}
               </h3>
-                 <div className="font-manrope text-[13px] font-bold text-accent">
+              <div className="font-manrope text-[13px] font-bold text-accent">
                 {cheapestPrice ? (
-                  <LocalizedPrice amount={cheapestPrice.calculated_price_number} />
+                  <div className="flex gap-x-2 items-center">
+                    {cheapestPrice.price_type === "sale" && (
+                      <span className="line-through text-ui-fg-muted font-normal text-[11px] md:text-[12px]">
+                        <LocalizedPrice amount={cheapestPrice.original_price_number} />
+                      </span>
+                    )}
+                    <span className={cheapestPrice.price_type === "sale" ? "text-rose-500" : ""}>
+                      <LocalizedPrice amount={cheapestPrice.calculated_price_number} />
+                    </span>
+                  </div>
                 ) : (
                   "N/A"
                 )}
