@@ -73,10 +73,12 @@ async function getCountryCode(
 
     const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
 
-    if (urlCountryCode && regionMap.has(urlCountryCode)) {
-      countryCode = urlCountryCode
-    } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
+    // ENFORCED: Prioritize IP country to prevent manual region spoofing
+    if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
       countryCode = vercelCountryCode
+    } else if (urlCountryCode && regionMap.has(urlCountryCode)) {
+      // Fallback to URL only if no IP is detected (e.g. local testing)
+      countryCode = urlCountryCode
     } else if (regionMap.has(DEFAULT_REGION)) {
       countryCode = DEFAULT_REGION
     } else if (regionMap.keys().next().value) {
@@ -128,13 +130,20 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next()
   }
 
-  const redirectPath =
+  let redirectPath =
     request.nextUrl.pathname === "/" ? "" : request.nextUrl.pathname
 
   const queryString = request.nextUrl.search ? request.nextUrl.search : ""
 
   // Redirect to IP-detected country code — user cannot override this
   if (!urlHasCountryCode && countryCode) {
+    const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
+    
+    // If they typed a valid country code but it's not their IP country, strip it
+    if (urlCountryCode && regionMap.has(urlCountryCode)) {
+      redirectPath = redirectPath.replace(`/${urlCountryCode}`, "")
+    }
+
     redirectUrl = `${request.nextUrl.origin}/${countryCode}${redirectPath}${queryString}`
     response = NextResponse.redirect(`${redirectUrl}`, 307)
   } else if (!urlHasCountryCode && !countryCode) {
