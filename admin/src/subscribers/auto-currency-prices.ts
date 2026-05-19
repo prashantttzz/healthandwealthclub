@@ -8,9 +8,37 @@ export default async function autoCurrencyPricesHandler({
   const logger = container.resolve("logger")
   const query = container.resolve("query")
 
+  // Handle Price List Updates (Batch edits in admin)
+  if (event.name.includes("price-list") || event.name.includes("price_list")) {
+    const { data } = await query.graph({
+      entity: "price_list",
+      fields: ["prices.price_set.variant.id"],
+      filters: { id: event.data.id },
+    })
+    
+    const record = data[0] as any
+    if (!record) return
+
+    const variantIds = new Set<string>()
+    record?.prices?.forEach((p: any) => {
+      const vId = p.price_set?.variant?.id
+      if (vId) variantIds.add(vId)
+    })
+
+    logger.info(`[auto-currency] detected Price List update, syncing ${variantIds.size} variant(s)...`)
+
+    for (const vId of variantIds) {
+      await autoCurrencyPricesWorkflow(container).run({
+        input: { variant_id: vId },
+      })
+    }
+    return
+  }
+
+  // Handle Individual Price Updates
   let variantId: string | null = null
 
-  if (event.name.startsWith("pricing.price")) {
+  if (event.name.startsWith("pricing.price") || event.name === "price.updated" || event.name === "price.created") {
     const { data } = await query.graph({
       entity: event.name.includes("price-set") ? "price_set" : "price",
       fields: ["id", "currency_code", "variant.id", "price_set.variant.id"],
@@ -23,11 +51,6 @@ export default async function autoCurrencyPricesHandler({
     }
 
     variantId = record?.variant?.id || record?.price_set?.variant?.id || null
-  } else if (event.name.startsWith("product")) {
-    // For product events, we'd need to sync ALL variants. 
-    // To keep it simple and avoid loops, we'll let the individual price events handle it
-    // since price.created is fired when a product is created with prices.
-    return
   }
 
   if (!variantId) {
@@ -44,6 +67,12 @@ export default async function autoCurrencyPricesHandler({
 export const config: SubscriberConfig = {
   event: [
     "pricing.price.created",
-    "pricing.price.updated"
+    "pricing.price.updated",
+    "price.created",
+    "price.updated",
+    "price-list.created",
+    "price-list.updated",
+    "pricing.price_list.updated",
+    "pricing.price_list.created"
   ],
 }
