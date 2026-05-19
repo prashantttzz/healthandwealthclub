@@ -193,10 +193,7 @@ export default async function orderNotificationHandler({
   <!-- Totals -->
   <tr><td style="background-color:#ffffff;padding:0 40px 32px;">
     <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
-      <tr>
-        <td style="padding:8px 0;font-size:13px;color:#888;">Subtotal</td>
-        <td style="padding:8px 0;font-size:13px;color:#1a1a1a;text-align:right;font-weight:500;">${formatMoney(subtotal)}</td>
-      </tr>
+    
       <tr>
         <td style="padding:8px 0;font-size:13px;color:#888;">Shipping</td>
         <td style="padding:8px 0;font-size:13px;color:#1a1a1a;text-align:right;font-weight:500;">${shippingTotal === 0 ? "Free" : formatMoney(shippingTotal)}</td>
@@ -209,6 +206,10 @@ export default async function orderNotificationHandler({
         <td style="padding:8px 0;font-size:13px;color:#4a8c5c;">Discount</td>
         <td style="padding:8px 0;font-size:13px;color:#4a8c5c;text-align:right;font-weight:600;">- ${formatMoney(discountTotal)}</td>
       </tr>` : ""}
+      <tr>
+        <td style="padding:8px 0;font-size:13px;color:#888;">Subtotal</td>
+        <td style="padding:8px 0;font-size:13px;color:#1a1a1a;text-align:right;font-weight:500;">${formatMoney(subtotal)}</td>
+      </tr>
       <tr>
         <td colspan="2" style="padding:0;"><div style="border-top:2px solid #1a1a1a;margin:8px 0;"></div></td>
       </tr>
