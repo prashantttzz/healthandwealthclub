@@ -42,8 +42,13 @@ export default async function orderNotificationHandler({
       "email",
       "currency_code",
       "total",
+      "subtotal",
+      "shipping_total",
+      "tax_total",
+      "discount_total",
       "summary.*",
       "items.*",
+      "shipping_methods.*",
       "shipping_address.*",
     ],
     variables: { id: orderId },
@@ -54,89 +59,197 @@ export default async function orderNotificationHandler({
     return
   }
 
+  // Debug: log the order totals to diagnose pricing issues
+  logger.info(`[order-email] Order #${order.display_id} totals → total: ${order.total}, subtotal: ${order.subtotal}, shipping_total: ${order.shipping_total}, tax_total: ${order.tax_total}, discount_total: ${order.discount_total}, summary: ${JSON.stringify(order.summary || {})}, shipping_methods: ${JSON.stringify((order.shipping_methods || []).map((s: any) => ({ name: s.name, amount: s.amount, total: s.total })))}`)
+
   // 3. Determine message based on event type
   let subject = ""
   let title = ""
   let subtext = ""
+  let heroIcon = "✦"
 
   switch (name) {
     case "order.placed":
-      subject = `Order Confirmation `
-      title = "Thank you for your order!"
-      subtext = `Welcome to The Health & Wealth Club. We've received your order #${order.display_id} and are preparing it for your curated experience.`
+      subject = `Order Confirmation — #${order.display_id}`
+      title = "Thank you for your order."
+      subtext = `Your order <strong>#${order.display_id}</strong> has been received and is being prepared with care.`
+      heroIcon = "✦"
       break
 
     case "fulfillment.created":
       if (data.no_notification) return 
-      subject = `Processing your order`
-      title = "Curating your experience..."
-      subtext = `We've started preparing your items for order #${order.display_id}. You'll receive another update once it's on the way.`
+      subject = `Order #${order.display_id} — Processing`
+      title = "Curating your experience."
+      subtext = `We've started preparing the items for your order <strong>#${order.display_id}</strong>. You'll hear from us again once it ships.`
+      heroIcon = "⟡"
       break
 
     case "shipment.created":
       if (data.no_notification) return
-      subject = `Your order has shipped!`
-      title = "It's on the way!"
-      subtext = `Great news! Your order #${order.display_id} has been handed over to our delivery partner. You can now track its journey reaching you soon.`
+      subject = `Order #${order.display_id} — Shipped`
+      title = "Your order is on its way."
+      subtext = `Great news — order <strong>#${order.display_id}</strong> has been handed to our delivery partner and is en route to you.`
+      heroIcon = "→"
       break
     
     case "delivery.created":
     case "order.completed":
-      subject = `Order Delivered!`
-      title = "Curated delivered."
-      subtext = `Your experience with order #${order.display_id} is now complete. We hope you enjoy your curated items from The Health & Wealth Club.`
+      subject = `Order #${order.display_id} — Delivered`
+      title = "Your order has arrived."
+      subtext = `Order <strong>#${order.display_id}</strong> has been delivered. We hope you enjoy your curated selection.`
+      heroIcon = "✓"
       break
 
     default:
       return
   }
 
-  // 3. Setup Currency & Pricing Helpers
-  const currencyCode = (order.currency_code || "USD").toUpperCase()
-  const decimalFactor = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 1000 : 100
+  // 4. Currency & Pricing
+  // Medusa v2 stores amounts as actual values (e.g. 78.97), NOT minor units.
+  // No division needed.
+  const currencyCode = (order.currency_code || "usd").toUpperCase()
   const decimals = ["KWD", "BHD", "OMR"].includes(currencyCode) ? 3 : 2
-  const formatMoney = (amount: number) =>
-    `${(amount / decimalFactor).toFixed(decimals)} ${currencyCode}`
 
-  // 4. Generate Item Rows (with manual calculation fallback to prevent NaN)
-  const itemRows = (order.items || []).map(item => {
-    const itemTotal = Number(item.total || (Number(item.unit_price || 0) * Number(item.quantity || 0)))
+  const formatMoney = (amount: number) => {
+    const val = Number(amount || 0)
+    return `${currencyCode} ${val.toFixed(decimals)}`
+  }
+
+  // 5. Generate Item Rows
+  const itemRows = (order.items || []).map((item: any) => {
+    const qty = Number(item.quantity || 1)
+    const unitPrice = Number(item.unit_price || 0)
+    const itemTotal = Number(item.total || unitPrice * qty)
     return `
-    <div style="display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #f0f0f0;">
-      <div style="font-size: 14px;"><strong>${item.product_title}</strong> x ${item.quantity}  =  </div>
-      <div style="font-size: 14px; font-weight: bold;">
-        ${formatMoney(itemTotal)}
-      </div>
-    </div>
-    `
-  }).join('')
+      <tr>
+        <td style="padding:14px 0;border-bottom:1px solid #f0ede8;vertical-align:top;">
+          <span style="font-family:'Georgia',serif;font-size:15px;color:#1a1a1a;">${item.product_title || "Item"}</span>
+          ${item.variant_title ? `<br><span style="font-size:12px;color:#999;font-family:'Helvetica Neue',sans-serif;">${item.variant_title}</span>` : ""}
+        </td>
+        <td style="padding:14px 0;border-bottom:1px solid #f0ede8;text-align:center;font-family:'Helvetica Neue',sans-serif;font-size:14px;color:#666;vertical-align:top;">×${qty}</td>
+        <td style="padding:14px 0;border-bottom:1px solid #f0ede8;text-align:right;font-family:'Helvetica Neue',sans-serif;font-size:15px;font-weight:600;color:#1a1a1a;vertical-align:top;">${formatMoney(itemTotal)}</td>
+      </tr>`
+  }).join("")
 
-  // 5. Cost breakdown
-  const subtotal = Number(order.summary?.subtotal || 0)
-  const shippingTotal = Number(order.summary?.shipping_total || 0)
-  const taxTotal = Number(order.summary?.tax_total || 0)
-  const discountTotal = Number(order.summary?.discount_total || 0)
+  // 6. Cost breakdown — use multiple fallbacks for each field
+  const subtotal = Number(order.subtotal || order.summary?.subtotal || 0)
+  const shippingMethodsTotal = (order.shipping_methods || []).reduce((sum: number, s: any) => sum + Number(s.total || s.amount || 0), 0)
+  const shippingTotal = Number(order.shipping_total || order.summary?.shipping_total || shippingMethodsTotal || 0)
+  const taxTotal = Number(order.tax_total || order.summary?.tax_total || 0)
+  const discountTotal = Number(order.discount_total || order.summary?.discount_total || 0)
   const orderTotal = Number(order.total || order.summary?.total || 0)
 
-  const summaryRows = [
-    { label: "Subtotal", value: formatMoney(subtotal) },
-    { label: "Shipping", value: formatMoney(shippingTotal) },
-    { label: "Tax", value: formatMoney(taxTotal) },
-    ...(discountTotal > 0
-      ? [{ label: "Discount", value: `- ${formatMoney(discountTotal)}` }]
-      : []),
-  ]
-    .map(
-      (row) => `
-        <div style="display: flex; justify-content: space-between; padding: 8px 0; font-size: 14px; color: #4a4a4a;">
-          <span>${row.label}</span>
-          <span style="font-weight: 600;">${row.value}</span>
-        </div>
-      `
-    )
-    .join("")
+  // 7. Shipping address
+  const addr = order.shipping_address
+  const addressLine = addr
+    ? [addr.first_name, addr.last_name].filter(Boolean).join(" ") +
+      (addr.address_1 ? `<br>${addr.address_1}` : "") +
+      (addr.address_2 ? `, ${addr.address_2}` : "") +
+      (addr.city ? `<br>${addr.city}` : "") +
+      (addr.province ? `, ${addr.province}` : "") +
+      (addr.postal_code ? ` ${addr.postal_code}` : "") +
+      (addr.country_code ? `<br>${addr.country_code.toUpperCase()}` : "")
+    : "—"
 
-  // 6. Send via Resend
+  const logoUrl = "https://sxojtfykjtdzhkmchnce.supabase.co/storage/v1/object/public/medusa-media/main-logo-white.png"
+
+  // 9. Build premium HTML
+  const emailHtml = `
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f5f3ef;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+
+<!-- Outer wrapper -->
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ef;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+  <!-- Header -->
+  <tr><td style="background-color:#1a1a1a;padding:28px 40px;text-align:center;">
+    <img src="${logoUrl}" alt="The Health & Wealth Club" width="220" style="display:block;margin:0 auto;max-width:220px;height:auto;" />
+  </td></tr>
+
+  <!-- Hero -->
+  <tr><td style="background-color:#ffffff;padding:50px 40px 40px;text-align:center;border-bottom:1px solid #f0ede8;">
+    <div style="width:56px;height:56px;border-radius:50%;margin:0 auto 24px;line-height:56px;font-size:22px;color:#1a1a1a;">${heroIcon}</div>
+    <h2 style="margin:0 0 12px;font-family:'Georgia',serif;font-size:26px;font-weight:400;color:#1a1a1a;font-style:italic;">${title}</h2>
+    <p style="margin:0;font-size:14px;line-height:1.7;color:#777;max-width:420px;display:inline-block;">${subtext}</p>
+  </td></tr>
+
+  <!-- Order Items -->
+  <tr><td style="background-color:#ffffff;padding:32px 40px;">
+    <p style="margin:0 0 16px;font-size:10px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:#b8a88a;">Order Summary</p>
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="padding:0 0 10px;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#999;border-bottom:2px solid #1a1a1a;">Item</td>
+        <td style="padding:0 0 10px;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#999;text-align:center;border-bottom:2px solid #1a1a1a;">Qty</td>
+        <td style="padding:0 0 10px;font-size:10px;font-weight:700;letter-spacing:0.15em;text-transform:uppercase;color:#999;text-align:right;border-bottom:2px solid #1a1a1a;">Amount</td>
+      </tr>
+      ${itemRows}
+    </table>
+  </td></tr>
+
+  <!-- Totals -->
+  <tr><td style="background-color:#ffffff;padding:0 40px 32px;">
+    <table width="100%" cellpadding="0" cellspacing="0" style="margin-top:8px;">
+      <tr>
+        <td style="padding:8px 0;font-size:13px;color:#888;">Subtotal</td>
+        <td style="padding:8px 0;font-size:13px;color:#1a1a1a;text-align:right;font-weight:500;">${formatMoney(subtotal)}</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 0;font-size:13px;color:#888;">Shipping</td>
+        <td style="padding:8px 0;font-size:13px;color:#1a1a1a;text-align:right;font-weight:500;">${shippingTotal === 0 ? "Free" : formatMoney(shippingTotal)}</td>
+      </tr>
+      ${taxTotal > 0 ? `<tr>
+        <td style="padding:8px 0;font-size:13px;color:#888;">Tax</td>
+        <td style="padding:8px 0;font-size:13px;color:#1a1a1a;text-align:right;font-weight:500;">${formatMoney(taxTotal)}</td>
+      </tr>` : ""}
+      ${discountTotal > 0 ? `<tr>
+        <td style="padding:8px 0;font-size:13px;color:#4a8c5c;">Discount</td>
+        <td style="padding:8px 0;font-size:13px;color:#4a8c5c;text-align:right;font-weight:600;">- ${formatMoney(discountTotal)}</td>
+      </tr>` : ""}
+      <tr>
+        <td colspan="2" style="padding:0;"><div style="border-top:2px solid #1a1a1a;margin:8px 0;"></div></td>
+      </tr>
+      <tr>
+        <td style="padding:10px 0;font-family:'Georgia',serif;font-size:18px;color:#1a1a1a;font-style:italic;">Total</td>
+        <td style="padding:10px 0;font-family:'Georgia',serif;font-size:20px;color:#1a1a1a;text-align:right;font-weight:600;">${formatMoney(orderTotal)}</td>
+      </tr>
+    </table>
+  </td></tr>
+
+  <!-- Shipping Address -->
+  <tr><td style="background-color:#faf9f7;padding:28px 40px;border-top:1px solid #f0ede8;">
+    <table width="100%" cellpadding="0" cellspacing="0">
+      <tr>
+        <td style="vertical-align:top;width:50%;">
+          <p style="margin:0 0 8px;font-size:10px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:#b8a88a;">Shipping To</p>
+          <p style="margin:0;font-size:13px;line-height:1.7;color:#555;">${addressLine}</p>
+        </td>
+        <td style="vertical-align:top;width:50%;text-align:right;">
+          <p style="margin:0 0 8px;font-size:10px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:#b8a88a;">Order Number</p>
+          <p style="margin:0;font-family:'Georgia',serif;font-size:18px;color:#1a1a1a;">#${order.display_id}</p>
+        </td>
+      </tr>
+    </table>
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="background-color:#1a1a1a;padding:32px 40px;text-align:center;">
+    <p style="margin:0 0 6px;font-family:'Georgia',serif;font-size:13px;letter-spacing:0.12em;color:#b8a88a;text-transform:uppercase;">The Health & Wealth Club</p>
+    <p style="margin:0 0 16px;font-size:11px;color:#666;letter-spacing:0.05em;">Premium Life & Style</p>
+    <p style="margin:0;font-size:10px;color:#555;">This is an automated notification. Please do not reply to this email.</p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+
+</body>
+</html>`
+
+  // 9. Send via Resend
   try {
     const res = await fetch("https://api.resend.com/emails", {
       method: "POST",
@@ -148,37 +261,7 @@ export default async function orderNotificationHandler({
         from: "The Health & Wealth Club <orders@healthandwealthclub.com>",
         to: order.email,
         subject: subject,
-        html: `
-          <div style="font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 40px 20px; color: #162917; background-color: #ffffff;">
-            <div style="text-align: center; margin-bottom: 40px;">
-              <h2 style="font-style: italic; font-weight: 300; font-size: 28px; margin: 0;">HEALTH & WEALTH CLUB</h2>
-            </div>
-            
-            <h1 style="font-size: 24px; font-weight: 700; margin-bottom: 20px;">${title}</h1>
-            <p style="font-size: 16px; line-height: 1.6; color: #4a4a4a; margin-bottom: 30px;">
-              ${subtext}
-            </p>
-
-            <div style="background-color: #f9f9f9; padding: 25px; border-radius: 4px; margin-bottom: 30px;">
-              <h3 style="font-size: 13px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.1em; color: #a1a1a1; margin-bottom: 15px;">Order Summary</h3>
-              ${itemRows}
-              <div style="padding-top: 12px; margin-top: 12px; border-top: 1px solid #e8e8e8;">
-                ${summaryRows}
-              </div>
-              <div style="display: flex; justify-content: space-between; padding-top: 15px; margin-top: 12px; border-top: 1px solid #e0e0e0; font-weight: bold; font-size: 18px;">
-                <span>Total</span>
-                <span>
-                  ${formatMoney(orderTotal)}
-                </span>
-              </div>
-            </div>
-
-            <div style="text-align: center; font-size: 12px; color: #a1a1a1; margin-top: 40px; border-top: 1px solid #eee; padding-top: 20px;">
-              <p>The Health & Wealth Club | Premium Life & Style</p>
-              <p>This is an automated notification. Please do not reply to this email.</p>
-            </div>
-          </div>
-        `,
+        html: emailHtml,
       }),
     })
 

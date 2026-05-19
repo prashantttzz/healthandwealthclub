@@ -32,6 +32,8 @@ export const POST = async (
   const frontendUrl = process.env.STORE_CORS?.split(",")[0] || "http://localhost:8000"
   const resetLink = `${frontendUrl}/in/reset-password?email=${encodeURIComponent(email)}&token=${token}`
 
+  const logoUrl = "https://sxojtfykjtdzhkmchnce.supabase.co/storage/v1/object/public/medusa-media/main-logo-white.png"
+
   // Send via Resend
   const resendRes = await fetch("https://api.resend.com/emails", {
     method: "POST",
@@ -42,15 +44,51 @@ export const POST = async (
     body: JSON.stringify({
       from: "The Health & Wealth Club <orders@healthandwealthclub.com>",
       to: email,
-      subject: "Password Reset Request",
+      subject: "Reset Your Password — The Health & Wealth Club",
       html: `
-        <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Reset your password</h2>
-          <p>We received a request to reset your password. Click the link below to choose a new password.</p>
-          <a href="${resetLink}" style="display: inline-block; padding: 12px 24px; background: #3d2f20; color: #fff; text-decoration: none; margin-top: 16px;">Reset Password</a>
-          <p style="margin-top: 32px; color: #666; font-size: 12px;">If you didn't request this, you can safely ignore this email.</p>
-        </div>
-      `,
+<!DOCTYPE html>
+<html lang="en">
+<head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1.0"></head>
+<body style="margin:0;padding:0;background-color:#f5f3ef;font-family:'Helvetica Neue',Helvetica,Arial,sans-serif;">
+<table width="100%" cellpadding="0" cellspacing="0" style="background-color:#f5f3ef;padding:40px 20px;">
+<tr><td align="center">
+<table width="600" cellpadding="0" cellspacing="0" style="max-width:600px;width:100%;">
+
+  <!-- Header -->
+  <tr><td style="background-color:#1a1a1a;padding:28px 40px;text-align:center;">
+    <img src="${logoUrl}" alt="The Health & Wealth Club" width="220" style="display:block;margin:0 auto;max-width:220px;height:auto;" />
+  </td></tr>
+
+  <!-- Hero -->
+  <tr><td style="background-color:#ffffff;padding:50px 40px 20px;text-align:center;">
+    <div style="width:56px;height:56px;border-radius:50%;background-color:#f5f3ef;margin:0 auto 24px;line-height:56px;font-size:22px;color:#1a1a1a;">⟡</div>
+    <h2 style="margin:0 0 12px;font-family:'Georgia',serif;font-size:26px;font-weight:400;color:#1a1a1a;font-style:italic;">Reset your password</h2>
+    <p style="margin:0;font-size:14px;line-height:1.7;color:#777;max-width:420px;display:inline-block;">We received a request to reset the password for your account. Click the button below to choose a new one.</p>
+  </td></tr>
+
+  <!-- CTA Button -->
+  <tr><td style="background-color:#ffffff;padding:24px 40px 40px;text-align:center;">
+    <table cellpadding="0" cellspacing="0" style="margin:0 auto;">
+      <tr><td style="background-color:#1a1a1a;padding:16px 48px;">
+        <a href="${resetLink}" style="font-family:'Helvetica Neue',sans-serif;font-size:12px;font-weight:700;letter-spacing:0.25em;text-transform:uppercase;color:#ffffff;text-decoration:none;">Reset Password</a>
+      </td></tr>
+    </table>
+    <p style="margin:20px 0 0;font-size:12px;color:#999;">This link expires in <strong style="color:#1a1a1a;">15 minutes</strong>.</p>
+    <p style="margin:12px 0 0;font-size:11px;color:#bbb;word-break:break-all;max-width:420px;display:inline-block;">If the button doesn't work, copy and paste this link:<br>${resetLink}</p>
+  </td></tr>
+
+  <!-- Footer -->
+  <tr><td style="background-color:#1a1a1a;padding:32px 40px;text-align:center;">
+    <p style="margin:0 0 6px;font-family:'Georgia',serif;font-size:13px;letter-spacing:0.12em;color:#b8a88a;text-transform:uppercase;">The Health & Wealth Club</p>
+    <p style="margin:0 0 16px;font-size:11px;color:#666;letter-spacing:0.05em;">Premium Life & Style</p>
+    <p style="margin:0;font-size:10px;color:#555;">If you didn't request this, you can safely ignore this email.</p>
+  </td></tr>
+
+</table>
+</td></tr>
+</table>
+</body>
+</html>`,
     }),
   })
 

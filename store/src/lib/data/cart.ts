@@ -488,8 +488,11 @@ export async function selectSavedAddress(address: HttpTypes.StoreCustomerAddress
       throw new Error("Address must have a country code to fetch shipping options")
     }
 
-    const targetRegion = await getRegion(address.country_code)
-    const currentCart = await retrieveCart(cartId)
+    // Parallelize region + cart retrieval instead of sequential
+    const [targetRegion, currentCart] = await Promise.all([
+      getRegion(address.country_code),
+      retrieveCart(cartId),
+    ])
 
     const data: any = {
       shipping_address: {
@@ -528,6 +531,100 @@ export async function selectSavedAddress(address: HttpTypes.StoreCustomerAddress
   } catch (e: any) {
     console.error("Error in selectSavedAddress:", e.message)
     return { success: false, error: e.message }
+  }
+}
+
+/**
+ * Combined action: updates the cart with the saved address AND fetches shipping options in one server roundtrip.
+ * This avoids two separate sequential server action calls from the client.
+ */
+export async function selectAddressAndFetchShipping(address: HttpTypes.StoreCustomerAddress) {
+  try {
+    const cartId = await getCartId()
+    if (!cartId) {
+      throw new Error("No existing cart found when selecting address")
+    }
+
+    if (!address.country_code) {
+      throw new Error("Address must have a country code to fetch shipping options")
+    }
+
+    const headers = {
+      ...(await getAuthHeaders()),
+    }
+
+    // Parallelize region + cart retrieval
+    const [targetRegion, currentCart] = await Promise.all([
+      getRegion(address.country_code),
+      retrieveCart(cartId),
+    ])
+
+    const addressPayload = {
+      first_name: address.first_name ?? undefined,
+      last_name: address.last_name ?? undefined,
+      address_1: address.address_1 ?? undefined,
+      address_2: address.address_2 || "",
+      company: address.company ?? undefined,
+      postal_code: address.postal_code ?? undefined,
+      city: address.city ?? undefined,
+      country_code: address.country_code ?? undefined,
+      province: address.province ?? undefined,
+      phone: address.phone ?? undefined,
+    }
+
+    const data: any = {
+      shipping_address: addressPayload,
+      billing_address: addressPayload,
+    }
+
+    if (targetRegion && currentCart && currentCart.region_id !== targetRegion.id) {
+      data.region_id = targetRegion.id
+    }
+
+    // Update cart with address
+    const updatedCart = await updateCart(data)
+    revalidateTag("carts")
+
+    // Now fetch shipping options immediately (no second round trip from client)
+    const { shipping_options } = await sdk.client.fetch<{
+      shipping_options: HttpTypes.StoreCartShippingOption[]
+    }>("/store/shipping-options", {
+      query: { cart_id: cartId },
+      headers,
+      cache: "no-store",
+    })
+
+    // City-specific logic for UAE
+    let filteredOptions = shipping_options
+    if (updatedCart?.shipping_address?.country_code?.toLowerCase() === "ae") {
+      const majorCities = [
+        "abu dhabi", "al-ain", "al ain", "dubai", "sharjah",
+        "ras al khaimah", "umm al quwain", "um al quwain", "ajman", "fujairah"
+      ]
+      const city = updatedCart.shipping_address.city?.toLowerCase().trim() || ""
+      const isMajorCity = majorCities.includes(city)
+
+      if (isMajorCity) {
+        const filtered = shipping_options.filter(opt =>
+          opt.name.toLowerCase().includes("express")
+        )
+        if (filtered.length > 0) filteredOptions = filtered
+      } else {
+        const filtered = shipping_options.filter(opt =>
+          opt.name.toLowerCase().includes("standard")
+        )
+        if (filtered.length > 0) filteredOptions = filtered
+      }
+    }
+
+    return {
+      success: true,
+      cart: updatedCart,
+      shipping_options: filteredOptions,
+    }
+  } catch (e: any) {
+    console.error("Error in selectAddressAndFetchShipping:", e.message)
+    return { success: false, error: e.message, shipping_options: [] as HttpTypes.StoreCartShippingOption[] }
   }
 }
 

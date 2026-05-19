@@ -112,7 +112,7 @@ export default function CategoryStickyScroll({
 
       <div
         ref={containerRef}
-        className="relative mx-auto max-w-[1400px] px-4 sm:px-6 md:px-10 lg:px-24 xl:px-40"
+        className="relative mx-auto  px-4 sm:px-6 md:px-10 lg:px-24 xl:px-40"
       >
         <div className="absolute bottom-0 left-5 top-0 hidden w-px bg-bg/5 md:block lg:left-12">
           <motion.div

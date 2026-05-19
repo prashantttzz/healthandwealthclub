@@ -2,7 +2,7 @@
 
 import React, { useState, useMemo, useEffect, useRef, useCallback } from "react"
 import { HttpTypes } from "@medusajs/types"
-import { listCartOptions, setShippingMethod, selectSavedAddress, updateCart, initiatePaymentSession } from "@lib/data/cart"
+import { listCartOptions, setShippingMethod, selectAddressAndFetchShipping, updateCart, initiatePaymentSession } from "@lib/data/cart"
 import { useCurrencyFormatter } from "@lib/currency"
 import { listCartPaymentMethods } from "@lib/data/payment"
 import LocalizedClientLink from "@modules/common/components/localized-client-link"
@@ -57,7 +57,8 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
   const [paymentProviders, setPaymentProviders] = useState<HttpTypes.StorePaymentProvider[]>([])
 
   const selectedCountryCode = (selectedAddress?.country_code || cart?.shipping_address?.country_code || "").toUpperCase()
-  const isInternationalShippingBlocked = !!selectedCountryCode && !GCC_COUNTRIES.includes(selectedCountryCode)
+  // TEMPORARY TESTING: Enable international shipping
+  const isInternationalShippingBlocked = false // !!selectedCountryCode && !GCC_COUNTRIES.includes(selectedCountryCode)
 
   const selectedShippingPrice = useMemo(() => {
     if (isInternationalShippingBlocked) {
@@ -102,32 +103,21 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
       setIsLoadingShipping(true)
 
       try {
-        const res = await selectSavedAddress(address)
+        // Single combined server action: address sync + shipping options fetch
+        const res = await selectAddressAndFetchShipping(address)
+
+        if (requestId !== shippingRequestRef.current) return
 
         if (!res.success) {
           console.error("Failed to sync address:", res.error)
           return
         }
 
-        if (res.cart && requestId === shippingRequestRef.current) {
+        if (res.cart) {
           setCart(res.cart)
         }
 
-        const normalizedCountryCode = address.country_code?.toUpperCase() || ""
-
-        if (!GCC_COUNTRIES.includes(normalizedCountryCode)) {
-          setShippingOptions([])
-          setSelectedShippingOptionId(null)
-          lastSyncedAddressIdRef.current = address.id
-          return
-        }
-
-        const opts = await listCartOptions()
-        if (requestId !== shippingRequestRef.current) {
-          return
-        }
-
-        const nextOptions = opts.shipping_options || []
+        const nextOptions = res.shipping_options || []
         setShippingOptions(nextOptions)
         lastSyncedAddressIdRef.current = address.id
 
@@ -135,7 +125,6 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
           if (prev && nextOptions.some((option) => option.id === prev)) {
             return prev
           }
-
           return nextOptions[0]?.id || null
         })
       } catch (err) {
@@ -149,7 +138,8 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
     [cart?.id, setCart]
   )
 
-  // Fetch shipping options when address changes or as early as possible to prefetch
+  // Prefetch: start syncing address + shipping options as soon as we have a selected address,
+  // even while user is still on the Bag step (step 0), so options are ready instantly at step 1.
   useEffect(() => {
     if (!selectedAddress || !cart?.id) return
     if (
@@ -189,6 +179,8 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
     if (currentStep === 0 && !customer) {
       setAuthOpen(true)
     } else if (currentStep === 0) {
+      // If address hasn't been synced yet, kick off sync (it'll happen in background)
+      // but don't wait — the useEffect will handle it as user moves to step 1
       if (selectedAddress && lastSyncedAddressIdRef.current !== selectedAddress.id) {
         void syncAddressAndShippingOptions(selectedAddress)
       }

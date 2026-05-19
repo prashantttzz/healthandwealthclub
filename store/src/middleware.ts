@@ -71,9 +71,11 @@ async function getCountryCode(
       .get("x-vercel-ip-country")
       ?.toLowerCase()
 
-    // URL country code check removed — users cannot change region via URL
+    const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
 
-    if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
+    if (urlCountryCode && regionMap.has(urlCountryCode)) {
+      countryCode = urlCountryCode
+    } else if (vercelCountryCode && regionMap.has(vercelCountryCode)) {
       countryCode = vercelCountryCode
     } else if (regionMap.has(DEFAULT_REGION)) {
       countryCode = DEFAULT_REGION
