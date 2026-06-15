@@ -20,6 +20,7 @@ type MobileActionsProps = {
   isAtMaximumQuantity?: boolean
   handleAddToCart: () => void
   isAdding?: boolean
+  isAdded?: boolean
   show: boolean
   optionsDisabled: boolean
   isOptionAvailable: (optionId: string, value: string) => boolean
@@ -34,6 +35,7 @@ const MobileActions: React.FC<MobileActionsProps> = ({
   isAtMaximumQuantity,
   handleAddToCart,
   isAdding,
+  isAdded,
   show,
   optionsDisabled,
   isOptionAvailable,
@@ -114,27 +116,38 @@ const MobileActions: React.FC<MobileActionsProps> = ({
                 <div className="flex items-center justify-between w-full">
                   <span>
                     {variant
-                      ? Object.values(options).join(" / ")
+                      ? Object.values(options).join(" / ")
                       : "Select Options"}
                   </span>
                   <ChevronDown />
                 </div>
               </Button>}
-              <Button
-                onClick={handleAddToCart}
-                disabled={!inStock || !variant}
-                className="w-full"
-                isLoading={isAdding}
-                data-testid="mobile-cart-button"
-              >
-                {!variant
-                  ? "Select variant"
-                  : !inStock
-                  ? "Out of stock"
-                  : isAtMaximumQuantity
-                  ? "Maximum Quantity Reached"
-                  : "Add to cart"}
-              </Button>
+              {!inStock && variant ? (
+                <a
+                  href="https://www.instagram.com/thehealthywealthclub"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="w-full bg-ui-fg-base text-ui-bg-base hover:bg-ui-fg-base-hover flex items-center justify-center h-10 rounded-md text-[13px] font-medium transition-fg"
+                >
+                  Order via Insta
+                </a>
+              ) : (
+                <Button
+                  onClick={handleAddToCart}
+                  disabled={!inStock || !variant || isAdded || isAtMaximumQuantity}
+                  className="w-full"
+                  isLoading={isAdding}
+                  data-testid="mobile-cart-button"
+                >
+                  {!variant
+                    ? "Select variant"
+                    : isAtMaximumQuantity
+                    ? "Max Quantity Reached"
+                    : isAdded
+                    ? "Added \u2713"
+                    : "Add to cart"}
+                </Button>
+              )}
             </div>
           </div>
         </Transition>

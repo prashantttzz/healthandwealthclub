@@ -83,19 +83,40 @@ export const CartProvider: React.FC<{
   }, [initialCart?.id, initialCart?.items?.length])
 
   // ✅ Merge real cart items with optimistic state
+  // ✅ Merge real cart items with optimistic state
   const optimisticItems = useMemo(() => {
-    const existingItems = cart?.items?.map(item => ({
-      ...item,
-      quantity: optimisticQuantities[item.id] !== undefined
-        ? optimisticQuantities[item.id]
-        : item.quantity
-    })).filter(item => !optimisticRemovedIds[item.id] && item.quantity > 0) || []
+    const existingItems =
+      cart?.items?.map((item) => {
+        const quantity =
+          optimisticQuantities[item.id] !== undefined
+            ? optimisticQuantities[item.id]
+            : item.quantity
+        const unitPrice = Number(item.unit_price) || 0
+        return {
+          ...item,
+          quantity,
+          total: unitPrice * quantity,
+          original_total:
+            (Number(item.original_total) / (item.quantity || 1)) * quantity ||
+            unitPrice * quantity,
+        }
+      }).filter((item) => !optimisticRemovedIds[item.id] && item.quantity > 0) || []
 
-    const filteredAdditions = optimisticAdditions.filter(addition =>
-      !existingItems.some(item => item.variant_id === addition.variant_id)
-    )
+    const filteredAdditions = optimisticAdditions
+      .map((item) => {
+        const quantity = item.quantity
+        const unitPrice = Number(item.unit_price) || 0
+        return {
+          ...item,
+          total: unitPrice * quantity,
+          original_total: unitPrice * quantity,
+        }
+      })
+      .filter((addition) =>
+        !existingItems.some((item) => item.variant_id === addition.variant_id)
+      )
 
-    return [...existingItems, ...filteredAdditions]
+    return [...existingItems, ...filteredAdditions] as HttpTypes.StoreCartLineItem[]
   }, [cart?.items, optimisticQuantities, optimisticAdditions, optimisticRemovedIds])
 
   const totalItems = useMemo(() => {
@@ -152,23 +173,39 @@ export const CartProvider: React.FC<{
     optimisticData?: any
   ) => {
     setIsAdding(true)
-    const existingItem = cart?.items?.find(item => item.variant_id === variantId)
+
+    // Check against merged optimisticItems list instead of cart.items to prevent duplicates on rapid clicks
+    const existingOptimisticItem = optimisticItems.find((item) => item.variant_id === variantId)
     let tempId: string | null = null
 
-    // ✅ Optimistic update before API call
-    if (existingItem) {
-      const currentQty = optimisticQuantities[existingItem.id] ?? existingItem.quantity
-      setOptimisticQuantities(prev => ({
-        ...prev,
-        [existingItem.id]: currentQty + quantity
-      }))
+    if (existingOptimisticItem) {
+      const isTemp = existingOptimisticItem.id.startsWith("optimistic-")
+      if (isTemp) {
+        setOptimisticAdditions((prev) =>
+          prev.map((item) =>
+            item.id === existingOptimisticItem.id
+              ? { ...item, quantity: item.quantity + quantity }
+              : item
+          )
+        )
+        tempId = existingOptimisticItem.id
+      } else {
+        const currentQty = optimisticQuantities[existingOptimisticItem.id] ?? existingOptimisticItem.quantity
+        setOptimisticQuantities((prev) => ({
+          ...prev,
+          [existingOptimisticItem.id]: currentQty + quantity,
+        }))
+      }
     } else if (optimisticData) {
       tempId = `optimistic-${Date.now()}`
+      const unitPrice = Number(optimisticData.unit_price) || 0
       const newItem: any = {
         id: tempId,
         variant_id: variantId,
         quantity,
-        unit_price: optimisticData.unit_price || 0,
+        unit_price: unitPrice,
+        total: unitPrice * quantity,
+        original_total: unitPrice * quantity,
         thumbnail: optimisticData.thumbnail,
         product_title: optimisticData.title || optimisticData.product_title,
         variant: {
@@ -188,10 +225,10 @@ export const CartProvider: React.FC<{
       const updatedCart = await postAddToCart({ variantId, quantity, countryCode })
 
       if (updatedCart) {
-        if (existingItem) {
+        if (existingOptimisticItem && !existingOptimisticItem.id.startsWith("optimistic-")) {
           setOptimisticQuantities(prev => {
             const newState = { ...prev }
-            delete newState[existingItem.id]
+            delete newState[existingOptimisticItem.id]
             return newState
           })
         }
@@ -204,12 +241,35 @@ export const CartProvider: React.FC<{
       }
     } catch (error: any) {
       // ✅ Rollback on failure
-      if (existingItem) {
-        setOptimisticQuantities(prev => {
-          const newState = { ...prev }
-          delete newState[existingItem.id]
-          return newState
-        })
+      if (existingOptimisticItem) {
+        const isTemp = existingOptimisticItem.id.startsWith("optimistic-")
+        if (isTemp) {
+          setOptimisticAdditions((prev) => {
+            const item = prev.find((i) => i.id === existingOptimisticItem.id)
+            if (item && item.quantity > quantity) {
+              return prev.map((i) =>
+                i.id === existingOptimisticItem.id
+                  ? { ...i, quantity: i.quantity - quantity }
+                  : i
+              )
+            } else {
+              return prev.filter((i) => i.id !== existingOptimisticItem.id)
+            }
+          })
+        } else {
+          setOptimisticQuantities((prev) => {
+            const nextState = { ...prev }
+            if (nextState[existingOptimisticItem.id] !== undefined) {
+              const rolledBackQty = nextState[existingOptimisticItem.id] - quantity
+              if (rolledBackQty <= existingOptimisticItem.quantity) {
+                delete nextState[existingOptimisticItem.id]
+              } else {
+                nextState[existingOptimisticItem.id] = rolledBackQty
+              }
+            }
+            return nextState
+          })
+        }
       } else if (tempId) {
         setOptimisticAdditions(prev => prev.filter(item => item.id !== tempId))
       }

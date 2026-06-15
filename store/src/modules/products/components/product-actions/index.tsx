@@ -37,9 +37,8 @@ export default function ProductActions({
   disabled,
 }: ProductActionsProps) {
   const [options, setOptions] = useState<Record<string, string>>({})
-  const [isAdding, setIsAdding] = useState(false)
-  const [isAdded, setIsAdded] = useState(false)
   const { addItem, optimisticItems } = useCart()
+  const [isAdded, setIsAdded] = useState(false)
   const { openCartSidebar } = useUI()
 
   const countryCode = useParams().countryCode as string
@@ -63,12 +62,12 @@ export default function ProductActions({
   // Function to check if a specific option value combination is available (has stock)
   const isOptionAvailable = (optionId: string, value: string) => {
     if (!product.variants) return false
-    
+
     // Try to find ANY variant that has this value and is in stock
     return product.variants.some(v => {
       // Must match the current other selected options
       const variantOptions = optionsAsKeymap(v.options)
-      
+
       // Filter out variants that don't match OTHER currently selected options
       const matchesOtherOptions = Object.entries(options).every(([key, val]) => {
         if (key === optionId) return true // Ignore the option we are testing
@@ -129,7 +128,7 @@ export default function ProductActions({
     setOptions((prev) => ({ ...prev, [id]: value }))
   }
 
-  const handleAddToCart = async () => {
+  const handleAddToCart = () => {
     if (!selectedVariant?.id || isOutOfStock) return
 
     if (isAtMaximumQuantity) {
@@ -137,40 +136,35 @@ export default function ProductActions({
       return
     }
 
-    setIsAdding(true)
     setIsAdded(true)
     openCartSidebar()
-    
+
     const timer = setTimeout(() => setIsAdded(false), 2000)
 
-    try {
-      const { variantPrice, cheapestPrice } = getProductPrice({
-        product,
-        variantId: selectedVariant.id,
-      })
-      const priceObject = variantPrice || cheapestPrice
-      const unitPrice = priceObject?.calculated_price_number || 0
+    const { variantPrice, cheapestPrice } = getProductPrice({
+      product,
+      variantId: selectedVariant.id,
+    })
+    const priceObject = variantPrice || cheapestPrice
+    const unitPrice = priceObject?.calculated_price_number || 0
 
-      await addItem(selectedVariant.id, 1, countryCode, {
-        title: product.title,
-        thumbnail: product.thumbnail,
-        unit_price: unitPrice,
-        product_handle: product.handle,
-        variant: {
-          title: selectedVariant.title,
-          images: selectedVariant.images,
-          product: {
-            images: product.images
-          }
+    addItem(selectedVariant.id, 1, countryCode, {
+      title: product.title,
+      thumbnail: product.thumbnail,
+      unit_price: unitPrice,
+      product_handle: product.handle,
+      variant: {
+        title: selectedVariant.title,
+        images: selectedVariant.images,
+        product: {
+          images: product.images
         }
-      })
-    } catch (e) {
-
+      }
+    }).catch((e) => {
       setIsAdded(false)
       clearTimeout(timer)
-    } finally {
-      setIsAdding(false)
-    }
+      console.error(e)
+    })
   }
 
   const actionsRef = useRef<HTMLDivElement>(null)
@@ -189,7 +183,7 @@ export default function ProductActions({
                     current={options[option.id]}
                     updateOption={updateOption}
                     title={option.title || ""}
-                    disabled={!!disabled || isAdding}
+                    disabled={!!disabled}
                     // Pass availability logic or specific map
                     availableValues={
                       (option.values || []).map(v => v.value).filter(val => isOptionAvailable(option.id, val))
@@ -203,12 +197,12 @@ export default function ProductActions({
         </div>
 
         <div className="flex flex-col gap-y-4">
-          <ProductPrice product={product} variant={selectedVariant}  />
-          
+          <ProductPrice product={product} variant={selectedVariant} />
+
           <div className="flex flex-col gap-y-2">
             <Button
               onClick={handleAddToCart}
-              disabled={!selectedVariant || !!disabled || isAdding || isOutOfStock}
+              disabled={!selectedVariant || !!disabled || isOutOfStock}
               variant="primary"
               className="w-full h-14 bg-bg text-accent font-manrope text-[13px] font-bold tracking-[0.3em] uppercase transition-all duration-300 hover:bg-bg/90"
               data-testid="add-product-button"
@@ -216,12 +210,12 @@ export default function ProductActions({
               {!selectedVariant
                 ? "Select Option"
                 : isOutOfStock
-                ? "Out of Stock"
-                : isAtMaximumQuantity
-                ? "Maximum Quantity Reached"
-                : isAdded 
-                ? "Added \u2713"
-                : "Add to Experience"}
+                  ? "Out of Stock"
+                  : isAtMaximumQuantity
+                    ? "Maximum Quantity Reached"
+                    : isAdded
+                      ? "Added \u2713"
+                      : "Add to Experience"}
             </Button>
 
             {lowStockMessage && (
@@ -241,9 +235,10 @@ export default function ProductActions({
         inStock={!isOutOfStock}
         isAtMaximumQuantity={isAtMaximumQuantity}
         handleAddToCart={handleAddToCart}
-        isAdding={isAdding}
+        isAdding={false}
+        isAdded={isAdded}
         show={!inView}
-        optionsDisabled={!!disabled || isAdding}
+        optionsDisabled={!!disabled}
         isOptionAvailable={isOptionAvailable}
       />
     </>

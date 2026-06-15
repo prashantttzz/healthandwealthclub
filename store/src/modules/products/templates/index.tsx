@@ -251,10 +251,10 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
       }
 
       await addItem(selectedVariant.id, 1, countryCode, optimisticData)
-      // Keep success state for a moment
       setTimeout(() => setIsSuccess(false), 2000)
     } catch (error) {
       setIsSuccess(false)
+      console.error(error)
     } finally {
       setIsAdding(false)
     }
@@ -460,16 +460,21 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
             {/* ACTION / STOCK STATUS */}
             <div className="pt-6">
               {!inStock ? (
-                <div className="p-8 border border-red-500/10 bg-red-500/[0.02] flex flex-col items-center justify-center space-y-3 text-center">
-                  <div className="w-10 h-10 rounded-full bg-red-500/10 flex items-center justify-center">
-                    <div className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
-                  </div>
-                  <div className="space-y-1">
-                    <p className="font-manrope text-[11px] font-bold uppercase tracking-[0.2em] text-red-500">
-                      Currently Unavailable
-                    </p>
-                    <p className="font-newsreader text-[14px] italic text-accent/60">
-                      This selection is out of stock. Please check back soon.
+                <div className="space-y-3">
+                  <a
+                    href="https://www.instagram.com/thehealthywealthclub"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center justify-center w-full h-16 bg-accent text-bg font-manrope text-[12px] font-bold tracking-[0.2em] uppercase transition-all duration-500 overflow-hidden relative group"
+                  >
+                    <span className="relative z-10">
+                      Special Order on Instagram →
+                    </span>
+                    <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
+                  </a>
+                  <div className="flex items-center gap-2 py-3 px-4 border rounded-sm transition-all duration-500 bg-accent/[0.02] border-accent/5 text-accent/60 justify-center">
+                    <p className="font-manrope text-[11px] uppercase tracking-[0.2em] font-bold text-center">
+                      Currently Unavailable - DM for Custom Orders
                     </p>
                   </div>
                 </div>
@@ -484,7 +489,7 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                     )}
                   >
                     <span className="relative z-10">
-                      {isSuccess ? "Added to Cart!" : (isAtMaximumQuantity ? "Out of Stock" : (isValidVariant ? "Add to cart →" : "Select Selection"))}
+                      {isSuccess ? "Added to Cart!" : isAdding ? "Adding..." : (isAtMaximumQuantity ? "Out of Stock" : (isValidVariant ? "Add to cart →" : "Select Selection"))}
                     </span>
                     <div className="absolute inset-0 bg-white/10 translate-y-full group-hover:translate-y-0 transition-transform duration-500" />
                   </button>
@@ -568,16 +573,27 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
                   <span className="font-manrope text-[10px] font-bold uppercase tracking-widest">Op</span>
                 </button>
                 
-                <button
-                  onClick={handleAddToCart}
-                    disabled={!isValidVariant || isAdding || !inStock || isAtMaximumQuantity}
-                  className={clx(
-                    "flex-1 h-14 px-6 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.2em] uppercase transition-all active:scale-95 flex items-center justify-center",
-                    { "opacity-50": !isValidVariant || isAdding || !inStock || isAtMaximumQuantity }
-                  )}
-                >
-                  {isSuccess ? "Added!" : (isAdding ? "..." : (!inStock ? "Out of Stock" : (isAtMaximumQuantity ? "Out of Stock" : "Add to Cart →")))}
-                </button>
+                {!inStock ? (
+                  <a
+                    href="https://www.instagram.com/thehealthywealthclub"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex-1 h-14 px-6 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.2em] uppercase transition-all active:scale-95 flex items-center justify-center"
+                  >
+                    Order via Insta →
+                  </a>
+                ) : (
+                  <button
+                    onClick={handleAddToCart}
+                    disabled={!isValidVariant || isAdding || isAtMaximumQuantity}
+                    className={clx(
+                      "flex-1 h-14 px-6 bg-accent text-bg font-manrope text-[10px] font-bold tracking-[0.2em] uppercase transition-all active:scale-95 flex items-center justify-center",
+                      { "opacity-50": !isValidVariant || isAdding || isAtMaximumQuantity }
+                    )}
+                  >
+                    {isSuccess ? "Added!" : isAdding ? "..." : (isAtMaximumQuantity ? "Out of Stock" : "Add to Cart →")}
+                  </button>
+                )}
               </div>
             </div>
           </motion.div>

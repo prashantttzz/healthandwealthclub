@@ -28,7 +28,8 @@
     "@medusajs/framework": "2.13.1",
     "@medusajs/medusa": "2.13.1",
     "@medusajs/payment-stripe": "^2.13.6",
-    "dotenv": "^17.4.0"
+    "dotenv": "^17.4.0",
+    "pg": "^8.21.0"
   },
   "devDependencies": {
     "@medusajs/test-utils": "2.13.1",
