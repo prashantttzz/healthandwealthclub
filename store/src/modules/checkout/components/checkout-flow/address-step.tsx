@@ -65,7 +65,7 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
     ) || []
   }, [customer?.addresses, cart?.region?.countries])
 
-  const [shippingBreakdown, setShippingBreakdown] = useState<{ heavyQuantity: number, lightQuantity: number, totalWeightKg: number } | null>(null)
+  const [shippingBreakdown, setShippingBreakdown] = useState<{ heavyQuantity: number, lightQuantity: number, totalWeightKg: number, rates?: Record<number, number>, countryCode?: string } | null>(null)
 
   useEffect(() => {
     if (!cart?.id) return
@@ -201,29 +201,50 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
                   className={`w-full flex items-center justify-between p-6 border text-left transition-all duration-300
                     ${sel ? "border-accent/10 bg-secondary shadow-inner translate-y-[1px]" : "bg-transparent border-accent/5 hover:border-accent/10 hover:bg-secondary/30"}
                     ${!opt.enabled ? "opacity-30 cursor-not-allowed border-accent/5" : "cursor-pointer"}`}>
-                  <div className="flex items-center gap-5">
-                    <div className={`transition-colors duration-300 ${sel ? "text-accent" : "text-accent/20"}`}>
-                      {Ico.truck("w-6 h-6")}
+                  <div className="flex flex-col w-full">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="flex items-center gap-5">
+                        <div className={`transition-colors duration-300 ${sel ? "text-accent" : "text-accent/20"}`}>
+                          {Ico.truck("w-6 h-6")}
+                        </div>
+                        <div>
+                          <p className={`font-manrope text-[15px] font-bold transition-colors duration-300 ${sel ? "text-accent" : "text-accent/40"}`}>{opt.label}</p>
+                          <p className={`font-manrope text-[12px] transition-colors duration-300 ${sel ? "text-accent/60" : "text-accent/20"} mt-0.5`}>
+                            {opt.amount === 0 ? "Free Shipping" : <LocalizedPrice amount={opt.amount} />}
+                          </p>
+                        </div>
+                      </div>
+                      <div className={`w-5 h-5 rounded-full border flex items-center justify-center transition-colors duration-300 ${sel ? "border-accent bg-accent" : "border-accent/20"}`}>
+                        {sel && <div className="w-2 h-2 bg-bg rounded-full" />}
+                      </div>
                     </div>
-                    <div>
-                      <p className={`font-manrope text-[15px] font-bold transition-colors duration-300 ${sel ? "text-accent" : "text-accent/40"}`}>{opt.label}</p>
-                      {shippingBreakdown && opt.label.toLowerCase().includes("wight based") && (
-                        <p className="font-manrope text-[11px] text-accent/50 mt-1 uppercase tracking-widest flex items-center gap-2">
-                          <span>{shippingBreakdown.heavyQuantity} Heavy</span>
-                          <span className="w-1 h-1 rounded-full bg-accent/20"></span>
-                          <span>{shippingBreakdown.lightQuantity} Light</span>
-                          <span className="w-1 h-1 rounded-full bg-accent/20"></span>
-                          <span className="font-bold text-accent/70">{shippingBreakdown.totalWeightKg}kg Total</span>
-                        </p>
-                      )}
-                      <p className={`font-manrope text-[12px] transition-colors duration-300 ${sel ? "text-accent/60" : "text-accent/20"} mt-0.5`}>
-                        {opt.amount === 0 ? "Free Shipping" : <LocalizedPrice amount={opt.amount} />}
-                      </p>
-                    </div>
+                    {sel && shippingBreakdown && opt.label.toLowerCase().includes("wight based") && (
+                      <div className="mt-6 pt-6 border-t border-accent/10 flex flex-col gap-5 cursor-default" onClick={e => e.stopPropagation()}>
+                        <h4 className="font-newsreader italic text-xl text-accent">Shipping Breakdown</h4>
+                        
+                        <div className="grid grid-cols-1 gap-4">
+                          <div className="bg-bg border border-accent/5 p-4 flex flex-col gap-3">
+                            <h5 className="font-manrope text-[11px] font-bold text-accent/60 uppercase tracking-widest border-b border-accent/5 pb-2">Weight Calculation</h5>
+                            <div className="flex justify-between items-center text-[13px] font-manrope">
+                              <span className="text-accent/60">Heavy Items ({shippingBreakdown.heavyQuantity})</span>
+                              <span className="font-bold text-accent">{shippingBreakdown.heavyQuantity} kg</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[13px] font-manrope">
+                              <span className="text-accent/60">Light Items ({shippingBreakdown.lightQuantity})</span>
+                              <span className="font-bold text-accent">{Math.ceil(shippingBreakdown.lightQuantity / 2)} kg</span>
+                            </div>
+                            <div className="flex justify-between items-center text-[13px] font-manrope border-t border-accent/5 pt-2 mt-1">
+                              <span className="text-accent/60 font-bold uppercase text-[10px] tracking-widest">Total Billable Weight</span>
+                              <span className="font-bold text-accent text-[15px]">{shippingBreakdown.totalWeightKg} kg</span>
+                            </div>
+                            <p className="text-[10px] text-accent/40 leading-relaxed mt-2 font-manrope italic">
+                              * Jackets, hoodies, and pants count as heavy (1kg each). All other items are light (2 items = 1kg).
+                            </p>
+                          </div>
+                        </div>
+                      </div>
+                    )}
                   </div>
-                  <span className={`w-6 h-6 rounded-full border flex items-center justify-center transition-all ${sel ? "border-accent bg-accent" : "border-accent/10"}`}>
-                    {sel && <div className="w-1.5 h-1.5 rounded-full bg-bg" />}
-                  </span>
                 </button>
               )
             })

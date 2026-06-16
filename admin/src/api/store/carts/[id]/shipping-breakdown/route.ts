@@ -65,11 +65,27 @@ export const GET = async (req: MedusaRequest, res: MedusaResponse) => {
     const lightWeight = Math.ceil(totalLightQuantity / 2) * 1
     const totalWeight = heavyWeight + lightWeight
 
+    const countryCode = (cartRes.rows[0]?.country_code || "").toLowerCase()
+
+    const matrix: Record<string, Record<number, number>> = {
+      sa: { 1: 50, 2: 70, 3: 100, 4: 120, 5: 150 },
+      qa: { 1: 50, 2: 70, 3: 100, 4: 120, 5: 150 },
+      bh: { 1: 5, 2: 7, 3: 10, 4: 12, 5: 15 },
+      kw: { 1: 5, 2: 7, 3: 10, 4: 12, 5: 15 },
+      om: { 1: 5, 2: 7, 3: 10, 4: 12, 5: 15 },
+      in: { 1: 50, 2: 100, 3: 150, 4: 200, 5: 250 },
+      ae: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
+    }
+
+    const rates = matrix[countryCode] || matrix["sa"] // fallback to SA if not found just to show something
+
     res.json({
       breakdown: {
         heavyQuantity: totalHeavyQuantity,
         lightQuantity: totalLightQuantity,
-        totalWeightKg: totalWeight
+        totalWeightKg: totalWeight,
+        rates,
+        countryCode
       }
     })
 
