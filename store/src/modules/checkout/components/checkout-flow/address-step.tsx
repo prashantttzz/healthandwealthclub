@@ -1,6 +1,6 @@
 "use client"
 
-import React, { useState, useMemo } from "react"
+import React, { useState, useMemo, useEffect } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { Home, Truck, Plus, ChevronRight } from "lucide-react"
 import Thumbnail from "@modules/products/components/thumbnail"
@@ -12,17 +12,17 @@ import PhoneInput from "react-phone-number-input"
 import "react-phone-number-input/style.css"
 
 const Ico = {
-  plus: (c = "") => <Plus className={c} strokeWidth={2.5}  />,
+  plus: (c = "") => <Plus className={c} strokeWidth={2.5} />,
   chevRight: (c = "") => <ChevronRight className={c} strokeWidth={2} />,
   home: (c = "") => <Home className={c} strokeWidth={1.5} />,
   truck: (c = "") => <Truck className={c} strokeWidth={1.5} />,
 }
 
 const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, shippingOptions, selectedShippingOptionId, setSelectedShippingOptionId, isLoadingShipping, recipientName, setRecipientName, recipientPhone, setRecipientPhone, countryCode, isInternational }: {
-  cart: HttpTypes.StoreCart; 
+  cart: HttpTypes.StoreCart;
   customer: HttpTypes.StoreCustomer | null
-  selectedAddress: HttpTypes.StoreCustomerAddress | null; 
-  setSelectedAddress: (a: HttpTypes.StoreCustomerAddress | null) => void; 
+  selectedAddress: HttpTypes.StoreCustomerAddress | null;
+  setSelectedAddress: (a: HttpTypes.StoreCustomerAddress | null) => void;
   onContinue: () => void;
   shippingOptions: HttpTypes.StoreCartShippingOption[];
   selectedShippingOptionId: string | null;
@@ -39,21 +39,51 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
   const [isGift, setIsGift] = useState(!!recipientName || !!recipientPhone)
 
   const deliveryOptions = useMemo(() => {
-    return shippingOptions.map(opt => ({
-      id: opt.id,
-      label: opt.name,
-      amount: opt.amount,
-      enabled: true
-    }))
-  }, [shippingOptions])
+    return shippingOptions.map(opt => {
+      // For calculated shipping options, Medusa doesn't return the amount upfront.
+      // If this option is currently selected and added to the cart, use the cart's shipping method amount.
+      let amount = opt.amount
+      if (amount == null && opt.id === selectedShippingOptionId && cart?.shipping_methods?.length) {
+        const matchingMethod = cart.shipping_methods.find(m => m.shipping_option_id === opt.id)
+        if (matchingMethod) {
+          amount = matchingMethod.amount
+        }
+      }
+      return {
+        id: opt.id,
+        label: opt.name,
+        amount: amount,
+        enabled: true
+      }
+    })
+  }, [shippingOptions, selectedShippingOptionId, cart?.shipping_methods])
 
   const addressesInRegion = useMemo(() => {
     const countriesInRegion = cart?.region?.countries?.map((c) => c.iso_2?.toLowerCase()) || []
     return customer?.addresses.filter(
       (a) => a.country_code && countriesInRegion.includes(a.country_code.toLowerCase())
     ) || []
-  }, [customer?.addresses, cart?.region])
+  }, [customer?.addresses, cart?.region?.countries])
 
+  const [shippingBreakdown, setShippingBreakdown] = useState<{ heavyQuantity: number, lightQuantity: number, totalWeightKg: number } | null>(null)
+
+  useEffect(() => {
+    if (!cart?.id) return
+    const backendUrl = process.env.NEXT_PUBLIC_MEDUSA_BACKEND_URL || "http://localhost:9000"
+    const apiKey = process.env.NEXT_PUBLIC_MEDUSA_PUBLISHABLE_KEY || ""
+    fetch(`${backendUrl}/store/carts/${cart.id}/shipping-breakdown`, {
+      headers: {
+        "x-publishable-api-key": apiKey
+      }
+    })
+      .then(res => res.json())
+      .then(data => {
+        if (data.breakdown) {
+          setShippingBreakdown(data.breakdown)
+        }
+      })
+      .catch(e => console.error("Failed to fetch shipping breakdown:", e))
+  }, [cart?.id])
   const deliveryEstimate = useMemo(
     () =>
       getDeliveryEstimate({
@@ -62,6 +92,7 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
       }),
     [selectedAddress?.country_code, cart.shipping_address?.country_code, cart.created_at]
   )
+  console.log(shippingBreakdown)
   return (
     <div className="flex flex-col gap-14 mb-20 md:mt-0">
       {/* Delivery Address */}
@@ -96,9 +127,9 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
         {selectedAddress && (
           <div className="mt-8 border border-accent/10 bg-black/[0.02] p-8">
             <label className="flex items-center gap-4 cursor-pointer group">
-              <input 
-                type="checkbox" 
-                checked={isGift} 
+              <input
+                type="checkbox"
+                checked={isGift}
                 onChange={(e) => setIsGift(e.target.checked)}
                 className="w-5 h-5 rounded-none border-accent/20 text-accent focus:ring-0 focus:ring-offset-0 transition-all cursor-pointer"
               />
@@ -112,17 +143,17 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
               <div className="mt-8 pt-8 border-t border-accent/5 grid md:grid-cols-2 gap-8 animate-in slide-in-from-top-2 duration-500">
                 <div className="flex flex-col gap-3">
                   <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Recipient Name</label>
-                  <input 
-                    value={recipientName} 
+                  <input
+                    value={recipientName}
                     onChange={(e) => setRecipientName(e.target.value)}
                     placeholder="John Doe"
-                    className="w-full h-12 px-4 bg-bg border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" 
+                    className="w-full h-12 px-4 bg-bg border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15"
                   />
                 </div>
                 <div className="flex flex-col gap-3">
                   <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Recipient Phone</label>
-                  <PhoneInput 
-                    value={recipientPhone} 
+                  <PhoneInput
+                    value={recipientPhone}
                     onChange={(v) => setRecipientPhone(v || "")}
                     placeholder="Enter recipient phone"
                     defaultCountry="AE"
@@ -140,10 +171,10 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
         <h3 className="font-manrope text-[13px] font-bold text-accent uppercase tracking-[0.2em] mb-6">Delivery Options</h3>
         <div className="flex flex-col gap-3">
           {isLoadingShipping ? (
-             <div className="py-12 flex flex-col items-center justify-center border border-accent/5 bg-secondary/20">
-                <div className="w-6 h-6 border-2 border-accent border-t-transparent animate-spin rounded-full mb-3" />
-                <span className="font-manrope text-[10px] uppercase font-bold tracking-widest text-accent/30">Fetching Options...</span>
-             </div>
+            <div className="py-12 flex flex-col items-center justify-center border border-accent/5 bg-secondary/20">
+              <div className="w-6 h-6 border-2 border-accent border-t-transparent animate-spin rounded-full mb-3" />
+              <span className="font-manrope text-[10px] uppercase font-bold tracking-widest text-accent/30">Fetching Options...</span>
+            </div>
           ) : isInternational ? (
             <div className="border border-accent/10 bg-secondary/20 p-8 text-center shadow-sm">
               <div className="mx-auto mb-4 flex h-14 w-14 items-center justify-center rounded-full border border-accent/10 bg-black/[0.03] text-accent/40">
@@ -156,11 +187,11 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
             </div>
           ) : deliveryOptions.length === 0 ? (
             <div className="p-6 border border-accent/10 bg-black/[0.02] text-center">
-               <p className="font-newsreader italic text-lg text-accent/30">
-                 {!selectedAddress 
-                   ? "Please select a delivery address to see shipping options" 
-                   : "No shipping methods available for this address"}
-               </p>
+              <p className="font-newsreader italic text-lg text-accent/30">
+                {!selectedAddress
+                  ? "Please select a delivery address to see shipping options"
+                  : "No shipping methods available for this address"}
+              </p>
             </div>
           ) : (
             deliveryOptions.map((opt) => {
@@ -176,6 +207,15 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
                     </div>
                     <div>
                       <p className={`font-manrope text-[15px] font-bold transition-colors duration-300 ${sel ? "text-accent" : "text-accent/40"}`}>{opt.label}</p>
+                      {shippingBreakdown && opt.label.toLowerCase().includes("wight based") && (
+                        <p className="font-manrope text-[11px] text-accent/50 mt-1 uppercase tracking-widest flex items-center gap-2">
+                          <span>{shippingBreakdown.heavyQuantity} Heavy</span>
+                          <span className="w-1 h-1 rounded-full bg-accent/20"></span>
+                          <span>{shippingBreakdown.lightQuantity} Light</span>
+                          <span className="w-1 h-1 rounded-full bg-accent/20"></span>
+                          <span className="font-bold text-accent/70">{shippingBreakdown.totalWeightKg}kg Total</span>
+                        </p>
+                      )}
                       <p className={`font-manrope text-[12px] transition-colors duration-300 ${sel ? "text-accent/60" : "text-accent/20"} mt-0.5`}>
                         {opt.amount === 0 ? "Free Shipping" : <LocalizedPrice amount={opt.amount} />}
                       </p>
@@ -208,12 +248,12 @@ const AddressStep = ({ cart, customer, selectedAddress, setSelectedAddress, ship
         </div>
       )}
 
-      <AddressSidebar 
-        isOpen={sidebarOpen} 
-        onClose={() => setSidebarOpen(false)} 
-        addresses={customer?.addresses || []} 
-        onSelect={setSelectedAddress} 
-        onDelete={async (id) => { try { await deleteCustomerAddress(id) } catch {} }} 
+      <AddressSidebar
+        isOpen={sidebarOpen}
+        onClose={() => setSidebarOpen(false)}
+        addresses={customer?.addresses || []}
+        onSelect={setSelectedAddress}
+        onDelete={async (id) => { try { await deleteCustomerAddress(id) } catch { } }}
         countryCode={countryCode}
       />
     </div>

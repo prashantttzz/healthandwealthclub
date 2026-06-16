@@ -101,6 +101,7 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
 
       const requestId = ++shippingRequestRef.current
       setIsLoadingShipping(true)
+      const cartIdRef = cart?.id
 
       try {
         // Single combined server action: address sync + shipping options fetch
@@ -121,12 +122,30 @@ const CheckoutFlow = ({ cart: initialCart, customer, countryCode }: { cart: Http
         setShippingOptions(nextOptions)
         lastSyncedAddressIdRef.current = address.id
 
-        setSelectedShippingOptionId((prev) => {
-          if (prev && nextOptions.some((option) => option.id === prev)) {
-            return prev
+        let selectedOptionId = selectedShippingOptionId
+        if (!selectedOptionId || !nextOptions.some(o => o.id === selectedOptionId)) {
+          selectedOptionId = nextOptions[0]?.id || null
+          setSelectedShippingOptionId(selectedOptionId)
+        }
+
+        // If the option is calculated (amount is undefined/null), automatically add it to cart to get the real price
+        if (selectedOptionId && cartIdRef) {
+          const selectedOption = nextOptions.find(o => o.id === selectedOptionId)
+          if (selectedOption && selectedOption.amount == null) {
+            try {
+              const cartWithShipping = await setShippingMethod({
+                cartId: cartIdRef,
+                shippingMethodId: selectedOptionId,
+              })
+              if (cartWithShipping) {
+                setCart(cartWithShipping)
+              }
+            } catch (e) {
+              console.error("Failed to eagerly calculate shipping method price", e)
+            }
           }
-          return nextOptions[0]?.id || null
-        })
+        }
+
       } catch (err) {
         console.error("Error fetching shipping options:", err)
       } finally {

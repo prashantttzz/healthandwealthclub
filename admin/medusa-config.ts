@@ -16,6 +16,21 @@ module.exports = defineConfig({
   },
   modules: [
     {
+      resolve: "@medusajs/medusa/fulfillment",
+      options: {
+        providers: [
+          {
+            resolve: "@medusajs/fulfillment-manual",
+            id: "manual",
+          },
+          {
+            resolve: "./src/modules/gcc-shipping",
+            id: "gcc-shipping",
+          },
+        ],
+      },
+    },
+    {
       resolve: "./src/modules/reviews",
     },
     {
