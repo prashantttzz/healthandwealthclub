@@ -29,6 +29,9 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
   const [resetEmail, setResetEmail] = useState("")
   const [isSendingReset, setIsSendingReset] = useState(false)
   
+  const [displayLoginError, setDisplayLoginError] = useState<string | null>(null)
+  const [displaySignupError, setDisplaySignupError] = useState<string | null>(null)
+  
   const formRef = useRef<HTMLFormElement>(null)
 
   // Listen to successful login (message is undefined on success)
@@ -44,6 +47,27 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
       window.location.reload()
     }
   }, [pendingSignup, signupMessage, isOpen])
+
+  useEffect(() => {
+    if (pendingLogin) setDisplayLoginError(null)
+    else if (loginMessage && typeof loginMessage === "string") setDisplayLoginError(loginMessage)
+  }, [pendingLogin, loginMessage])
+
+  useEffect(() => {
+    if (pendingSignup) setDisplaySignupError(null)
+    else if (signupMessage && typeof signupMessage === "string") setDisplaySignupError(signupMessage)
+  }, [pendingSignup, signupMessage])
+
+  const switchView = (v: "login" | "signup" | "forgot-password") => {
+    setDisplayLoginError(null)
+    setDisplaySignupError(null)
+    setView(v)
+  }
+
+  const goBackToDetails = () => {
+    setDisplaySignupError(null)
+    setSignupStep("details")
+  }
 
   const handleSignupSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     if (signupStep === "details") {
@@ -63,8 +87,9 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
   }
 
   const handleResetSignup = () => {
+    setDisplaySignupError(null)
     setSignupStep("details")
-    setView("login")
+    switchView("login")
   }
 
   const handleResetPasswordSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -74,7 +99,7 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
     setIsSendingReset(false)
     if (res.success) {
       toast.success("Password reset link sent to your email")
-      setView("login")
+      switchView("login")
     } else {
       toast.error(res.error || "Failed to send reset link")
     }
@@ -103,12 +128,12 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                 <input name="password" type="password" required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[14px] text-accent outline-none focus:border-accent/30 transition-colors placeholder:text-accent/15" />
               </div>
               
-              {loginMessage && typeof loginMessage === "string" && (
-                <p className="text-red-500 font-manrope text-[11px] font-bold mt-2">{loginMessage}</p>
+              {displayLoginError && (
+                <p className="text-red-500 font-manrope text-[11px] font-bold mt-2">{displayLoginError}</p>
               )}
 
               <div className="flex justify-end -mt-3 mb-2">
-                <button type="button" onClick={() => setView("forgot-password")} className="font-manrope text-[11px] text-accent/50 hover:text-accent transition-colors">
+                <button type="button" onClick={() => switchView("forgot-password")} className="font-manrope text-[11px] text-accent/50 hover:text-accent transition-colors">
                   Forgot password?
                 </button>
               </div>
@@ -117,7 +142,7 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                 {pendingLogin ? "Authenticating..." : "Sign In"}
               </button>
 
-              <button type="button" onClick={() => setView("signup")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
+              <button type="button" onClick={() => switchView("signup")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
                 New here? create an account
               </button>
             </form>
@@ -134,7 +159,7 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                 {isSendingReset ? "Sending..." : "Send Reset Link"}
               </button>
 
-              <button type="button" onClick={() => setView("login")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
+              <button type="button" onClick={() => switchView("login")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
                 Back to Sign in
               </button>
             </form>
@@ -163,6 +188,8 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                         onChange={(v) => setSignupPhone(v || "")}
                         placeholder="Enter phone number"
                         defaultCountry="AE"
+                        international
+                        countryCallingCodeEditable={true}
                         className="custom-phone-input"
                       />
                       <input type="hidden" name="phone" value={signupPhone} />
@@ -203,17 +230,34 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
                     <input name="otp" type="text" maxLength={6} required className="w-full h-12 px-4 bg-accent/[0.02] border border-accent/10 font-manrope text-[20px] text-center tracking-[0.5em] text-accent outline-none focus:border-accent/30 transition-colors" />
                   </div>
 
-                  {signupMessage && typeof signupMessage === "string" && (
-                    <p className="text-red-500 font-manrope text-[11px] font-bold mt-2">{signupMessage}</p>
+                  {displaySignupError && (
+                    <p className="text-red-500 font-manrope text-[11px] font-bold mt-2">{displaySignupError}</p>
                   )}
 
                   <button type="submit" disabled={pendingSignup} className="w-full py-4 bg-accent text-bg font-manrope text-[13px] font-bold tracking-[0.3em] uppercase mt-4 hover:bg-accent/90 transition-all disabled:opacity-50">
                     {pendingSignup ? "Verifying..." : "Verify & Create Account"}
                   </button>
 
-                  <button type="button" onClick={() => setSignupStep("details")} className="mt-8 font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/50 hover:text-accent transition-colors">
-                    Back to details
-                  </button>
+                  <div className="flex flex-col gap-4 mt-8 items-center">
+                    <button 
+                      type="button" 
+                      onClick={async () => {
+                        setIsSendingOtp(true)
+                        const res = await sendOtp(signupFormData.email)
+                        setIsSendingOtp(false)
+                        if (res.success) toast.success("Code resent successfully")
+                        else toast.error(res.error || "Failed to resend code")
+                      }}
+                      disabled={isSendingOtp}
+                      className="font-manrope text-[12px] uppercase font-bold tracking-[0.1em] text-accent/70 hover:text-accent transition-colors"
+                    >
+                      {isSendingOtp ? "Resending..." : "Resend Verification Code"}
+                    </button>
+                    
+                    <button type="button" onClick={goBackToDetails} className="font-manrope text-[11px] uppercase font-bold tracking-[0.1em] text-accent/40 hover:text-accent transition-colors">
+                      Back to details
+                    </button>
+                  </div>
                 </>
               )}
             </form>
