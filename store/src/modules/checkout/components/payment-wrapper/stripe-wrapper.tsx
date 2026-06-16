@@ -26,21 +26,26 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
       theme: "stripe",
       variables: {
         colorPrimary: "#263723",
-        colorBackground: "#FFF6EC",
+        colorBackground: "#ffffff",
         colorText: "#263723",
         colorDanger: "#df1b41",
         fontFamily: "var(--font-manrope), sans-serif",
         spacingUnit: "4px",
-        borderRadius: "0px",
+        borderRadius: "6px",
+        gridColumnSpacing: "16px",
+        gridRowSpacing: "16px",
       },
       rules: {
         ".Input": {
-          padding: "12px",
+          padding: "14px 12px",
           border: "1px solid rgba(38, 55, 35, 0.15)",
+          boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.05)",
+          backgroundColor: "#ffffff",
+          transition: "border 0.2s ease, box-shadow 0.2s ease",
         },
         ".Input:focus": {
           border: "1px solid #263723",
-          boxShadow: "none",
+          boxShadow: "0px 0px 0px 1px #263723",
         },
         ".Label": {
           fontWeight: "700",
@@ -49,6 +54,20 @@ const StripeWrapper: React.FC<StripeWrapperProps> = ({
           fontSize: "10px",
           color: "rgba(38, 55, 35, 0.6)",
           marginBottom: "8px",
+        },
+        ".Tab": {
+          border: "1px solid rgba(38, 55, 35, 0.1)",
+          boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.05)",
+          backgroundColor: "#ffffff",
+          padding: "10px 14px",
+        },
+        ".Tab:hover": {
+          color: "var(--colorPrimary)",
+        },
+        ".Tab--selected": {
+          borderColor: "#263723",
+          borderWidth: "2px",
+          boxShadow: "0px 1px 2px rgba(0, 0, 0, 0.05)",
         },
       },
     },

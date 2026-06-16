@@ -95,7 +95,7 @@ export default async function PaginatedProducts({
         <div className="flex flex-col gap-3">
           <h2 className="text-[14px] font-manrope font-medium text-accent">
             Showing <span className="font-bold">{products.length}</span> results from total <span className="font-bold">{count}</span>
-            {search && <span className="text-accent/60"> for <span className="italic font-bold text-accent">"{search}"</span></span>}
+            {search && <span className="text-accent/60"> for <span className="italic font-bold text-accent">&quot;{search}&quot;</span></span>}
             {categoryId && <span className="text-accent/60"> in <span className="italic font-bold text-accent">Selected Category</span></span>}
           </h2>
         </div>

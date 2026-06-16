@@ -4,7 +4,7 @@ import React, { useState } from "react"
 import { HttpTypes } from "@medusajs/types"
 import { CreditCard, ShieldCheck } from "lucide-react"
 import PaymentWrapper from "@modules/checkout/components/payment-wrapper"
-import { PaymentElement, useStripe, useElements } from "@stripe/react-stripe-js"
+import { PaymentElement, ExpressCheckoutElement, useStripe, useElements } from "@stripe/react-stripe-js"
 import { placeOrder } from "@lib/data/cart"
 
 const Ico = {
@@ -107,12 +107,75 @@ const PaymentStepContent = ({
     }
   }
 
+  const handleExpressCheckoutConfirm = async () => {
+    setIsPlacingOrder(true)
+    setErrorMessage(null)
+    setSuccessMessage(null)
+
+    if (!stripe || !elements) {
+      setIsPlacingOrder(false)
+      return
+    }
+
+    const paymentSession = cart.payment_collection?.payment_sessions?.find(
+      (s) => s.status === "pending"
+    )
+    const clientSecret = paymentSession?.data?.client_secret as string | undefined
+
+    if (!clientSecret) {
+      setErrorMessage("Missing Stripe payment session.")
+      setIsPlacingOrder(false)
+      return
+    }
+
+    try {
+      const { error } = await stripe.confirmPayment({
+        elements,
+        clientSecret,
+        confirmParams: {
+          receipt_email: cart.email || undefined,
+        },
+        redirect: "if_required",
+      })
+
+      if (error) {
+        setErrorMessage(error.message || "An error occurred with Apple Pay.")
+      } else {
+        await finalizeOrder()
+      }
+    } catch (err: any) {
+      setErrorMessage(err.message || "An unexpected error occurred.")
+    } finally {
+      setIsPlacingOrder(false)
+    }
+  }
+
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-10">
       <h3 className="font-manrope text-[13px] font-bold text-accent uppercase tracking-[0.2em]">Select Payment Method</h3>
 
-      <div className="border border-accent/20 shadow-sm overflow-hidden">
-        <div className="w-full flex items-center justify-between p-6 bg-black/[0.04] lg:bg-black/[0.02]">
+      <div className="flex flex-col gap-6">
+        {/* Express Checkout (Apple Pay / Google Pay) */}
+        <div className="w-full">
+          <ExpressCheckoutElement 
+            onConfirm={handleExpressCheckoutConfirm}
+            options={{
+              buttonType: {
+                applePay: "buy",
+                googlePay: "buy"
+              }
+            }}
+          />
+        </div>
+
+        <div className="flex items-center gap-4 text-accent/30 font-manrope text-[11px] font-bold uppercase tracking-widest">
+          <div className="flex-1 h-px bg-accent/10" />
+          OR PAY WITH CARD
+          <div className="flex-1 h-px bg-accent/10" />
+        </div>
+
+        <div className="border border-accent/20 shadow-sm overflow-hidden">
+          <div className="w-full flex items-center justify-between p-6 bg-black/[0.04] lg:bg-black/[0.02]">
           <div className="flex items-center gap-5">
             {Ico.card("w-6 h-6 text-accent")}
             <span className="font-manrope text-[15px] font-bold text-accent">Credit / Debit Card</span>
@@ -125,6 +188,9 @@ const PaymentStepContent = ({
           <div className="flex flex-col gap-4">
             <div className="w-full mt-2">
               <PaymentElement
+                options={{
+                  layout: "tabs"
+                }}
                 onChange={() => {
                   if (errorMessage) setErrorMessage(null)
                   if (successMessage) setSuccessMessage(null)
@@ -152,6 +218,8 @@ const PaymentStepContent = ({
             </div>
           </div>
         </div>
+      </div>
+
       </div>
 
       <p className="font-manrope text-[11px] text-accent/25 text-center mt-2 uppercase tracking-widest">

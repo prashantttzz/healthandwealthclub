@@ -123,7 +123,7 @@ const AuthSidebar = ({ isOpen, onClose }: { isOpen: boolean; onClose: () => void
             </form>
           ) : view === "forgot-password" ? (
             <form onSubmit={handleResetPasswordSubmit} className="flex flex-col gap-5">
-              <p className="font-manrope text-[13px] text-accent/50 mb-4 leading-relaxed">Enter your email address and we'll send you a link to reset your password.</p>
+              <p className="font-manrope text-[13px] text-accent/50 mb-4 leading-relaxed">Enter your email address and we&apos;ll send you a link to reset your password.</p>
               
               <div className="flex flex-col gap-2">
                 <label className="font-manrope text-[11px] text-accent/40 font-bold uppercase tracking-[0.2em]">Email Address</label>
