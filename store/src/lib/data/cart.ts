@@ -597,14 +597,13 @@ export async function selectAddressAndFetchShipping(address: HttpTypes.StoreCust
     // City-specific logic for UAE
     let filteredOptions = shipping_options
     if (updatedCart?.shipping_address?.country_code?.toLowerCase() === "ae") {
-      const majorCities = [
-        "abu dhabi", "al-ain", "al ain", "dubai", "sharjah",
-        "ras al khaimah", "umm al quwain", "um al quwain", "ajman", "fujairah"
+      const expressCities = [
+        "abu dhabi", "al-ain", "al ain", "dubai", "sharjah"
       ]
       const city = updatedCart.shipping_address.city?.toLowerCase().trim() || ""
-      const isMajorCity = majorCities.includes(city)
+      const isExpressCity = expressCities.includes(city)
 
-      if (isMajorCity) {
+      if (isExpressCity) {
         const filtered = shipping_options.filter(opt =>
           opt.name.toLowerCase().includes("express")
         )
@@ -724,23 +723,14 @@ export async function listCartOptions() {
 
     // City-specific logic for UAE
     if (cart?.shipping_address?.country_code?.toLowerCase() === "ae") {
-      const majorCities = [
-        "abu dhabi", 
-        "al-ain", 
-        "al ain",
-        "dubai", 
-        "sharjah", 
-        "ras al khaimah", 
-        "umm al quwain", 
-        "um al quwain", 
-        "ajman", 
-        "fujairah"
+      const expressCities = [
+        "abu dhabi", "al-ain", "al ain", "dubai", "sharjah"
       ]
       
       const city = cart.shipping_address.city?.toLowerCase().trim() || ""
-      const isMajorCity = majorCities.includes(city)
+      const isExpressCity = expressCities.includes(city)
 
-      if (isMajorCity) {
+      if (isExpressCity) {
         // Show only Express Shipping for major cities
         const filtered = shipping_options.filter(opt => 
           opt.name.toLowerCase().includes("express")
