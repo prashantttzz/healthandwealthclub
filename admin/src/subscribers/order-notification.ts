@@ -272,6 +272,55 @@ export default async function orderNotificationHandler({
       const errorBody = await res.json()
       logger.error(`Resend API error: ${JSON.stringify(errorBody)}`)
     }
+
+    // --- NEW: Admin Notification on Order Placed ---
+    if (name === "order.placed") {
+      let adminEmails: string[] = []
+      try {
+        const users = await remoteQuery({
+          entryPoint: "user",
+          fields: ["email"],
+        })
+        if (users && users.length > 0) {
+          adminEmails = users.map((u: any) => u.email).filter(Boolean)
+        }
+      } catch (err: any) {
+        logger.warn(`Could not fetch admin users for notification: ${err.message}`)
+      }
+
+      // Fallback to ENV or default if no users found
+      if (adminEmails.length === 0) {
+        adminEmails = [process.env.ADMIN_EMAIL || "admin@healthandwealthclub.com"]
+      }
+
+      const adminHtml = `
+        <h3>New Order Received!</h3>
+        <p>Order <strong>#${order.display_id}</strong> was just placed by ${order.email}.</p>
+        <p>Total: <strong>${formatMoney(orderTotal)}</strong></p>
+        <p>Please check the Medusa Admin dashboard for fulfillment details.</p>
+      `
+
+      const adminRes = await fetch("https://api.resend.com/emails", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${process.env.RESEND_API_KEY}`,
+        },
+        body: JSON.stringify({
+          from: "The Health & Wealth Club <orders@healthandwealthclub.com>",
+          to: adminEmails,
+          subject: `🚨 New Order Received — #${order.display_id}`,
+          html: adminHtml,
+        }),
+      })
+
+      if (adminRes.ok) {
+        logger.info(`Successfully sent admin alert for order #${order.display_id} to ${adminEmails.join(", ")}`)
+      } else {
+        logger.error(`Failed to send admin alert: ${await adminRes.text()}`)
+      }
+    }
+
   } catch (error) {
     logger.error(`Subscriber Error: Failed to send notification for ${name}. Error: ${error}`)
   }
