@@ -32,3 +32,12 @@ export default function medusaError(error: any): never {
     throw new Error("Error setting up the request: " + msg)
   }
 }
+
+export function medusaErrorString(error: any): string {
+  try {
+    medusaError(error)
+  } catch (err: any) {
+    return err.message
+  }
+  return "An unknown error occurred"
+}

@@ -224,6 +224,10 @@ export const CartProvider: React.FC<{
     try {
       const updatedCart = await postAddToCart({ variantId, quantity, countryCode })
 
+      if (typeof updatedCart === "string") {
+        throw new Error(updatedCart)
+      }
+
       if (updatedCart) {
         if (existingOptimisticItem && !existingOptimisticItem.id.startsWith("optimistic-")) {
           setOptimisticQuantities(prev => {
@@ -288,6 +292,9 @@ export const CartProvider: React.FC<{
       setOptimisticAdditions(prev => prev.filter(item => item.id !== lineId))
       try {
         const updatedCart = await postDeleteLineItem(lineId)
+        if (typeof updatedCart === "string") {
+          throw new Error(updatedCart)
+        }
         if (updatedCart) {
           setCart(updatedCart) // ✅
         } else {
@@ -312,6 +319,9 @@ export const CartProvider: React.FC<{
 
     try {
       const updatedCart = await postUpdateLineItem({ lineId, quantity })
+      if (typeof updatedCart === "string") {
+        throw new Error(updatedCart)
+      }
       if (updatedCart) {
         setOptimisticQuantities(prev => {
           const newState = { ...prev }
@@ -340,6 +350,9 @@ export const CartProvider: React.FC<{
     setOptimisticAdditions(prev => prev.filter(item => item.id !== lineId))
     try {
       const updatedCart = await postDeleteLineItem(lineId)
+      if (typeof updatedCart === "string") {
+        throw new Error(updatedCart)
+      }
       if (updatedCart) {
         setOptimisticQuantities(prev => {
           const newState = { ...prev }

@@ -1,3 +1,4 @@
+
 "use client"
 
 import { useIntersection } from "@lib/hooks/use-in-view"
@@ -60,27 +61,20 @@ export default function ProductActions({
   }, [product.variants, options])
 
   // Function to check if a specific option value combination is available (has stock)
+  // We check if ANY variant with this option value is in stock, ignoring other selections.
+  // This prevents options (like Color) from appearing completely out of stock just because
+  // the currently selected Size is out of stock.
   const isOptionAvailable = (optionId: string, value: string) => {
     if (!product.variants) return false
 
-    // Try to find ANY variant that has this value and is in stock
     return product.variants.some(v => {
-      // Must match the current other selected options
       const variantOptions = optionsAsKeymap(v.options)
-
-      // Filter out variants that don't match OTHER currently selected options
-      const matchesOtherOptions = Object.entries(options).every(([key, val]) => {
-        if (key === optionId) return true // Ignore the option we are testing
-        return variantOptions[key] === val
-      })
-
-      if (!matchesOtherOptions) return false
 
       // Check if this variant has this specific value
       if (variantOptions[optionId] !== value) return false
 
       // Check stock
-      if (v.manage_inventory === false) return true
+      if (v.manage_inventory === false || v.allow_backorder === true) return true
       return (v.inventory_quantity || 0) > 0
     })
   }
@@ -88,7 +82,7 @@ export default function ProductActions({
   // Determine if the current selection is out of stock
   const isOutOfStock = useMemo(() => {
     if (selectedVariant) {
-      if (selectedVariant.manage_inventory === false) return false
+      if (selectedVariant.manage_inventory === false || selectedVariant.allow_backorder === true) return false
       return (selectedVariant.inventory_quantity || 0) <= 0
     }
     return false

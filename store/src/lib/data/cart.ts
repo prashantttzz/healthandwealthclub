@@ -1,7 +1,7 @@
 "use server"
 
 import { sdk } from "@lib/config"
-import medusaError from "@lib/util/medusa-error"
+import medusaError, { medusaErrorString } from "@lib/util/medusa-error"
 import { HttpTypes } from "@medusajs/types"
 import { revalidateTag } from "next/cache"
 import { redirect } from "next/navigation"
@@ -199,7 +199,7 @@ export async function addToCart({
 
     return updatedCart // ✅
   } catch (e) {
-    medusaError(e)
+    return medusaErrorString(e)
   }
 }
 
@@ -241,7 +241,7 @@ export async function updateLineItem({
 
     return updatedCart // ✅
   } catch (e) {
-    medusaError(e)
+    return medusaErrorString(e)
   }
 }
 
@@ -277,7 +277,7 @@ export async function deleteLineItem(lineId: string) {
 
     return updatedCart // ✅
   } catch (e) {
-    medusaError(e)
+    return medusaErrorString(e)
   }
 }
 

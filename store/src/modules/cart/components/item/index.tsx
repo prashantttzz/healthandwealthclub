@@ -41,6 +41,11 @@ const Item = ({ item, type = "full" }: ItemProps) => {
       lineId: item.id,
       quantity,
     })
+      .then((res) => {
+        if (typeof res === "string") {
+          throw new Error(res)
+        }
+      })
       .catch((err) => {
         setError(err.message)
       })

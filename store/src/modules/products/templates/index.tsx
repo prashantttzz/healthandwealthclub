@@ -158,32 +158,39 @@ const ProductTemplate: React.FC<ProductTemplateProps> = ({
   }, [remainingStock])
 
   // Function to check if a specific option value combination is available (has stock)
+  // We use a hierarchical approach: options only depend on the selections of options BEFORE them.
+  // E.g., Color (index 0) is independent of Size (index 1), but Size depends on selected Color.
   const isOptionAvailable = (optionId: string, value: string) => {
-    if (!product.variants) return false
+    if (!product.variants || !product.options) return false
     
     const targetValue = String(value).trim().toLowerCase()
+    const optionIndex = product.options.findIndex(o => o.id === optionId)
 
-    // Try to find ANY variant that has this value and is in stock
     const isAvailable = product.variants.some(v => {
       const variantOptions = optionsAsKeymap(v.options)
       
-      // Filter out variants that don't match OTHER currently selected options
-      const matchesOtherOptions = Object.entries(options).every(([key, val]) => {
-        if (key === optionId) return true // Ignore the option we are testing
-        const standardizedVal = val ? String(val).trim().toLowerCase() : ""
-        return variantOptions[key] === standardizedVal
-      })
+      // Filter out variants that don't match CURRENTLY selected PRIOR options.
+      if (optionIndex > 0) {
+        const matchesPriorOptions = product.options!.slice(0, optionIndex).every(opt => {
+          // If no value is selected for this prior option, don't filter by it
+          if (!options[opt.id]) return true
+          
+          const standardizedSelectedVal = String(options[opt.id]).trim().toLowerCase()
+          return variantOptions[opt.id] === standardizedSelectedVal
+        })
 
-      if (!matchesOtherOptions) return false
+        if (!matchesPriorOptions) return false
+      }
 
       // Check if this variant has this specific value
       if (variantOptions[optionId] !== targetValue) return false
 
       // Check stock
       const manageInventory = v.manage_inventory ?? false
+      const allowBackorder = v.allow_backorder ?? false
       const inventoryQuantity = v.inventory_quantity ?? 0
 
-      return !manageInventory || inventoryQuantity > 0
+      return !manageInventory || allowBackorder || inventoryQuantity > 0
     })
 
     return isAvailable
