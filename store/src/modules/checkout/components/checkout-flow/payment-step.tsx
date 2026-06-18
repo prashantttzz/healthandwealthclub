@@ -29,11 +29,31 @@ const PaymentStepContent = ({
   const finalizeOrder = async () => {
     setSuccessMessage("Payment authorized successfully. Finalizing your order...")
     await placeOrder(cart.id).catch(() => {})
+    
+    if (typeof window !== "undefined" && (window as any).checkoutSuccessAudio) {
+      (window as any).checkoutSuccessAudio.play().catch((e: any) => console.log('Audio auto-play prevented:', e));
+    }
+    
     onPaymentSuccess()
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    if (typeof window !== "undefined") {
+      if (!(window as any).checkoutSuccessAudio) {
+        (window as any).checkoutSuccessAudio = new Audio('/koiroylers-shop-notification-355746.mp3')
+      }
+      // Play and pause immediately to unlock audio context on mobile
+      const playPromise = (window as any).checkoutSuccessAudio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          (window as any).checkoutSuccessAudio.pause();
+          (window as any).checkoutSuccessAudio.currentTime = 0;
+        }).catch((e: any) => console.log('Audio auto-play prevented:', e));
+      }
+    }
+
     setIsPlacingOrder(true)
     setErrorMessage(null)
     setSuccessMessage(null)
@@ -108,6 +128,20 @@ const PaymentStepContent = ({
   }
 
   const handleExpressCheckoutConfirm = async () => {
+    if (typeof window !== "undefined") {
+      if (!(window as any).checkoutSuccessAudio) {
+        (window as any).checkoutSuccessAudio = new Audio('/koiroylers-shop-notification-355746.mp3')
+      }
+      // Play and pause immediately to unlock audio context on mobile
+      const playPromise = (window as any).checkoutSuccessAudio.play();
+      if (playPromise !== undefined) {
+        playPromise.then(() => {
+          (window as any).checkoutSuccessAudio.pause();
+          (window as any).checkoutSuccessAudio.currentTime = 0;
+        }).catch((e: any) => console.log('Audio auto-play prevented:', e));
+      }
+    }
+
     setIsPlacingOrder(true)
     setErrorMessage(null)
     setSuccessMessage(null)
