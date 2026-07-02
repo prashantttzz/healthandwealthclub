@@ -113,7 +113,7 @@ const loadVariantPricesStep = createStep(
     }
 
     const prices = variant?.price_set?.prices ?? []
-    
+
     // Grab all AED prices, including base prices (price_list_id is null) AND price lists (sales)
     const aedPrices = prices.filter(
       (p: any) => p.currency_code === "aed"
@@ -199,7 +199,7 @@ const upsertConvertedPricesStep = createStep(
       const { data: currentPrices } = await query.graph({
         entity: "price",
         fields: ["id", "currency_code"],
-        filters: { 
+        filters: {
           price_set_id: priceSetId,
           price_list_id: price_list_id,
         },

@@ -726,20 +726,20 @@ export async function listCartOptions() {
       const expressCities = [
         "abu dhabi", "al-ain", "al ain", "dubai", "sharjah"
       ]
-      
+
       const city = cart.shipping_address.city?.toLowerCase().trim() || ""
-      const isExpressCity = expressCities.includes(city)
+      const isExpressCity = expressCities.some(ec => city.includes(ec))
 
       if (isExpressCity) {
         // Show only Express Shipping for major cities
-        const filtered = shipping_options.filter(opt => 
+        const filtered = shipping_options.filter(opt =>
           opt.name.toLowerCase().includes("express")
         )
         // Only return filtered if we actually found matches, otherwise fallback to all
         if (filtered.length > 0) return { shipping_options: filtered }
       } else {
         // Show only Standard Shipping for outer areas
-        const filtered = shipping_options.filter(opt => 
+        const filtered = shipping_options.filter(opt =>
           opt.name.toLowerCase().includes("standard")
         )
         if (filtered.length > 0) return { shipping_options: filtered }

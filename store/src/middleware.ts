@@ -138,7 +138,7 @@ export async function middleware(request: NextRequest) {
   // Redirect to IP-detected country code — user cannot override this
   if (!urlHasCountryCode && countryCode) {
     const urlCountryCode = request.nextUrl.pathname.split("/")[1]?.toLowerCase()
-    
+
     // If they typed a valid country code but it's not their IP country, strip it
     if (urlCountryCode && regionMap.has(urlCountryCode)) {
       redirectPath = redirectPath.replace(`/${urlCountryCode}`, "")

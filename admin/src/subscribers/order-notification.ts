@@ -16,7 +16,7 @@ export default async function orderNotificationHandler({
 
   // 1. Resolve the Order ID
   let orderId = data.id
-  
+
   // If the event is from fulfillment/shipment/delivery, we need to find the linked order
   if (name.startsWith("fulfillment") || name.startsWith("shipment") || name.startsWith("delivery")) {
     const query = {
@@ -77,7 +77,7 @@ export default async function orderNotificationHandler({
       break
 
     case "fulfillment.created":
-      if (data.no_notification) return 
+      if (data.no_notification) return
       subject = `Order #${order.display_id} — Processing`
       title = "Curating your experience."
       subtext = `We've started preparing the items for your order <strong>#${order.display_id}</strong>. You'll hear from us again once it ships.`
@@ -91,7 +91,7 @@ export default async function orderNotificationHandler({
       subtext = `Great news — order <strong>#${order.display_id}</strong> has been handed to our delivery partner and is en route to you.`
       heroIcon = "→"
       break
-    
+
     case "delivery.created":
     case "order.completed":
       subject = `Order #${order.display_id} — Delivered`
@@ -143,12 +143,12 @@ export default async function orderNotificationHandler({
   const addr = order.shipping_address
   const addressLine = addr
     ? [addr.first_name, addr.last_name].filter(Boolean).join(" ") +
-      (addr.address_1 ? `<br>${addr.address_1}` : "") +
-      (addr.address_2 ? `, ${addr.address_2}` : "") +
-      (addr.city ? `<br>${addr.city}` : "") +
-      (addr.province ? `, ${addr.province}` : "") +
-      (addr.postal_code ? ` ${addr.postal_code}` : "") +
-      (addr.country_code ? `<br>${addr.country_code.toUpperCase()}` : "")
+    (addr.address_1 ? `<br>${addr.address_1}` : "") +
+    (addr.address_2 ? `, ${addr.address_2}` : "") +
+    (addr.city ? `<br>${addr.city}` : "") +
+    (addr.province ? `, ${addr.province}` : "") +
+    (addr.postal_code ? ` ${addr.postal_code}` : "") +
+    (addr.country_code ? `<br>${addr.country_code.toUpperCase()}` : "")
     : "—"
 
   const logoUrl = "https://sxojtfykjtdzhkmchnce.supabase.co/storage/v1/object/public/medusa-media/main-logo-white.png"
@@ -328,9 +328,9 @@ export default async function orderNotificationHandler({
 
 export const config: SubscriberConfig = {
   event: [
-    "order.placed", 
-    "fulfillment.created", 
-    "shipment.created", 
+    "order.placed",
+    "fulfillment.created",
+    "shipment.created",
     "delivery.created",
     "order.completed"
   ],
